@@ -1,0 +1,26 @@
+name: HeadDB
+description: Head Database
+
+main: tsp.headdb.HeadDB
+version: 1.0
+author: Silent
+
+commands:
+  headdb:
+    usage: /headdb <arguments>
+    description: Open the database
+    aliases: [hdb, headdatabase]
+
+permissions:
+  headdb.admin:
+    default: op
+    children:
+      headdb.open: true
+      headdb.search: true
+      headdb.give: true
+  headdb.open:
+    default: op
+  headdb.search:
+    default: op
+  headdb.give:
+    default: op

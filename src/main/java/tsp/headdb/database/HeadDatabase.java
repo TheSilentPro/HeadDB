@@ -100,6 +100,7 @@ public class HeadDatabase {
         Map<Category, List<Head>> result = new HashMap<>();
         List<Category> categories = Category.getCategories();
 
+        int id = 1;
         for (Category category : categories) {
             Log.debug("Caching heads from: " + category.getName());
             List<Head> heads = new ArrayList<>();
@@ -119,7 +120,6 @@ public class HeadDatabase {
                 }
                 JSONParser parser = new JSONParser();
                 JSONArray array = (JSONArray) parser.parse(response.toString());
-                int id = 1;
                 for (Object o : array) {
                     JSONObject obj = (JSONObject) o;
                     Head head = new Head.Builder()

@@ -3,12 +3,12 @@ package tsp.headdb.api;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import org.apache.commons.lang.Validate;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import tsp.headdb.database.Category;
 import tsp.headdb.util.Log;
 import tsp.headdb.util.Utils;
-import tsp.headdb.util.XMaterial;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
@@ -28,7 +28,7 @@ public class Head {
         Validate.notNull(value, "value must not be null!");
         Validate.notNull(category, "category must not be null!");
 
-        ItemStack item = XMaterial.PLAYER_HEAD.parseItem();
+        ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         if (item != null) {
             SkullMeta meta = (SkullMeta) item.getItemMeta();
             meta.setDisplayName(Utils.colorize(category.getColor() + name));

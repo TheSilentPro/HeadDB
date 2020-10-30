@@ -2,7 +2,8 @@ name: HeadDB
 description: Head Database
 
 main: tsp.headdb.HeadDB
-version: 1.0
+version: 1.1
+api-version: 1.16
 author: Silent
 
 commands:

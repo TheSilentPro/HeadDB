@@ -1,10 +1,12 @@
 package tsp.headdb.api;
 
 import org.bukkit.entity.Player;
+import tsp.headdb.HeadDB;
 import tsp.headdb.database.Category;
 import tsp.headdb.database.HeadDatabase;
 import tsp.headdb.inventory.InventoryUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -48,6 +50,38 @@ public class HeadAPI {
 
     public static List<Head> getHeads() {
         return HeadDatabase.getHeads();
+    }
+
+    public static void addFavoriteHead(UUID uuid, int id) {
+        List<Integer> favs = HeadDB.getPlayerdata().getIntList(uuid.toString() + ".favorites");
+        if (!favs.contains(id)) {
+            favs.add(id);
+        }
+        HeadDB.getPlayerdata().set(uuid.toString() + ".favorites", favs);
+        HeadDB.getPlayerdata().save();
+    }
+
+    public static void removeFavoriteHead(UUID uuid, int id) {
+        List<Integer> favs = HeadDB.getPlayerdata().getIntList(uuid.toString() + ".favorites");
+        for (int i = 0; i < favs.size(); i++) {
+            if (favs.get(i) == id) {
+                favs.remove(i);
+                break;
+            }
+        }
+        HeadDB.getPlayerdata().set(uuid.toString() + ".favorites", favs);
+        HeadDB.getPlayerdata().save();
+    }
+
+    public static List<Head> getFavoriteHeads(UUID uuid) {
+        List<Head> heads = new ArrayList<>();
+        List<Integer> ids = HeadDB.getPlayerdata().getIntList(uuid.toString() + ".favorites");
+        for (int id : ids) {
+            Head head = getHeadByID(id);
+            heads.add(head);
+        }
+
+        return heads;
     }
 
     public static void updateDatabase() {

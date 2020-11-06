@@ -2,7 +2,7 @@ name: HeadDB
 description: Head Database
 
 main: tsp.headdb.HeadDB
-version: 1.1
+version: 1.2
 api-version: 1.16
 author: Silent
 
@@ -19,9 +19,12 @@ permissions:
       headdb.open: true
       headdb.search: true
       headdb.give: true
+      headdb.favorites: true
   headdb.open:
     default: op
   headdb.search:
     default: op
   headdb.give:
+    default: op
+  headdb.favorites:
     default: op

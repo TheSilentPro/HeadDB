@@ -15,6 +15,7 @@ public class HeadDB extends JavaPlugin {
 
     private static HeadDB instance;
     private static Config config;
+    private static Config playerdata;
 
     @Override
     public void onEnable() {
@@ -22,6 +23,8 @@ public class HeadDB extends JavaPlugin {
         Log.info("Loading HeadDB - " + getDescription().getVersion());
         saveDefaultConfig();
         config = new Config("plugins/HeadDB/config.yml");
+        playerdata = new Config("plugins/HeadDB/playerdata.yml");
+        playerdata.create();
 
         Log.debug("Starting metrics...");
         new Metrics(this, Utils.METRICS_ID);
@@ -41,6 +44,10 @@ public class HeadDB extends JavaPlugin {
 
     public static Config getCfg() {
         return config;
+    }
+
+    public static Config getPlayerdata() {
+        return playerdata;
     }
 
     public static HeadDB getInstance() {

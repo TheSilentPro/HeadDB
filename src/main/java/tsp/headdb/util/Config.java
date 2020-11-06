@@ -48,6 +48,10 @@ public class Config {
         return config.getInt(path);
     }
 
+    public List<Integer> getIntList(String path) {
+        return config.getIntegerList(path);
+    }
+
     public long getLong(String path) {
         return config.getLong(path);
     }

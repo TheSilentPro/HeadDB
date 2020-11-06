@@ -24,6 +24,7 @@ public class MenuListener implements Listener {
         if (!(e.getWhoClicked() instanceof Player)) {
             return;
         }
+        Player player = (Player) e.getWhoClicked();
         if (e.getView().getTitle().startsWith(Utils.colorize("&c&lHeadDB"))) {
             e.setCancelled(true);
             Inventory inventory = e.getClickedInventory();
@@ -34,11 +35,19 @@ public class MenuListener implements Listener {
 
                 if (item != null && item.getType() != XMaterial.AIR.parseMaterial()) {
                     String name = ChatColor.stripColor(item.getItemMeta().getDisplayName().toLowerCase());
+                    if (name.equalsIgnoreCase("favorites")) {
+                        if (!player.hasPermission("headdb.favorites")) {
+                            Utils.sendMessage(player, "&cYou do not have permission for favorites!");
+                            player.closeInventory();
+                            return;
+                        }
+                        InventoryUtils.openFavoritesMenu(player);
+                        return;
+                    }
                     Category category = Category.getByName(name);
 
                     if (category != null) {
-                        InventoryUtils.openCategoryDatabase((Player) e.getWhoClicked(), category);
-
+                        InventoryUtils.openCategoryDatabase(player, category);
                     }
                 }
             }

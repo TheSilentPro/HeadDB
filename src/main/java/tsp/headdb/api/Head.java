@@ -11,7 +11,7 @@ import tsp.headdb.util.Log;
 import tsp.headdb.util.Utils;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.UUID;
 
 public class Head {
@@ -29,24 +29,25 @@ public class Head {
         Validate.notNull(category, "category must not be null!");
 
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
-        if (item != null) {
-            SkullMeta meta = (SkullMeta) item.getItemMeta();
-            meta.setDisplayName(Utils.colorize(category.getColor() + name));
-            // set skull owner
-            GameProfile profile = new GameProfile(uuid, name);
-            profile.getProperties().put("textures", new Property("textures", value));
-            Field profileField;
-            try {
-                profileField = meta.getClass().getDeclaredField("profile");
-                profileField.setAccessible(true);
-                profileField.set(meta, profile);
-            } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e1) {
-                Log.error("Could not set skull owner for " + uuid.toString() + " | Stack Trace:");
-                e1.printStackTrace();
-            }
-            meta.setLore(Collections.singletonList(Utils.colorize("&cID: " + id)));
-            item.setItemMeta(meta);
+        SkullMeta meta = (SkullMeta) item.getItemMeta();
+        meta.setDisplayName(Utils.colorize(category.getColor() + name));
+        // set skull owner
+        GameProfile profile = new GameProfile(uuid, name);
+        profile.getProperties().put("textures", new Property("textures", value));
+        Field profileField;
+        try {
+            profileField = meta.getClass().getDeclaredField("profile");
+            profileField.setAccessible(true);
+            profileField.set(meta, profile);
+        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e1) {
+            Log.error("Could not set skull owner for " + uuid.toString() + " | Stack Trace:");
+            e1.printStackTrace();
         }
+        meta.setLore(Arrays.asList(
+                Utils.colorize("&cID: " + id),
+                Utils.colorize("&8Right-Click to add/remove from favorites.")
+        ));
+        item.setItemMeta(meta);
 
         return item;
     }

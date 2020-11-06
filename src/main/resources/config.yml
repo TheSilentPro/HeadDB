@@ -2,4 +2,4 @@
 refresh: 3600
 
 # Debug Mode
-debug: true
+debug: false

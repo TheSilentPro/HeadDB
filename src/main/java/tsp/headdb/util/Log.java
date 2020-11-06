@@ -2,6 +2,7 @@ package tsp.headdb.util;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import tsp.headdb.HeadDB;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -34,6 +35,9 @@ public class Log {
     }
 
     public static void log(LogLevel level, String message) {
+        if (level == LogLevel.DEBUG && !HeadDB.getCfg().getBoolean("debug")) {
+            return;
+        }
         Bukkit.getConsoleSender().sendMessage(Utils.colorize("&7[&9&l" + name + "&7] " + level.getColor() + "[" + level.name() + "]: " + message));
     }
 

@@ -87,11 +87,11 @@ public class Command_headdb implements CommandExecutor {
                 }
 
                 Head head = HeadAPI.getHeadByID(id);
-                ItemStack item = head.getItemStack();
-                if (item == null) {
+                if (head == null) {
                     Utils.sendMessage(sender, "&cCould not find head with id &e" + id);
                     return true;
                 }
+                ItemStack item = head.getItemStack();
                 item.setAmount(amount);
                 target.getInventory().addItem(item);
                 Utils.sendMessage(sender, "Given &c" + target.getName() + " &ex" + amount + " " + head.getName());

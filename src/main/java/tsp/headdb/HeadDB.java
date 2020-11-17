@@ -1,9 +1,9 @@
 package tsp.headdb;
 
 import org.bukkit.plugin.java.JavaPlugin;
-import tsp.headdb.api.HeadAPI;
 import tsp.headdb.command.Command_headdb;
 import tsp.headdb.database.HeadDatabase;
+import tsp.headdb.listener.JoinListener;
 import tsp.headdb.listener.PagedPaneListener;
 import tsp.headdb.listener.MenuListener;
 import tsp.headdb.util.Config;
@@ -32,6 +32,7 @@ public class HeadDB extends JavaPlugin {
         Log.debug("Registering listeners...");
         new PagedPaneListener(this);
         new MenuListener(this);
+        new JoinListener(this);
 
         Log.debug("Registering commands...");
         getCommand("headdb").setExecutor(new Command_headdb());

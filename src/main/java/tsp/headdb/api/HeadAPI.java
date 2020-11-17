@@ -1,5 +1,7 @@
 package tsp.headdb.api;
 
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import tsp.headdb.HeadDB;
 import tsp.headdb.database.Category;
@@ -79,6 +81,19 @@ public class HeadAPI {
         for (int id : ids) {
             Head head = getHeadByID(id);
             heads.add(head);
+        }
+
+        return heads;
+    }
+
+    public static List<LocalHead> getLocalHeads() {
+        List<LocalHead> heads = new ArrayList<>();
+        for (String key : HeadDB.getPlayerdata().getKeys(false)) {
+            OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(key));
+            heads.add(new LocalHead.Builder()
+                    .withUUID(player.getUniqueId())
+                    .withName(player.getName())
+                    .build());
         }
 
         return heads;

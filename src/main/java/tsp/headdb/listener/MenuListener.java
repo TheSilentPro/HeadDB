@@ -44,6 +44,16 @@ public class MenuListener implements Listener {
                         InventoryUtils.openFavoritesMenu(player);
                         return;
                     }
+                    if (name.equalsIgnoreCase("local")) {
+                        if (!player.hasPermission("headdb.local")) {
+                            Utils.sendMessage(player, "&cYou do not have permission to view local heads!");
+                            player.closeInventory();
+                            return;
+                        }
+                        InventoryUtils.openLocalMenu(player);
+                        return;
+                    }
+
                     Category category = Category.getByName(name);
 
                     if (category != null) {

@@ -1,6 +1,7 @@
 package tsp.headdb.inventory;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
@@ -62,7 +63,7 @@ public class InventoryUtils {
                 if (e.getClick() == ClickType.RIGHT) {
                     HeadAPI.removeFavoriteHead(player.getUniqueId(), head.getId());
                     openFavoritesMenu(player);
-                    Utils.sendMessage(player, "Removed &e" + head.getName() + " &8from favorites.");
+                    Utils.sendMessage(player, "Removed &e" + head.getName() + " &7from favorites.");
                 }
             }));
         }
@@ -87,7 +88,7 @@ public class InventoryUtils {
                 }
                 if (e.getClick() == ClickType.RIGHT) {
                     HeadAPI.addFavoriteHead(player.getUniqueId(), head.getId());
-                    Utils.sendMessage(player, "Added &e" + head.getName() + " &8to favorites.");
+                    Utils.sendMessage(player, "Added &e" + head.getName() + " &7to favorites.");
                 }
             }));
         }
@@ -123,7 +124,7 @@ public class InventoryUtils {
     public static void openDatabase(Player player) {
         Inventory inventory = Bukkit.createInventory(null, 54, Utils.colorize("&c&lHeadDB &8(" + HeadAPI.getHeads().size() + ")"));
 
-        fillBorder(inventory, XMaterial.BLACK_STAINED_GLASS_PANE.parseItem());
+        fill(inventory, XMaterial.BLACK_STAINED_GLASS_PANE.parseItem());
         for (Category category : Category.getCategories()) {
             ItemStack item = category.getItem();
             ItemMeta meta = item.getItemMeta();
@@ -135,14 +136,14 @@ public class InventoryUtils {
             inventory.addItem(item);
         }
 
-        inventory.setItem(37, buildButton(
+        inventory.setItem(39, buildButton(
                 XMaterial.BOOK.parseItem(),
                 "&eFavorites",
                 "",
                 "&8Click to view your favorites")
         );
 
-        inventory.setItem(43, buildButton(
+        inventory.setItem(41, buildButton(
                 XMaterial.COMPASS.parseItem(),
                 "&aLocal",
                 "",
@@ -152,26 +153,29 @@ public class InventoryUtils {
         player.openInventory(inventory);
     }
 
-    public static void fillBorder(Inventory inv, ItemStack item) {
+    public static void fill(Inventory inv, ItemStack item) {
         int size = inv.getSize();
-        int rows = (size + 1) / 9;
+        int[] ignored = new int[]{20, 21, 22, 23, 24, 29, 30, 31, 32, 33, 39, 41};
 
-        // Fill top
-        for (int i = 0; i < 9; i++) {
-            inv.setItem(i, item);
+        // Fill
+        for (int i = 0; i < size; i++) {
+            if (!contains(i, ignored)) {
+                ItemStack slotItem = inv.getItem(i);
+                if (slotItem == null || slotItem.getType() == Material.AIR) {
+                    inv.setItem(i, item);
+                }
+            }
+        }
+    }
+
+    private static boolean contains(int n, int... array) {
+        for (int i : array) {
+            if (i == n) {
+                return true;
+            }
         }
 
-        // Fill bottom
-        for (int i = size - 9; i < size; i++) {
-            inv.setItem(i, item);
-        }
-
-        // Fill sides
-        for (int i = 2; i <= rows - 1; i++) {
-            int[] slots = new int[]{i * 9 - 1, (i - 1) * 9};
-            inv.setItem(slots[0], item);
-            inv.setItem(slots[1], item);
-        }
+        return false;
     }
 
     private static ItemStack buildButton(ItemStack item, String name, String... lore) {

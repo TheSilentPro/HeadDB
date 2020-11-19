@@ -22,9 +22,9 @@ public class LocalHead {
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) item.getItemMeta();
         meta.setOwningPlayer(Bukkit.getOfflinePlayer(uuid));
-        meta.setDisplayName(Utils.colorize("&8" + name));
+        meta.setDisplayName(Utils.colorize("&e" + name));
         List<String> lore = new ArrayList<>();
-        lore.add(Utils.colorize("&aUUID: " + uuid.toString()));
+        lore.add(Utils.colorize("&7UUID: " + uuid.toString()));
         meta.setLore(lore);
         item.setItemMeta(meta);
 

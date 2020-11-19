@@ -33,6 +33,8 @@ public class PagedPane implements InventoryHolder {
     protected Button controlBack;
     @SuppressWarnings("WeakerAccess")
     protected Button controlNext;
+    @SuppressWarnings("WeakerAccess")
+    protected Button controlMain;
 
     /**
      * @param pageSize The page size. inventory rows - 2
@@ -145,6 +147,7 @@ public class PagedPane implements InventoryHolder {
 
         controlBack = null;
         controlNext = null;
+        controlMain = null;
         createControls(inventory);
     }
 
@@ -166,6 +169,12 @@ public class PagedPane implements InventoryHolder {
         else if (event.getSlot() == inventory.getSize() - 2) {
             if (controlNext != null) {
                 controlNext.onClick(event);
+            }
+            return;
+        }
+        else if (event.getSlot() == inventory.getSize()- 5) {
+            if (controlMain != null){
+                controlMain.onClick(event);
             }
             return;
         }
@@ -236,12 +245,9 @@ public class PagedPane implements InventoryHolder {
                     "&3&lPage &a&l%d &7/ &c&l%d",
                     getCurrentPage(), getPageAmount()
             );
-            String lore = String.format(
-                    Locale.ROOT,
-                    "&7Current: &a%d",
-                    getCurrentPage()
-            );
+            String lore = "&7Click to go to the &cMain Menu";
             ItemStack itemStack = setMeta(HeadAPI.getHeadByValue("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2Q5MWY1MTI2NmVkZGM2MjA3ZjEyYWU4ZDdhNDljNWRiMDQxNWFkYTA0ZGFiOTJiYjc2ODZhZmRiMTdmNGQ0ZSJ9fX0=").getItemStack(), name, lore);
+            controlMain = new Button(itemStack, event -> InventoryUtils.openDatabase((Player) event.getWhoClicked()));
             inventory.setItem(inventory.getSize() - 5, itemStack);
         }
     }
@@ -250,7 +256,7 @@ public class PagedPane implements InventoryHolder {
         int yMod = rowIndex * 9;
         for (int i = 0; i < 9; i++) {
             int slot = yMod + i;
-            inventory.setItem(slot, itemStack);
+            inventory.setItem(slot, setMeta(itemStack, ""));
         }
     }
 

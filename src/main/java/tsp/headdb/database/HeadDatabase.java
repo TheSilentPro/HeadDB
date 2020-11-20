@@ -16,6 +16,11 @@ import java.net.URLConnection;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * This is the Database that holds all heads
+ *
+ * @author TheSilentPro
+ */
 public class HeadDatabase {
 
     private static final Map<Category, List<Head>> HEADS = new HashMap<>();

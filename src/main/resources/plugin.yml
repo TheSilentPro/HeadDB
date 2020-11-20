@@ -1,5 +1,5 @@
 name: HeadDB
-description: Head Database
+description: Adds a menu with thousands of heads
 
 main: tsp.headdb.HeadDB
 version: 1.3

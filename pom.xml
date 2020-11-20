@@ -10,7 +10,7 @@
     <packaging>jar</packaging>
 
     <name>HeadDB</name>
-    <description>Head Database</description>
+    <description>Thousands of heads in a GUI</description>
 
     <repositories>
         <!-- Paper Repo -->

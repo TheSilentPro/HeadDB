@@ -104,7 +104,7 @@ public class Command_headdb implements CommandExecutor {
 
         Utils.sendMessage(sender, " ");
         Utils.sendMessage(sender, "&c&lHeadDB &c- &5Commands");
-        Utils.sendMessage(sender, "&7&oParameters:&c command &9(aliases) &7- Description");
+        Utils.sendMessage(sender, "&7&oParameters:&c command &9(aliases)&c arguments... &7- Description");
         Utils.sendMessage(sender, " > &c/hdb &7- Opens the database");
         Utils.sendMessage(sender, " > &c/hdb info &9(i) &7- Plugin Information");
         Utils.sendMessage(sender, " > &c/hdb search &9(s) &c<name> &7- Search for heads matching a name");

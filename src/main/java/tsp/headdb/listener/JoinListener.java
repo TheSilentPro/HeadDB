@@ -14,7 +14,6 @@ public class JoinListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         HeadDB.getPlayerdata().set(e.getPlayer().getUniqueId().toString() + ".username", e.getPlayer().getName());
-        HeadDB.getPlayerdata().save();
     }
 
 }

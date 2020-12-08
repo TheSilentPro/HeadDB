@@ -39,39 +39,18 @@ public class LocalHead {
         return uuid;
     }
 
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
-    }
-
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public LocalHead withUUID(UUID uuid) {
+        this.uuid = uuid;
+        return this;
     }
 
-    public static class Builder {
-
-        private UUID uuid;
-        private String name;
-
-        public Builder withUUID(UUID uuid) {
-            this.uuid = uuid;
-            return this;
-        }
-
-        public Builder withName(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public LocalHead build() {
-            LocalHead head = new LocalHead(uuid);
-            head.setName(name);
-            return head;
-        }
-
+    public LocalHead withName(String name) {
+        this.name = name;
+        return this;
     }
 
 }

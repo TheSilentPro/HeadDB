@@ -22,6 +22,12 @@ public class Head {
     private Category category;
     private int id;
 
+    public Head() {}
+
+    public Head(int id) {
+        this.id = id;
+    }
+
     public ItemStack getItemStack() {
         Validate.notNull(name, "name must not be null!");
         Validate.notNull(uuid, "uuid must not be null!");
@@ -44,6 +50,7 @@ public class Head {
         }
         meta.setLore(Arrays.asList(
                 Utils.colorize("&cID: " + id),
+                " ",
                 Utils.colorize("&8Right-Click to add/remove from favorites.")
         ));
         item.setItemMeta(meta);
@@ -55,85 +62,45 @@ public class Head {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public UUID getUUID() {
         return uuid;
-    }
-
-    public void setUUID(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public String getValue() {
         return value;
     }
 
-    public void setValue(String value) {
-        this.value = value;
-    }
-
     public Category getCategory() {
         return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
     }
 
     public int getId() {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public Head withName(String name) {
+        this.name = name;
+        return this;
     }
 
-    public static class Builder {
+    public Head withUUID(UUID uuid) {
+        this.uuid = uuid;
+        return this;
+    }
 
-        private String name;
-        private UUID uuid;
-        private String value;
-        private Category category;
-        private int id;
+    public Head withValue(String value) {
+        this.value = value;
+        return this;
+    }
 
-        public Builder withName(String name) {
-            this.name = name;
-            return this;
-        }
+    public Head withCategory(Category category) {
+        this.category = category;
+        return this;
+    }
 
-        public Builder withUUID(UUID uuid) {
-            this.uuid = uuid;
-            return this;
-        }
-
-        public Builder withValue(String value) {
-            this.value = value;
-            return this;
-        }
-
-        public Builder withCategory(Category category) {
-            this.category = category;
-            return this;
-        }
-
-        public Builder withId(int id) {
-            this.id = id;
-            return this;
-        }
-
-        public Head build() {
-            Head head = new Head();
-            head.setName(name);
-            head.setUUID(uuid);
-            head.setValue(value);
-            head.setCategory(category);
-            head.setId(id);
-            return head;
-        }
-
+    public Head withId(int id) {
+        this.id = id;
+        return this;
     }
 
 }

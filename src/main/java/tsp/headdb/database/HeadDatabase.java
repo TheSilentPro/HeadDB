@@ -1,5 +1,6 @@
 package tsp.headdb.database;
 
+import org.bukkit.ChatColor;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -23,11 +24,13 @@ import java.util.concurrent.TimeUnit;
  */
 public class HeadDatabase {
 
-    private static final Map<Category, List<Head>> HEADS = new HashMap<>();
-    private static final String URL = "https://minecraft-heads.com/scripts/api.php?cat=";
-    private static long updated;
+    private final Map<Category, List<Head>> HEADS = new HashMap<>();
+    private final String URL = "https://minecraft-heads.com/scripts/api.php?cat=";
+    private long updated;
+    
+    public HeadDatabase() {}
 
-    public static Head getHeadByValue(String value) {
+    public Head getHeadByValue(String value) {
         List<Head> heads = getHeads();
         for (Head head : heads) {
             if (head.getValue().equals(value)) {
@@ -38,7 +41,7 @@ public class HeadDatabase {
         return null;
     }
 
-    public static Head getHeadByID(int id) {
+    public Head getHeadByID(int id) {
         List<Head> heads = getHeads();
         for (Head head : heads) {
             if (head.getId() == id) {
@@ -49,7 +52,7 @@ public class HeadDatabase {
         return null;
     }
 
-    public static Head getHeadByUUID(UUID uuid) {
+    public Head getHeadByUUID(UUID uuid) {
         List<Head> heads = getHeads();
         for (Head head : heads) {
             if (head.getUUID().equals(uuid)) {
@@ -60,11 +63,12 @@ public class HeadDatabase {
         return null;
     }
 
-    public static List<Head> getHeadsByName(Category category, String name) {
+    public List<Head> getHeadsByName(Category category, String name) {
         List<Head> result = new ArrayList<>();
         List<Head> heads = getHeads(category);
         for (Head head : heads) {
-            if (head.getName().toLowerCase().contains(name.toLowerCase())) {
+            String hName = ChatColor.stripColor(head.getName().toLowerCase(Locale.ROOT));
+            if (hName.contains(ChatColor.stripColor(name.toLowerCase(Locale.ROOT)))) {
                 result.add(head);
             }
         }
@@ -72,23 +76,20 @@ public class HeadDatabase {
         return result;
     }
 
-    public static List<Head> getHeadsByName(String name) {
+    public List<Head> getHeadsByName(String name) {
         List<Head> result = new ArrayList<>();
-        List<Head> heads = getHeads();
-        for (Head head : heads) {
-            if (head.getName().toLowerCase().contains(name.toLowerCase())) {
-                result.add(head);
-            }
+        for (Category category : Category.values()) {
+            result.addAll(getHeadsByName(category, name));
         }
 
         return result;
     }
 
-    public static List<Head> getHeads(Category category) {
+    public List<Head> getHeads(Category category) {
         return HEADS.get(category);
     }
 
-    public static List<Head> getHeads() {
+    public List<Head> getHeads() {
         if (!HEADS.isEmpty() && !isLastUpdateOld()) {
             List<Head> heads = new ArrayList<>();
             for (Category category : HEADS.keySet()) {
@@ -101,7 +102,7 @@ public class HeadDatabase {
         return getHeads();
     }
 
-    public static Map<Category, List<Head>> getHeadsNoCache() {
+    public Map<Category, List<Head>> getHeadsNoCache() {
         Map<Category, List<Head>> result = new HashMap<>();
         List<Category> categories = Category.getCategories();
 
@@ -116,9 +117,7 @@ public class HeadDatabase {
                 URLConnection connection = new URL(URL + category.getName()).openConnection();
                 connection.setConnectTimeout(5000);
                 connection.setRequestProperty("User-Agent", "HeadDB");
-                try (BufferedReader in = new BufferedReader(
-                        new InputStreamReader(
-                                connection.getInputStream()))) {
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
                     while ((line = in.readLine()) != null) {
                         response.append(line);
                     }
@@ -127,13 +126,11 @@ public class HeadDatabase {
                 JSONArray array = (JSONArray) parser.parse(response.toString());
                 for (Object o : array) {
                     JSONObject obj = (JSONObject) o;
-                    Head head = new Head.Builder()
+                    Head head = new Head(id)
                             .withName(obj.get("name").toString())
                             .withUUID(UUID.fromString(obj.get("uuid").toString()))
                             .withValue(obj.get("value").toString())
-                            .withCategory(category)
-                            .withId(id)
-                            .build();
+                            .withCategory(category);
 
                     id++;
                     heads.add(head);
@@ -150,7 +147,7 @@ public class HeadDatabase {
         return result;
     }
 
-    public static void update() {
+    public void update() {
         Map<Category, List<Head>> heads = getHeadsNoCache();
         HEADS.clear();
         for (Map.Entry<Category, List<Head>> entry : heads.entrySet()) {
@@ -158,13 +155,13 @@ public class HeadDatabase {
         }
     }
 
-    public static long getLastUpdate() {
+    public long getLastUpdate() {
         long now = System.nanoTime();
         long elapsed = now - updated;
         return TimeUnit.NANOSECONDS.toSeconds(elapsed);
     }
 
-    public static boolean isLastUpdateOld() {
+    public boolean isLastUpdateOld() {
         if (HeadDB.getCfg() == null && getLastUpdate() >= 3600) return true;
         return getLastUpdate() >= HeadDB.getCfg().getLong("refresh");
     }

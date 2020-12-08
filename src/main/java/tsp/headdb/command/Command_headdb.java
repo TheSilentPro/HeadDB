@@ -36,6 +36,7 @@ public class Command_headdb implements CommandExecutor {
         if (sub.equalsIgnoreCase("info") || sub.equalsIgnoreCase("i")) {
             Utils.sendMessage(sender, "Running &cHeadDB v" + HeadDB.getInstance().getDescription().getVersion());
             Utils.sendMessage(sender, "Created by &c" + HeadDB.getInstance().getDescription().getAuthors());
+            Utils.sendMessage(sender, "There are currently &c" + HeadAPI.getHeads().size() + " &7heads in the database.");
             return true;
         }
 
@@ -56,7 +57,10 @@ public class Command_headdb implements CommandExecutor {
 
             StringBuilder builder = new StringBuilder();
             for (int i = 1; i < args.length; i++) {
-                builder.append(args[i]).append(" ");
+                builder.append(args[i]);
+                if (i != args.length - 1) {
+                    builder.append(" ");
+                }
             }
             String name = builder.toString();
             Utils.sendMessage(sender, "Searching for &e" + name);

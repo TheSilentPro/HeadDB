@@ -190,7 +190,7 @@ public class HeadAPI {
      */
     public static List<LocalHead> getLocalHeads() {
         List<LocalHead> heads = new ArrayList<>();
-        for (String key : HeadDB.getPlayerdata().keySet()) {
+        for (String key : HeadDB.getPlayerdata().singleLayerKeySet()) {
             OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(key));
             heads.add(new LocalHead(player.getUniqueId())
                     .withName(player.getName()));

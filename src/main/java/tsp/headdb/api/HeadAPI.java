@@ -19,7 +19,9 @@ import java.util.UUID;
  *
  * @author TheSilentPro
  */
-public class HeadAPI {
+public final class HeadAPI {
+
+    private HeadAPI() {}
 
     private static final HeadDatabase database = new HeadDatabase();
 

@@ -143,6 +143,13 @@ public class InventoryUtils {
                 "&8Click to view your favorites")
         );
 
+        inventory.setItem(40, buildButton(
+                XMaterial.DARK_OAK_SIGN.parseItem(),
+                "&9Search",
+                "",
+                "&8Click to open search menu"
+        ));
+
         inventory.setItem(41, buildButton(
                 XMaterial.COMPASS.parseItem(),
                 "&aLocal",
@@ -155,7 +162,7 @@ public class InventoryUtils {
 
     public static void fill(Inventory inv, ItemStack item) {
         int size = inv.getSize();
-        int[] ignored = new int[]{20, 21, 22, 23, 24, 29, 30, 31, 32, 33, 39, 41};
+        int[] ignored = new int[]{20, 21, 22, 23, 24, 29, 30, 31, 32, 33, 39, 40, 41};
 
         // Fill
         for (int i = 0; i < size; i++) {

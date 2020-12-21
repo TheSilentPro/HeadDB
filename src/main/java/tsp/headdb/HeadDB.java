@@ -45,7 +45,7 @@ public class HeadDB extends JavaPlugin {
                 Bukkit.getScheduler().runTaskAsynchronously(this, task -> HeadAPI.getDatabase().update());
             }else {
                 Log.debug("Initializing Database... (SYNC)");
-                Bukkit.getScheduler().runTask(this, task -> HeadAPI.getDatabase().update());
+                HeadAPI.getDatabase().update();
             }
         }
 

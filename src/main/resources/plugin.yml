@@ -21,6 +21,7 @@ permissions:
       headdb.give: true
       headdb.favorites: true
       headdb.local: true
+      headdb.tagsearch: true
   headdb.open:
     default: op
   headdb.search:
@@ -30,4 +31,6 @@ permissions:
   headdb.favorites:
     default: op
   headdb.local:
+    default: op
+  headdb.tagsearch:
     default: op

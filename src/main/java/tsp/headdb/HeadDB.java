@@ -17,8 +17,8 @@ import tsp.headdb.util.Utils;
 public class HeadDB extends JavaPlugin {
 
     private static HeadDB instance;
-    private static Config config;
-    private static Json playerdata;
+    private Config config;
+    private Json playerdata;
 
     @Override
     public void onEnable() {
@@ -42,8 +42,8 @@ public class HeadDB extends JavaPlugin {
         if (config.getBoolean("fetchStartup")) {
             if (config.getBoolean("asyncStartup")) {
                 Log.debug("Initializing Database... (ASYNC)");
-                Bukkit.getScheduler().runTaskAsynchronously(this, task -> HeadAPI.getDatabase().update());
-            }else {
+                Bukkit.getScheduler().runTaskAsynchronously(this, () -> HeadAPI.getDatabase().update());
+            } else {
                 Log.debug("Initializing Database... (SYNC)");
                 HeadAPI.getDatabase().update();
             }
@@ -52,11 +52,11 @@ public class HeadDB extends JavaPlugin {
         Log.info("Done!");
     }
 
-    public static Config getCfg() {
+    public Config getCfg() {
         return config;
     }
 
-    public static Json getPlayerdata() {
+    public Json getPlayerdata() {
         return playerdata;
     }
 

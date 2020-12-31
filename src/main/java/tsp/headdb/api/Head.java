@@ -11,7 +11,9 @@ import tsp.headdb.util.Log;
 import tsp.headdb.util.Utils;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 public class Head {
@@ -21,6 +23,7 @@ public class Head {
     private String value;
     private Category category;
     private int id;
+    private List<String> tags;
 
     public Head() {}
 
@@ -50,7 +53,8 @@ public class Head {
         }
         meta.setLore(Arrays.asList(
                 Utils.colorize("&cID: " + id),
-                " ",
+                Utils.colorize("&e" + buildTagLore((String[]) tags.toArray())),
+                "",
                 Utils.colorize("&8Right-Click to add/remove from favorites.")
         ));
         item.setItemMeta(meta);
@@ -78,6 +82,10 @@ public class Head {
         return id;
     }
 
+    public List<String> getTags() {
+        return tags;
+    }
+
     public Head withName(String name) {
         this.name = name;
         return this;
@@ -101,6 +109,23 @@ public class Head {
     public Head withId(int id) {
         this.id = id;
         return this;
+    }
+    
+    public Head withTags(String tags) {
+        this.tags = Arrays.asList(tags.split(","));
+        return this;
+    }
+    
+    private String buildTagLore(String... tags) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < tags.length; i++) {
+            builder.append(tags[i]);
+            if (i != tags.length - 1) {
+                builder.append(",");
+            }
+        }
+        
+        return builder.toString();
     }
 
 }

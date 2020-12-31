@@ -68,6 +68,27 @@ public class Command_headdb implements CommandExecutor {
             return true;
         }
 
+        if (sub.equalsIgnoreCase("tagsearch") || sub.equalsIgnoreCase("ts")) {
+            if (!sender.hasPermission("headdb.tagsearch")) {
+                Utils.sendMessage(sender, "&cNo permission!");
+                return true;
+            }
+            if (args.length < 2) {
+                Utils.sendMessage(sender, "&c/hdb tagsearch <tag>");
+                return true;
+            }
+            if (!(sender instanceof Player)) {
+                Utils.sendMessage(sender, "&cOnly players may open the database.");
+                return true;
+            }
+            Player player = (Player) sender;
+
+            String tag = args[1];
+            Utils.sendMessage(sender, "Searching for heads with tag &e" + tag);
+            InventoryUtils.openTagSearchDatabase(player, tag);
+            return true;
+        }
+
         if (sub.equalsIgnoreCase("give") || sub.equalsIgnoreCase("g")) {
             if (!sender.hasPermission("headdb.give")) {
                 Utils.sendMessage(sender, "&cNo permission!");
@@ -112,6 +133,7 @@ public class Command_headdb implements CommandExecutor {
         Utils.sendMessage(sender, " > &c/hdb &7- Opens the database");
         Utils.sendMessage(sender, " > &c/hdb info &9(i) &7- Plugin Information");
         Utils.sendMessage(sender, " > &c/hdb search &9(s) &c<name> &7- Search for heads matching a name");
+        Utils.sendMessage(sender, " > &c/hdb tagsearch &9(ts) &c<tag> &7- Search for heads matching a tag");
         Utils.sendMessage(sender, " > &c/hdb give &9(g) &c<id> <player> &6[amount] &7- Give player a head");
         Utils.sendMessage(sender, " ");
         return true;

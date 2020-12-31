@@ -96,6 +96,31 @@ public class InventoryUtils {
         pane.open(player);
     }
 
+    public static void openTagSearchDatabase(Player player, String tag) {
+        PagedPane pane = new PagedPane(4, 6, Utils.colorize("&c&lHeadDB &8- &eTag Search: " + tag));
+
+        List<Head> heads = HeadAPI.getHeadsByTag(tag);
+        for (Head head : heads) {
+            pane.addButton(new Button(head.getItemStack(), e -> {
+                if (e.getClick() == ClickType.SHIFT_LEFT) {
+                    ItemStack item = head.getItemStack();
+                    item.setAmount(64);
+                    player.getInventory().addItem(item);
+                    return;
+                }
+                if (e.getClick() == ClickType.LEFT) {
+                    player.getInventory().addItem(head.getItemStack());
+                }
+                if (e.getClick() == ClickType.RIGHT) {
+                    HeadAPI.addFavoriteHead(player.getUniqueId(), head.getId());
+                    Utils.sendMessage(player, "Added &e" + head.getName() + " &7to favorites.");
+                }
+            }));
+        }
+
+        pane.open(player);
+    }
+
     public static void openCategoryDatabase(Player player, Category category) {
         PagedPane pane = new PagedPane(4, 6, Utils.colorize("&c&lHeadDB &8- &e" + category.getName()));
 

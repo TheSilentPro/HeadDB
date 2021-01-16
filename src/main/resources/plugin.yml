@@ -2,7 +2,7 @@ name: HeadDB
 description: Database with thousands of heads
 
 main: tsp.headdb.HeadDB
-version: 2.1
+version: 2.2
 api-version: 1.16
 author: Silent
 

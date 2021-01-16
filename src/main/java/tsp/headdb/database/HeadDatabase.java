@@ -126,9 +126,11 @@ public class HeadDatabase {
                 JSONArray array = (JSONArray) parser.parse(response.toString());
                 for (Object o : array) {
                     JSONObject obj = (JSONObject) o;
+                    String uuid = obj.get("uuid").toString();
+                    
                     Head head = new Head(id)
                             .withName(obj.get("name").toString())
-                            .withUUID(UUID.fromString(obj.get("uuid").toString()))
+                            .withUUID(uuid.isEmpty() ? UUID.randomUUID() : UUID.fromString(uuid))
                             .withValue(obj.get("value").toString())
                             .withCategory(category);
 

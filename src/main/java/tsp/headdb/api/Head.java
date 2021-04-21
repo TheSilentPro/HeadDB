@@ -39,7 +39,7 @@ public class Head {
         SkullMeta meta = (SkullMeta) item.getItemMeta();
         meta.setDisplayName(Utils.colorize(category != null ? category.getColor() + name : "&8" + name));
         // set skull owner
-        GameProfile profile = new GameProfile(uuid, null);
+        GameProfile profile = new GameProfile(uuid, name);
         profile.getProperties().put("textures", new Property("textures", value));
         Field profileField;
         try {

@@ -26,6 +26,7 @@ public class HeadDatabase {
 
     private final Map<Category, List<Head>> HEADS = new HashMap<>();
     private final String URL = "https://minecraft-heads.com/scripts/api.php?cat=";
+    private final String TAGS = "&tags=true";
     private long updated;
     
     public HeadDatabase() {}
@@ -61,6 +62,21 @@ public class HeadDatabase {
         }
 
         return null;
+    }
+
+    public List<Head> getHeadsByTag(String tag) {
+        List<Head> result = new ArrayList<>();
+        List<Head> heads = getHeads();
+        tag = tag.toLowerCase(Locale.ROOT);
+        for (Head head : heads) {
+            for (String t : head.getTags()) {
+                if (t.toLowerCase(Locale.ROOT).contains(tag)) {
+                    result.add(head);
+                }
+            }
+        }
+
+        return result;
     }
 
     public List<Head> getHeadsByName(Category category, String name) {
@@ -114,7 +130,7 @@ public class HeadDatabase {
                 String line;
                 StringBuilder response = new StringBuilder();
 
-                URLConnection connection = new URL(URL + category.getName()).openConnection();
+                URLConnection connection = new URL(URL + category.getName() + TAGS).openConnection();
                 connection.setConnectTimeout(5000);
                 connection.setRequestProperty("User-Agent", "HeadDB");
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
@@ -132,6 +148,7 @@ public class HeadDatabase {
                             .withName(obj.get("name").toString())
                             .withUUID(uuid.isEmpty() ? UUID.randomUUID() : UUID.fromString(uuid))
                             .withValue(obj.get("value").toString())
+                            .withTags(obj.get("tags") != null ? obj.get("tags").toString() : "None")
                             .withCategory(category);
 
                     id++;
@@ -164,8 +181,8 @@ public class HeadDatabase {
     }
 
     public boolean isLastUpdateOld() {
-        if (HeadDB.getCfg() == null && getLastUpdate() >= 3600) return true;
-        return getLastUpdate() >= HeadDB.getCfg().getLong("refresh");
+        if (HeadDB.getInstance().getCfg() == null && getLastUpdate() >= 3600) return true;
+        return getLastUpdate() >= HeadDB.getInstance().getCfg().getLong("refresh");
     }
 
 }

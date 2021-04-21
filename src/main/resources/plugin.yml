@@ -1,9 +1,8 @@
-name: HeadDB
-description: Database with thousands of heads
+name: ${project.name}
+description: ${project.description}
 
 main: tsp.headdb.HeadDB
-version: 2.2
-api-version: 1.16
+version: ${project.version}
 author: Silent
 
 commands:
@@ -21,6 +20,7 @@ permissions:
       headdb.give: true
       headdb.favorites: true
       headdb.local: true
+      headdb.tagsearch: true
   headdb.open:
     default: op
   headdb.search:
@@ -30,4 +30,6 @@ permissions:
   headdb.favorites:
     default: op
   headdb.local:
+    default: op
+  headdb.tagsearch:
     default: op

@@ -1,15 +1,18 @@
 package tsp.headdb.inventory;
 
+import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import tsp.headdb.HeadDB;
 import tsp.headdb.api.HeadAPI;
 import tsp.headdb.util.Utils;
 import tsp.headdb.util.XMaterial;
@@ -245,9 +248,38 @@ public class PagedPane implements InventoryHolder {
                     "&3&lPage &a&l%d &7/ &c&l%d",
                     getCurrentPage(), getPageAmount()
             );
-            String lore = "&7Click to go to the &cMain Menu";
-            ItemStack itemStack = setMeta(HeadAPI.getHeadByValue("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2Q5MWY1MTI2NmVkZGM2MjA3ZjEyYWU4ZDdhNDljNWRiMDQxNWFkYTA0ZGFiOTJiYjc2ODZhZmRiMTdmNGQ0ZSJ9fX0=").getItemStack(), name, lore);
-            controlMain = new Button(itemStack, event -> InventoryUtils.openDatabase((Player) event.getWhoClicked()));
+            ItemStack itemStack = setMeta(HeadAPI.getHeadByValue("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2Q5MWY1MTI2NmVkZGM2MjA3ZjEyYWU4ZDdhNDljNWRiMDQxNWFkYTA0ZGFiOTJiYjc2ODZhZmRiMTdmNGQ0ZSJ9fX0=").getItemStack(),
+                    name,
+                    "&7Left-Click to go to the &cMain Menu",
+                    "&7Right-Click to go to a &6Specific Page");
+            controlMain = new Button(itemStack, event -> {
+                if (event.getClick() == ClickType.RIGHT) {
+                    new AnvilGUI.Builder()
+                            .onComplete((player, text) -> {
+                                try {
+                                    int i = Integer.parseInt(text);
+                                    if (i > getPageAmount()) {
+                                        Utils.sendMessage(player, "&cPage number is out of bounds! Max: &e" + getPageAmount());
+                                        return AnvilGUI.Response.text("&cOut of bounds!");
+                                    }
+                                    Bukkit.getScheduler().runTaskLater(HeadDB.getInstance(), () -> {
+                                        open(player);
+                                        selectPage(i - 1);
+                                    }, 40L);
+                                    return AnvilGUI.Response.close();
+                                } catch (NumberFormatException nfe) {
+                                    Utils.sendMessage(player, "&cValue must be a number!");
+                                    return AnvilGUI.Response.text(Utils.colorize("&cValue must be a number!"));
+                                }
+                            })
+                            .title("Select Page")
+                            .text("Page number...")
+                            .plugin(HeadDB.getInstance())
+                            .open((Player) event.getWhoClicked());
+                } else {
+                    InventoryUtils.openDatabase((Player) event.getWhoClicked());
+                }
+            });
             inventory.setItem(inventory.getSize() - 5, itemStack);
         }
     }

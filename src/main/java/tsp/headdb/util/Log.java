@@ -35,7 +35,7 @@ public class Log {
     }
 
     public static void log(LogLevel level, String message) {
-        if (level == LogLevel.DEBUG && !HeadDB.getCfg().getBoolean("debug")) {
+        if (level == LogLevel.DEBUG && !HeadDB.getInstance().getCfg().getBoolean("debug")) {
             return;
         }
         Bukkit.getConsoleSender().sendMessage(Utils.colorize("&7[&9&l" + name + "&7] " + level.getColor() + "[" + level.name() + "]: " + message));

@@ -71,10 +71,36 @@ public class InventoryUtils {
         pane.open(player);
     }
 
-    public static void openSearchDatabase(Player player, String search) {
+    public static PagedPane openSearchDatabase(Player player, String search) {
         PagedPane pane = new PagedPane(4, 6, Utils.colorize("&c&lHeadDB &8- &eSearch: " + search));
 
         List<Head> heads = HeadAPI.getHeadsByName(search);
+        for (Head head : heads) {
+            pane.addButton(new Button(head.getItemStack(), e -> {
+                if (e.getClick() == ClickType.SHIFT_LEFT) {
+                    ItemStack item = head.getItemStack();
+                    item.setAmount(64);
+                    player.getInventory().addItem(item);
+                    return;
+                }
+                if (e.getClick() == ClickType.LEFT) {
+                    player.getInventory().addItem(head.getItemStack());
+                }
+                if (e.getClick() == ClickType.RIGHT) {
+                    HeadAPI.addFavoriteHead(player.getUniqueId(), head.getId());
+                    Utils.sendMessage(player, "Added &e" + head.getName() + " &7to favorites.");
+                }
+            }));
+        }
+
+        pane.open(player);
+        return pane;
+    }
+
+    public static void openTagSearchDatabase(Player player, String tag) {
+        PagedPane pane = new PagedPane(4, 6, Utils.colorize("&c&lHeadDB &8- &eTag Search: " + tag));
+
+        List<Head> heads = HeadAPI.getHeadsByTag(tag);
         for (Head head : heads) {
             pane.addButton(new Button(head.getItemStack(), e -> {
                 if (e.getClick() == ClickType.SHIFT_LEFT) {
@@ -143,6 +169,13 @@ public class InventoryUtils {
                 "&8Click to view your favorites")
         );
 
+        inventory.setItem(40, buildButton(
+                XMaterial.DARK_OAK_SIGN.parseItem(),
+                "&9Search",
+                "",
+                "&8Click to open search menu"
+        ));
+
         inventory.setItem(41, buildButton(
                 XMaterial.COMPASS.parseItem(),
                 "&aLocal",
@@ -155,7 +188,7 @@ public class InventoryUtils {
 
     public static void fill(Inventory inv, ItemStack item) {
         int size = inv.getSize();
-        int[] ignored = new int[]{20, 21, 22, 23, 24, 29, 30, 31, 32, 33, 39, 41};
+        int[] ignored = new int[]{20, 21, 22, 23, 24, 29, 30, 31, 32, 33, 39, 40, 41};
 
         // Fill
         for (int i = 0; i < size; i++) {

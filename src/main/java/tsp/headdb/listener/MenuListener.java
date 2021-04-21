@@ -1,5 +1,6 @@
 package tsp.headdb.listener;
 
+import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -8,6 +9,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import tsp.headdb.HeadDB;
 import tsp.headdb.database.Category;
 import tsp.headdb.inventory.InventoryUtils;
 import tsp.headdb.util.Utils;
@@ -51,6 +53,18 @@ public class MenuListener implements Listener {
                             return;
                         }
                         InventoryUtils.openLocalMenu(player);
+                        return;
+                    }
+                    if (name.equalsIgnoreCase("search")) {
+                        new AnvilGUI.Builder()
+                                .onComplete((p, text) -> {
+                                    InventoryUtils.openSearchDatabase(p, text);
+                                    return AnvilGUI.Response.openInventory(InventoryUtils.openSearchDatabase(p, text).getInventory());
+                                })
+                                .title("Search Heads")
+                                .text("Name...")
+                                .plugin(HeadDB.getInstance())
+                                .open(player);
                         return;
                     }
 

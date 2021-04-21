@@ -3,15 +3,14 @@ package tsp.headdb.api;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import org.apache.commons.lang.Validate;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import tsp.headdb.database.Category;
 import tsp.headdb.util.Log;
 import tsp.headdb.util.Utils;
+import tsp.headdb.util.XMaterial;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -36,11 +35,11 @@ public class Head {
         Validate.notNull(uuid, "uuid must not be null!");
         Validate.notNull(value, "value must not be null!");
 
-        ItemStack item = new ItemStack(Material.PLAYER_HEAD);
+        ItemStack item = new ItemStack(XMaterial.PLAYER_HEAD.parseItem());
         SkullMeta meta = (SkullMeta) item.getItemMeta();
         meta.setDisplayName(Utils.colorize(category != null ? category.getColor() + name : "&8" + name));
         // set skull owner
-        GameProfile profile = new GameProfile(uuid, name);
+        GameProfile profile = new GameProfile(uuid, null);
         profile.getProperties().put("textures", new Property("textures", value));
         Field profileField;
         try {

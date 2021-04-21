@@ -71,7 +71,7 @@ public class InventoryUtils {
         pane.open(player);
     }
 
-    public static void openSearchDatabase(Player player, String search) {
+    public static PagedPane openSearchDatabase(Player player, String search) {
         PagedPane pane = new PagedPane(4, 6, Utils.colorize("&c&lHeadDB &8- &eSearch: " + search));
 
         List<Head> heads = HeadAPI.getHeadsByName(search);
@@ -94,6 +94,7 @@ public class InventoryUtils {
         }
 
         pane.open(player);
+        return pane;
     }
 
     public static void openTagSearchDatabase(Player player, String tag) {

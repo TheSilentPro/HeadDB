@@ -59,7 +59,7 @@ public class MenuListener implements Listener {
                         new AnvilGUI.Builder()
                                 .onComplete((p, text) -> {
                                     InventoryUtils.openSearchDatabase(p, text);
-                                    return AnvilGUI.Response.text(Utils.colorize("Searching for &e" + text));
+                                    return AnvilGUI.Response.openInventory(InventoryUtils.openSearchDatabase(p, text).getInventory());
                                 })
                                 .title("Search Heads")
                                 .text("Name...")

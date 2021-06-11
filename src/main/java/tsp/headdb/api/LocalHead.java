@@ -2,6 +2,7 @@ package tsp.headdb.api;
 
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import tsp.headdb.util.Utils;
@@ -19,7 +20,7 @@ public class LocalHead {
     public ItemStack getItemStack() {
         Validate.notNull(uuid, "uuid must not be null!");
 
-        ItemStack item = new ItemStack(XMaterial.PLAYER_HEAD.parseItem());
+        ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) item.getItemMeta();
         meta.setOwningPlayer(Bukkit.getOfflinePlayer(uuid));
         meta.setDisplayName(Utils.colorize("&e" + name));

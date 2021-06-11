@@ -3,6 +3,7 @@ package tsp.headdb.api;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import org.apache.commons.lang.Validate;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import tsp.headdb.database.Category;
@@ -35,7 +36,7 @@ public class Head {
         Validate.notNull(uuid, "uuid must not be null!");
         Validate.notNull(value, "value must not be null!");
 
-        ItemStack item = new ItemStack(XMaterial.PLAYER_HEAD.parseItem());
+        ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) item.getItemMeta();
         meta.setDisplayName(Utils.colorize(category != null ? category.getColor() + name : "&8" + name));
         // set skull owner

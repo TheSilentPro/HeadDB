@@ -15,6 +15,7 @@ import tsp.headdb.util.Utils;
 import tsp.headdb.util.XMaterial;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class InventoryUtils {
@@ -150,7 +151,7 @@ public class InventoryUtils {
     public static void openDatabase(Player player) {
         Inventory inventory = Bukkit.createInventory(null, 54, Utils.colorize("&c&lHeadDB &8(" + HeadAPI.getHeads().size() + ")"));
 
-        fill(inventory, XMaterial.BLACK_STAINED_GLASS_PANE.parseItem());
+        fill(inventory, new ItemStack(Material.BLACK_STAINED_GLASS_PANE));
         for (Category category : Category.getCategories()) {
             ItemStack item = category.getItem();
             ItemMeta meta = item.getItemMeta();
@@ -202,13 +203,7 @@ public class InventoryUtils {
     }
 
     private static boolean contains(int n, int... array) {
-        for (int i : array) {
-            if (i == n) {
-                return true;
-            }
-        }
-
-        return false;
+        return Arrays.binarySearch(array, n) > -1;
     }
 
     private static ItemStack buildButton(ItemStack item, String name, String... lore) {

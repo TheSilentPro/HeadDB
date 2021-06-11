@@ -15,7 +15,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import tsp.headdb.HeadDB;
 import tsp.headdb.api.HeadAPI;
 import tsp.headdb.util.Utils;
-import tsp.headdb.util.XMaterial;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -206,7 +205,7 @@ public class PagedPane implements InventoryHolder {
         // create separator
         fillRow(
                 inventory.getSize() / 9 - 2,
-                XMaterial.BLACK_STAINED_GLASS_PANE.parseItem(),
+                new ItemStack(Material.BLACK_STAINED_GLASS_PANE),
                 inventory
         );
 

@@ -53,7 +53,7 @@ public class Head {
         }
         meta.setLore(Arrays.asList(
                 Utils.colorize("&cID: " + id),
-                Utils.colorize("&e" + buildTagLore((String[]) tags.toArray())),
+                Utils.colorize("&e" + buildTagLore(tags)),
                 "",
                 Utils.colorize("&8Right-Click to add/remove from favorites.")
         ));
@@ -116,11 +116,11 @@ public class Head {
         return this;
     }
     
-    private String buildTagLore(String... tags) {
+    private String buildTagLore(List<String> tags) {
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < tags.length; i++) {
-            builder.append(tags[i]);
-            if (i != tags.length - 1) {
+        for (int i = 0; i < tags.size(); i++) {
+            builder.append(tags.get(i));
+            if (i != tags.size() - 1) {
                 builder.append(",");
             }
         }

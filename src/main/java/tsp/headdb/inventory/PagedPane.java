@@ -261,11 +261,8 @@ public class PagedPane implements InventoryHolder {
                                         Utils.sendMessage(player, "&cPage number is out of bounds! Max: &e" + getPageAmount());
                                         return AnvilGUI.Response.text("&cOut of bounds!");
                                     }
-                                    Bukkit.getScheduler().runTaskLater(HeadDB.getInstance(), () -> {
-                                        open(player);
-                                        selectPage(i - 1);
-                                    }, 40L);
-                                    return AnvilGUI.Response.close();
+                                    selectPage(i - 1);
+                                    return AnvilGUI.Response.openInventory(this.getInventory());
                                 } catch (NumberFormatException nfe) {
                                     Utils.sendMessage(player, "&cValue must be a number!");
                                     return AnvilGUI.Response.text(Utils.colorize("&cValue must be a number!"));

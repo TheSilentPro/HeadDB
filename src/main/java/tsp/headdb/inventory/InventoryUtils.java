@@ -163,33 +163,39 @@ public class InventoryUtils {
             inventory.addItem(item);
         }
 
-        inventory.setItem(39, buildButton(
+        if (player.hasPermission("headdb.favorites")) {
+            inventory.setItem(39, buildButton(
                 XMaterial.BOOK.parseItem(),
                 "&eFavorites",
                 "",
                 "&8Click to view your favorites")
-        );
+            );
+        }
 
-        inventory.setItem(40, buildButton(
+        if (player.hasPermission("headdb.searchui")) {
+            inventory.setItem(40, buildButton(
                 XMaterial.DARK_OAK_SIGN.parseItem(),
                 "&9Search",
                 "",
                 "&8Click to open search menu"
-        ));
+            ));
+        }
 
-        inventory.setItem(41, buildButton(
+        if (player.hasPermission("headdb.local")) {
+            inventory.setItem(41, buildButton(
                 XMaterial.COMPASS.parseItem(),
                 "&aLocal",
                 "",
                 "&8Heads from any players that have logged on the server"
-        ));
+            ));
+        }
 
         player.openInventory(inventory);
     }
 
     public static void fill(Inventory inv, ItemStack item) {
         int size = inv.getSize();
-        int[] ignored = new int[]{20, 21, 22, 23, 24, 29, 30, 31, 32, 33, 39, 40, 41};
+        int[] ignored = new int[]{20, 21, 22, 23, 24, 29, 30, 31, 32, 33};
 
         // Fill
         for (int i = 0; i < size; i++) {

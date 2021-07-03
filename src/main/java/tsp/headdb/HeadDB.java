@@ -31,8 +31,7 @@ public class HeadDB extends JavaPlugin {
         config = LightningBuilder.fromPath("config.yml", "plugins/HeadDB").createConfig().addDefaultsFromInputStream();
         playerdata = LightningBuilder.fromPath("playerdata.json", "plugins/HeadDB").createJson();
 
-        if (config.getBoolean("economy.enable"))
-        {
+        if (config.getBoolean("economy.enable")) {
             Log.debug("Starting economy...");
             this.economy = this.setupEconomy();
             if (this.economy == null) {

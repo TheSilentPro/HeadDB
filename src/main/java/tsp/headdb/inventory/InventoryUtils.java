@@ -226,9 +226,7 @@ public class InventoryUtils {
                     player.sendMessage(String.format("You do not have enough %s to purchase %d x %s.", economy.currencyNamePlural(), amount, description));
                     return;
                 }
-            }
-            else
-            {
+            } else {
                 player.sendMessage(String.format("You purchased %d x %s for free!", amount, description));
             }
         }

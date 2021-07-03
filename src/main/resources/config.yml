@@ -7,5 +7,21 @@ asyncStartup: false
 # If the cached heads are older than these amount of seconds, the plugin will refresh the database
 refresh: 3600
 
+# Economy options
+economy:
+  enable: false
+  cost:
+    alphabet: 100
+    animals: 100
+    blocks: 100
+    decoration: 100
+    food-drinks: 100
+    humans: 100
+    humanoid: 100
+    miscellaneous: 100
+    monsters: 100
+    plants: 100
+    local: 1000
+
 # Debug Mode
 debug: false

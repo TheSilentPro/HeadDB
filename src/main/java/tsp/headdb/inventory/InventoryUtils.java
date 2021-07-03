@@ -172,7 +172,7 @@ public class InventoryUtils {
             );
         }
 
-        if (player.hasPermission("headdb.searchui")) {
+        if (player.hasPermission("headdb.search")) {
             inventory.setItem(40, buildButton(
                 XMaterial.DARK_OAK_SIGN.parseItem(),
                 "&9Search",

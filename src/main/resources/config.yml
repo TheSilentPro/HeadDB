@@ -23,5 +23,35 @@ economy:
     plants: 100
     local: 1000
 
+# UI customization options.
+ui:
+  category:
+    alphabet:
+      location: 20
+    animals:
+      location: 21
+    blocks:
+      location: 22
+    decoration:
+      location: 23
+    food-drinks:
+      location: 24
+    humans:
+      location: 29
+    humanoid:
+      location: 30
+    miscellaneous:
+      location: 31
+    monsters:
+      location: 32
+    plants:
+      location: 33
+    favorites:
+      location: 39
+    search:
+      location: 40
+    local:
+      location: 41
+
 # Debug Mode
 debug: false

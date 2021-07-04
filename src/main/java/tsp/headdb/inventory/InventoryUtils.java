@@ -7,6 +7,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
 import tsp.headdb.HeadDB;
 import tsp.headdb.api.Head;
 import tsp.headdb.api.HeadAPI;
@@ -14,13 +15,28 @@ import tsp.headdb.api.LocalHead;
 import tsp.headdb.database.Category;
 import tsp.headdb.util.Utils;
 import tsp.headdb.util.XMaterial;
+
 import net.milkbowl.vault.economy.Economy;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class InventoryUtils {
+    private static final Map<String, Integer> uiLocation = new HashMap<>();
+
+    public static int uiGetLocation(String category, int slot) {
+        // Try to use the cached value first; then the config; then the given default.
+        if (!uiLocation.containsKey(category)) {
+            if (HeadDB.getInstance().getCfg().contains("ui.category." + category + ".location")) {
+                uiLocation.put(category, HeadDB.getInstance().getCfg().getInt("ui.category." + category + ".location"));
+            } else {
+                uiLocation.put(category, slot);
+            }
+        }
+        return uiLocation.get(category);
+    }
 
     public static void openLocalMenu(Player player) {
         PagedPane pane = new PagedPane(4, 6, Utils.colorize("&c&lHeadDB &8- &aLocal Heads"));
@@ -143,7 +159,6 @@ public class InventoryUtils {
     public static void openDatabase(Player player) {
         Inventory inventory = Bukkit.createInventory(null, 54, Utils.colorize("&c&lHeadDB &8(" + HeadAPI.getHeads().size() + ")"));
 
-        fill(inventory, new ItemStack(Material.BLACK_STAINED_GLASS_PANE));
         for (Category category : Category.getCategories()) {
             ItemStack item = category.getItem();
             ItemMeta meta = item.getItemMeta();
@@ -152,11 +167,11 @@ public class InventoryUtils {
             lore.add(Utils.colorize("&e" + HeadAPI.getHeads(category).size() + " heads"));
             meta.setLore(lore);
             item.setItemMeta(meta);
-            inventory.addItem(item);
+            inventory.setItem(uiGetLocation(category.getName(), category.getLocation()), item);
         }
 
         if (player.hasPermission("headdb.favorites")) {
-            inventory.setItem(39, buildButton(
+            inventory.setItem(uiGetLocation("favorites", 39), buildButton(
                 XMaterial.BOOK.parseItem(),
                 "&eFavorites",
                 "",
@@ -165,7 +180,7 @@ public class InventoryUtils {
         }
 
         if (player.hasPermission("headdb.search")) {
-            inventory.setItem(40, buildButton(
+            inventory.setItem(uiGetLocation("search", 40), buildButton(
                 XMaterial.DARK_OAK_SIGN.parseItem(),
                 "&9Search",
                 "",
@@ -174,7 +189,7 @@ public class InventoryUtils {
         }
 
         if (player.hasPermission("headdb.local")) {
-            inventory.setItem(41, buildButton(
+            inventory.setItem(uiGetLocation("local", 41), buildButton(
                 XMaterial.COMPASS.parseItem(),
                 "&aLocal",
                 "",
@@ -182,26 +197,20 @@ public class InventoryUtils {
             ));
         }
 
+        fill(inventory, new ItemStack(Material.BLACK_STAINED_GLASS_PANE));
         player.openInventory(inventory);
     }
 
     public static void fill(Inventory inv, ItemStack item) {
         int size = inv.getSize();
-        int[] ignored = new int[]{20, 21, 22, 23, 24, 29, 30, 31, 32, 33};
 
-        // Fill
+        // Fill any non-empty inventory slots with the given item.
         for (int i = 0; i < size; i++) {
-            if (!contains(i, ignored)) {
-                ItemStack slotItem = inv.getItem(i);
-                if (slotItem == null || slotItem.getType() == Material.AIR) {
-                    inv.setItem(i, item);
-                }
+            ItemStack slotItem = inv.getItem(i);
+            if (slotItem == null || slotItem.getType() == Material.AIR) {
+                inv.setItem(i, item);
             }
         }
-    }
-
-    private static boolean contains(int n, int... array) {
-        return Arrays.binarySearch(array, n) > -1;
     }
 
     private static ItemStack buildButton(ItemStack item, String name, String... lore) {

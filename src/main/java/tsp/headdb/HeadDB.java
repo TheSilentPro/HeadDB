@@ -13,12 +13,15 @@ import tsp.headdb.listener.MenuListener;
 import tsp.headdb.util.Log;
 import tsp.headdb.util.Metrics;
 import tsp.headdb.util.Utils;
+import org.bukkit.plugin.RegisteredServiceProvider;
+import net.milkbowl.vault.economy.Economy;
 
 public class HeadDB extends JavaPlugin {
 
     private static HeadDB instance;
     private Config config;
     private Json playerdata;
+    private Economy economy = null;
 
     @Override
     public void onEnable() {
@@ -27,6 +30,16 @@ public class HeadDB extends JavaPlugin {
         saveDefaultConfig();
         config = LightningBuilder.fromPath("config.yml", "plugins/HeadDB").createConfig().addDefaultsFromInputStream();
         playerdata = LightningBuilder.fromPath("playerdata.json", "plugins/HeadDB").createJson();
+
+        if (config.getBoolean("economy.enable")) {
+            Log.debug("Starting economy...");
+            this.economy = this.setupEconomy();
+            if (this.economy == null) {
+                Log.error("Economy support requires Vault and an economy provider plugin.");
+            } else {
+                Log.info("Economy provider: " + this.economy.getName());
+            }
+        }
 
         Log.debug("Starting metrics...");
         new Metrics(this, Utils.METRICS_ID);
@@ -52,6 +65,15 @@ public class HeadDB extends JavaPlugin {
         Log.info("Done!");
     }
 
+    private Economy setupEconomy() {
+        if (!this.getServer().getPluginManager().isPluginEnabled("Vault")) return null;
+
+        RegisteredServiceProvider<Economy> economyProvider = this.getServer().getServicesManager().getRegistration(Economy.class);
+        if (economyProvider == null) return null;
+
+        return this.economy = economyProvider.getProvider();
+    }
+
     public Config getCfg() {
         return config;
     }
@@ -64,4 +86,7 @@ public class HeadDB extends JavaPlugin {
         return instance;
     }
 
+    public Economy getEconomy() {
+        return this.economy;
+    }
 }

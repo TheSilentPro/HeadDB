@@ -7,12 +7,14 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import tsp.headdb.HeadDB;
 import tsp.headdb.api.Head;
 import tsp.headdb.api.HeadAPI;
 import tsp.headdb.api.LocalHead;
 import tsp.headdb.database.Category;
 import tsp.headdb.util.Utils;
 import tsp.headdb.util.XMaterial;
+import net.milkbowl.vault.economy.Economy;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,13 +29,11 @@ public class InventoryUtils {
         for (LocalHead localHead : heads) {
             pane.addButton(new Button(localHead.getItemStack(), e -> {
                 if (e.getClick() == ClickType.SHIFT_LEFT) {
-                    ItemStack item = localHead.getItemStack();
-                    item.setAmount(64);
-                    player.getInventory().addItem(item);
+                    purchaseItem(player, localHead.getItemStack(), 64, "local", localHead.getName());
                     return;
                 }
                 if (e.getClick() == ClickType.LEFT) {
-                    player.getInventory().addItem(localHead.getItemStack());
+                    purchaseItem(player, localHead.getItemStack(), 1, "local", localHead.getName());
                     return;
                 }
                 if (e.getClick() == ClickType.RIGHT) {
@@ -53,13 +53,11 @@ public class InventoryUtils {
         for (Head head : heads) {
             pane.addButton(new Button(head.getItemStack(), e -> {
                 if (e.getClick() == ClickType.SHIFT_LEFT) {
-                    ItemStack item = head.getItemStack();
-                    item.setAmount(64);
-                    player.getInventory().addItem(item);
+                    purchaseItem(player, head.getItemStack(), 64, head.getCategory().getName(), head.getName());
                     return;
                 }
                 if (e.getClick() == ClickType.LEFT) {
-                    player.getInventory().addItem(head.getItemStack());
+                    purchaseItem(player, head.getItemStack(), 1, head.getCategory().getName(), head.getName());
                 }
                 if (e.getClick() == ClickType.RIGHT) {
                     HeadAPI.removeFavoriteHead(player.getUniqueId(), head.getId());
@@ -79,13 +77,11 @@ public class InventoryUtils {
         for (Head head : heads) {
             pane.addButton(new Button(head.getItemStack(), e -> {
                 if (e.getClick() == ClickType.SHIFT_LEFT) {
-                    ItemStack item = head.getItemStack();
-                    item.setAmount(64);
-                    player.getInventory().addItem(item);
+                    purchaseItem(player, head.getItemStack(), 64, head.getCategory().getName(), head.getName());
                     return;
                 }
                 if (e.getClick() == ClickType.LEFT) {
-                    player.getInventory().addItem(head.getItemStack());
+                    purchaseItem(player, head.getItemStack(), 1, head.getCategory().getName(), head.getName());
                 }
                 if (e.getClick() == ClickType.RIGHT) {
                     HeadAPI.addFavoriteHead(player.getUniqueId(), head.getId());
@@ -105,13 +101,11 @@ public class InventoryUtils {
         for (Head head : heads) {
             pane.addButton(new Button(head.getItemStack(), e -> {
                 if (e.getClick() == ClickType.SHIFT_LEFT) {
-                    ItemStack item = head.getItemStack();
-                    item.setAmount(64);
-                    player.getInventory().addItem(item);
+                    purchaseItem(player, head.getItemStack(), 64, head.getCategory().getName(), head.getName());
                     return;
                 }
                 if (e.getClick() == ClickType.LEFT) {
-                    player.getInventory().addItem(head.getItemStack());
+                    purchaseItem(player, head.getItemStack(), 1, head.getCategory().getName(), head.getName());
                 }
                 if (e.getClick() == ClickType.RIGHT) {
                     HeadAPI.addFavoriteHead(player.getUniqueId(), head.getId());
@@ -130,13 +124,11 @@ public class InventoryUtils {
         for (Head head : heads) {
             pane.addButton(new Button(head.getItemStack(), e -> {
                 if (e.getClick() == ClickType.SHIFT_LEFT) {
-                    ItemStack item = head.getItemStack();
-                    item.setAmount(64);
-                    player.getInventory().addItem(item);
+                    purchaseItem(player, head.getItemStack(), 64, head.getCategory().getName(), head.getName());
                     return;
                 }
                 if (e.getClick() == ClickType.LEFT) {
-                    player.getInventory().addItem(head.getItemStack());
+                    purchaseItem(player, head.getItemStack(), 1, head.getCategory().getName(), head.getName());
                 }
                 if (e.getClick() == ClickType.RIGHT) {
                     HeadAPI.addFavoriteHead(player.getUniqueId(), head.getId());
@@ -228,4 +220,45 @@ public class InventoryUtils {
         return item;
     }
 
+    public static double getCategoryCost(Player player, String category) {
+        // If the player has the permission headdb.economy.free or headdb.economy.CATEGORY.free, the item is free.
+        if (player.hasPermission("headdb.economy.free") || player.hasPermission("headdb.economy." + category + ".free")) return 0;
+
+        // Otherwise, get the price for this category from the config file.
+        return HeadDB.getInstance().getCfg().getDouble("economy.cost." + category);
+    }
+
+    public static boolean processPayment(Player player, int amount, String category, String description) {
+        Economy economy = HeadDB.getInstance().getEconomy();
+
+        // If economy is disabled or no plugin is present, the item is free.
+        // Don't mention receiving it for free in this case, since it is always free.
+        if (economy == null) {
+            player.sendMessage(String.format("You received %d x %s!", amount, description));
+            return true;
+        }
+
+        double cost = getCategoryCost(player, category) * amount;
+
+        // If the cost is higher than zero, attempt to charge for it.
+        if (cost > 0) {
+            if (economy.has(player, cost)) {
+                economy.withdrawPlayer(player, cost);
+                player.sendMessage(String.format("You purchased %d x %s for %.2f %s!", amount, description, cost, economy.currencyNamePlural()));
+                return true;
+            }
+            player.sendMessage(String.format("You do not have enough %s to purchase %d x %s.", economy.currencyNamePlural(), amount, description));
+            return false;
+        }
+
+        // Otherwise, the item is free.
+        player.sendMessage(String.format("You received %d x %s for free!", amount, description));
+        return true;
+    }
+
+    public static void purchaseItem(Player player, ItemStack item, int amount, String category, String description) {
+        if (!processPayment(player, amount, category, description)) return;
+        item.setAmount(amount);
+        player.getInventory().addItem(item);
+    }
 }

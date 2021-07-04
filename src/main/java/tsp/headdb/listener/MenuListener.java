@@ -2,6 +2,7 @@ package tsp.headdb.listener;
 
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,7 +14,6 @@ import tsp.headdb.HeadDB;
 import tsp.headdb.database.Category;
 import tsp.headdb.inventory.InventoryUtils;
 import tsp.headdb.util.Utils;
-import tsp.headdb.util.XMaterial;
 
 public class MenuListener implements Listener {
 
@@ -35,7 +35,7 @@ public class MenuListener implements Listener {
                 int slot = e.getSlot();
                 ItemStack item = inventory.getItem(slot);
 
-                if (item != null && item.getType() != XMaterial.AIR.parseMaterial()) {
+                if (item != null && item.getType() != Material.AIR) {
                     String name = ChatColor.stripColor(item.getItemMeta().getDisplayName().toLowerCase());
                     if (name.equalsIgnoreCase("favorites")) {
                         if (!player.hasPermission("headdb.favorites")) {

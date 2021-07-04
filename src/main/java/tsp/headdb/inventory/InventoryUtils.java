@@ -214,23 +214,44 @@ public class InventoryUtils {
         return item;
     }
 
-    public static void purchaseItem(Player player, ItemStack item, int amount, String costCfg, String description) {
+    public static double getCategoryCost(Player player, String category) {
+        // If the player has the permission headdb.economy.free or headdb.economy.CATEGORY.free, the item is free.
+        if (player.hasPermission("headdb.economy.free") || player.hasPermission("headdb.economy." + category + ".free")) return 0;
+
+        // Otherwise, get the price for this category from the config file.
+        return HeadDB.getInstance().getCfg().getDouble("economy.cost." + category);
+    }
+
+    public static boolean processPayment(Player player, int amount, String category, String description) {
         Economy economy = HeadDB.getInstance().getEconomy();
-        if (economy != null) {
-            double cost = amount * HeadDB.getInstance().getCfg().getDouble("economy.cost." + costCfg);
-            if (cost > 0) {
-                if (economy.has(player, cost)) {
-                    economy.withdrawPlayer(player, cost);
-                    player.sendMessage(String.format("You purchased %d x %s for %.2f %s!", amount, description, cost, economy.currencyNamePlural()));
-                } else {
-                    player.sendMessage(String.format("You do not have enough %s to purchase %d x %s.", economy.currencyNamePlural(), amount, description));
-                    return;
-                }
-            } else {
-                player.sendMessage(String.format("You purchased %d x %s for free!", amount, description));
-            }
+
+        // If economy is disabled or no plugin is present, the item is free.
+        // Don't mention receiving it for free in this case, since it is always free.
+        if (economy == null) {
+            player.sendMessage(String.format("You received %d x %s!", amount, description));
+            return true;
         }
 
+        double cost = getCategoryCost(player, category) * amount;
+
+        // If the cost is higher than zero, attempt to charge for it.
+        if (cost > 0) {
+            if (economy.has(player, cost)) {
+                economy.withdrawPlayer(player, cost);
+                player.sendMessage(String.format("You purchased %d x %s for %.2f %s!", amount, description, cost, economy.currencyNamePlural()));
+                return true;
+            }
+            player.sendMessage(String.format("You do not have enough %s to purchase %d x %s.", economy.currencyNamePlural(), amount, description));
+            return false;
+        }
+
+        // Otherwise, the item is free.
+        player.sendMessage(String.format("You received %d x %s for free!", amount, description));
+        return true;
+    }
+
+    public static void purchaseItem(Player player, ItemStack item, int amount, String category, String description) {
+        if (!processPayment(player, amount, category, description)) return;
         item.setAmount(amount);
         player.getInventory().addItem(item);
     }

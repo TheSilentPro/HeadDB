@@ -14,7 +14,6 @@ import tsp.headdb.api.HeadAPI;
 import tsp.headdb.api.LocalHead;
 import tsp.headdb.database.Category;
 import tsp.headdb.util.Utils;
-import tsp.headdb.util.XMaterial;
 
 import net.milkbowl.vault.economy.Economy;
 
@@ -25,6 +24,7 @@ import java.util.Map;
 
 public class InventoryUtils {
     private static final Map<String, Integer> uiLocation = new HashMap<>();
+    private static final Map<String, ItemStack> uiItem = new HashMap<>();
 
     public static int uiGetLocation(String category, int slot) {
         // Try to use the cached value first; then the config; then the given default.
@@ -36,6 +36,25 @@ public class InventoryUtils {
             }
         }
         return uiLocation.get(category);
+    }
+
+    public static ItemStack uiGetItem(String category, ItemStack item) {
+        // Try to use the cached value first; then the config; then the given default.
+        if (!uiItem.containsKey(category)) {
+            if (HeadDB.getInstance().getCfg().contains("ui.category." + category + ".item")) {
+                String cfg = HeadDB.getInstance().getCfg().getString("ui.category." + category + ".item");
+                Material mat = Material.matchMaterial(cfg);
+                if (mat == null || mat == Material.AIR) {
+                    // Material set in config is invalid, use the given default.
+                    uiItem.put(category, item);
+                } else {
+                    uiItem.put(category, new ItemStack(mat));
+                }
+            } else {
+                uiItem.put(category, item);
+            }
+        }
+        return uiItem.get(category);
     }
 
     public static void openLocalMenu(Player player) {
@@ -160,7 +179,7 @@ public class InventoryUtils {
         Inventory inventory = Bukkit.createInventory(null, 54, Utils.colorize("&c&lHeadDB &8(" + HeadAPI.getHeads().size() + ")"));
 
         for (Category category : Category.getCategories()) {
-            ItemStack item = category.getItem();
+            ItemStack item = uiGetItem(category.getName(), category.getItem());
             ItemMeta meta = item.getItemMeta();
             meta.setDisplayName(Utils.colorize(category.getColor() + "&l" + category.getName().toUpperCase()));
             List<String> lore = new ArrayList<>();
@@ -172,7 +191,7 @@ public class InventoryUtils {
 
         if (player.hasPermission("headdb.favorites")) {
             inventory.setItem(uiGetLocation("favorites", 39), buildButton(
-                XMaterial.BOOK.parseItem(),
+                uiGetItem("favorites", new ItemStack(Material.BOOK)),
                 "&eFavorites",
                 "",
                 "&8Click to view your favorites")
@@ -181,7 +200,7 @@ public class InventoryUtils {
 
         if (player.hasPermission("headdb.search")) {
             inventory.setItem(uiGetLocation("search", 40), buildButton(
-                XMaterial.DARK_OAK_SIGN.parseItem(),
+                uiGetItem("search", new ItemStack(Material.DARK_OAK_SIGN)),
                 "&9Search",
                 "",
                 "&8Click to open search menu"
@@ -190,7 +209,7 @@ public class InventoryUtils {
 
         if (player.hasPermission("headdb.local")) {
             inventory.setItem(uiGetLocation("local", 41), buildButton(
-                XMaterial.COMPASS.parseItem(),
+                uiGetItem("local", new ItemStack(Material.COMPASS)),
                 "&aLocal",
                 "",
                 "&8Heads from any players that have logged on the server"

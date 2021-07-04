@@ -48,10 +48,13 @@ ui:
       location: 33
     favorites:
       location: 39
+      item: BOOK
     search:
       location: 40
+      item: DARK_OAK_SIGN
     local:
       location: 41
+      item: COMPASS
 
 # Debug Mode
 debug: false

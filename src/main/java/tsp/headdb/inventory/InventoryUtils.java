@@ -39,22 +39,32 @@ public class InventoryUtils {
     }
 
     public static ItemStack uiGetItem(String category, ItemStack item) {
-        // Try to use the cached value first; then the config; then the given default.
-        if (!uiItem.containsKey(category)) {
-            if (HeadDB.getInstance().getCfg().contains("ui.category." + category + ".item")) {
-                String cfg = HeadDB.getInstance().getCfg().getString("ui.category." + category + ".item");
-                Material mat = Material.matchMaterial(cfg);
-                if (mat == null || mat == Material.AIR) {
-                    // Material set in config is invalid, use the given default.
-                    uiItem.put(category, item);
-                } else {
-                    uiItem.put(category, new ItemStack(mat));
-                }
-            } else {
-                uiItem.put(category, item);
+        // Try to use the cached value first.
+        if (uiItem.containsKey(category)) return uiItem.get(category);
+
+        // Try to get a head from the config file.
+        if (HeadDB.getInstance().getCfg().contains("ui.category." + category + ".head")) {
+            int id = HeadDB.getInstance().getCfg().getInt("ui.category." + category + ".head");
+            Head head = HeadAPI.getHeadByID(id);
+            if (head != null) {
+                uiItem.put(category, head.getItemStack());
+                return uiItem.get(category);
             }
         }
-        return uiItem.get(category);
+
+        // Try to get an item from the config file.
+        if (HeadDB.getInstance().getCfg().contains("ui.category." + category + ".item")) {
+            String cfg = HeadDB.getInstance().getCfg().getString("ui.category." + category + ".item");
+            Material mat = Material.matchMaterial(cfg);
+            if (mat != null && mat != Material.AIR) {
+                uiItem.put(category, new ItemStack(mat));
+                return uiItem.get(category);
+            }
+        }
+
+        // No valid head or item in the config file, return the given default.
+        uiItem.put(category, item);
+        return item;
     }
 
     public static void openLocalMenu(Player player) {

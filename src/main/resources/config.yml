@@ -26,26 +26,38 @@ economy:
 # UI customization options.
 ui:
   category:
+    # Head categories.
     alphabet:
       location: 20
+      head: 1788
     animals:
       location: 21
+      head: 5741
     blocks:
       location: 22
+      head: 8624
     decoration:
       location: 23
+      head: 11046
     food-drinks:
       location: 24
+      head: 17442
     humans:
       location: 29
+      head: 19361
     humanoid:
       location: 30
+      head: 28320
     miscellaneous:
       location: 31
+      head: 32746
     monsters:
       location: 32
+      head: 34819
     plants:
       location: 33
+      head: 37278
+    # Meta categories, used for UI elements.
     favorites:
       location: 39
       item: BOOK

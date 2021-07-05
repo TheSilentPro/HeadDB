@@ -6,7 +6,6 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import tsp.headdb.util.Utils;
-import tsp.headdb.util.XMaterial;
 
 import java.util.ArrayList;
 import java.util.List;

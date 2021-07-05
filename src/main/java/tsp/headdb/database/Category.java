@@ -11,25 +11,26 @@ import java.util.List;
 import java.util.Map;
 
 public enum Category {
-
-    ALPHABET("alphabet", ChatColor.YELLOW),
-    ANIMALS("animals", ChatColor.DARK_AQUA),
-    BLOCKS("blocks", ChatColor.DARK_GRAY),
-    DECORATION("decoration", ChatColor.LIGHT_PURPLE),
-    FOOD_DRINKS("food-drinks", ChatColor.GOLD),
-    HUMANS("humans", ChatColor.DARK_BLUE),
-    HUMANOID("humanoid", ChatColor.AQUA),
-    MISCELLANEOUS("miscellaneous", ChatColor.DARK_GREEN),
-    MONSTERS("monsters", ChatColor.RED),
-    PLANTS("plants", ChatColor.GREEN);
+    ALPHABET("alphabet", ChatColor.YELLOW, 20),
+    ANIMALS("animals", ChatColor.DARK_AQUA, 21),
+    BLOCKS("blocks", ChatColor.DARK_GRAY, 22),
+    DECORATION("decoration", ChatColor.LIGHT_PURPLE, 23),
+    FOOD_DRINKS("food-drinks", ChatColor.GOLD, 24),
+    HUMANS("humans", ChatColor.DARK_BLUE, 29),
+    HUMANOID("humanoid", ChatColor.AQUA, 30),
+    MISCELLANEOUS("miscellaneous", ChatColor.DARK_GREEN, 31),
+    MONSTERS("monsters", ChatColor.RED, 32),
+    PLANTS("plants", ChatColor.GREEN, 33);
 
     private final String name;
     private final ChatColor color;
+    private final int location;
     private final Map<Category, Head> item = new HashMap<>();
 
-    Category(String name, ChatColor color) {
+    Category(String name, ChatColor color, int location) {
         this.name = name;
         this.color = color;
+        this.location = location;
     }
 
     public String getName() {
@@ -38,6 +39,10 @@ public enum Category {
 
     public ChatColor getColor() {
         return color;
+    }
+
+    public int getLocation() {
+        return location;
     }
 
     public ItemStack getItem() {

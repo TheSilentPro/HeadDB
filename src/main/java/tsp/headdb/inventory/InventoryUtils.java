@@ -33,7 +33,7 @@ public class InventoryUtils {
         // Try to get the value from the config file.
         if (HeadDB.getInstance().getCfg().contains("ui.category." + category + ".location")) {
             uiLocation.put(category, HeadDB.getInstance().getCfg().getInt("ui.category." + category + ".location"));
-            uiLocation.get(category);
+            return uiLocation.get(category);
         }
 
         // No valid value in the config file, return the given default.

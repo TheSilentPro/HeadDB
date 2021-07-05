@@ -27,19 +27,22 @@ public class InventoryUtils {
     private static final Map<String, ItemStack> uiItem = new HashMap<>();
 
     public static int uiGetLocation(String category, int slot) {
-        // Try to use the cached value first; then the config; then the given default.
-        if (!uiLocation.containsKey(category)) {
-            if (HeadDB.getInstance().getCfg().contains("ui.category." + category + ".location")) {
-                uiLocation.put(category, HeadDB.getInstance().getCfg().getInt("ui.category." + category + ".location"));
-            } else {
-                uiLocation.put(category, slot);
-            }
+        // Try to use the cached value first.
+        if (uiLocation.containsKey(category)) return uiLocation.get(category);
+
+        // Try to get the value from the config file.
+        if (HeadDB.getInstance().getCfg().contains("ui.category." + category + ".location")) {
+            uiLocation.put(category, HeadDB.getInstance().getCfg().getInt("ui.category." + category + ".location"));
+            uiLocation.get(category);
         }
-        return uiLocation.get(category);
+
+        // No valid value in the config file, return the given default.
+        uiLocation.put(category, slot);
+        return slot;
     }
 
     public static ItemStack uiGetItem(String category, ItemStack item) {
-        // Try to use the cached value first.
+        // Try to use the cached item first.
         if (uiItem.containsKey(category)) return uiItem.get(category);
 
         // Try to get a head from the config file.

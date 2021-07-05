@@ -23,10 +23,11 @@ import java.util.List;
 import java.util.Map;
 
 public class InventoryUtils {
+
     private static final Map<String, Integer> uiLocation = new HashMap<>();
     private static final Map<String, ItemStack> uiItem = new HashMap<>();
 
-    public static int uiGetLocation(String category, int slot) {
+    public static int getUILocation(String category, int slot) {
         // Try to use the cached value first.
         if (uiLocation.containsKey(category)) return uiLocation.get(category);
 
@@ -41,7 +42,7 @@ public class InventoryUtils {
         return slot;
     }
 
-    public static ItemStack uiGetItem(String category, ItemStack item) {
+    public static ItemStack getUIItem(String category, ItemStack item) {
         // Try to use the cached item first.
         if (uiItem.containsKey(category)) return uiItem.get(category);
 
@@ -194,19 +195,19 @@ public class InventoryUtils {
         Inventory inventory = Bukkit.createInventory(null, 54, Utils.colorize("&c&lHeadDB &8(" + HeadAPI.getHeads().size() + ")"));
 
         for (Category category : Category.getCategories()) {
-            ItemStack item = uiGetItem(category.getName(), category.getItem());
+            ItemStack item = getUIItem(category.getName(), category.getItem());
             ItemMeta meta = item.getItemMeta();
             meta.setDisplayName(Utils.colorize(category.getColor() + "&l" + category.getName().toUpperCase()));
             List<String> lore = new ArrayList<>();
             lore.add(Utils.colorize("&e" + HeadAPI.getHeads(category).size() + " heads"));
             meta.setLore(lore);
             item.setItemMeta(meta);
-            inventory.setItem(uiGetLocation(category.getName(), category.getLocation()), item);
+            inventory.setItem(getUILocation(category.getName(), category.getLocation()), item);
         }
 
         if (player.hasPermission("headdb.favorites")) {
-            inventory.setItem(uiGetLocation("favorites", 39), buildButton(
-                uiGetItem("favorites", new ItemStack(Material.BOOK)),
+            inventory.setItem(getUILocation("favorites", 39), buildButton(
+                getUIItem("favorites", new ItemStack(Material.BOOK)),
                 "&eFavorites",
                 "",
                 "&8Click to view your favorites")
@@ -214,8 +215,8 @@ public class InventoryUtils {
         }
 
         if (player.hasPermission("headdb.search")) {
-            inventory.setItem(uiGetLocation("search", 40), buildButton(
-                uiGetItem("search", new ItemStack(Material.DARK_OAK_SIGN)),
+            inventory.setItem(getUILocation("search", 40), buildButton(
+                getUIItem("search", new ItemStack(Material.DARK_OAK_SIGN)),
                 "&9Search",
                 "",
                 "&8Click to open search menu"
@@ -223,8 +224,8 @@ public class InventoryUtils {
         }
 
         if (player.hasPermission("headdb.local")) {
-            inventory.setItem(uiGetLocation("local", 41), buildButton(
-                uiGetItem("local", new ItemStack(Material.COMPASS)),
+            inventory.setItem(getUILocation("local", 41), buildButton(
+                getUIItem("local", new ItemStack(Material.COMPASS)),
                 "&aLocal",
                 "",
                 "&8Heads from any players that have logged on the server"
@@ -236,7 +237,7 @@ public class InventoryUtils {
     }
 
     public static void fill(Inventory inv) {
-        ItemStack item = uiGetItem("fill", new ItemStack(Material.BLACK_STAINED_GLASS_PANE));
+        ItemStack item = getUIItem("fill", new ItemStack(Material.BLACK_STAINED_GLASS_PANE));
         // Do not bother filling the inventory if item to fill it with is AIR.
         if (item == null || item.getType() == Material.AIR) return;
 
@@ -307,4 +308,5 @@ public class InventoryUtils {
         item.setAmount(amount);
         player.getInventory().addItem(item);
     }
+
 }

@@ -7,5 +7,69 @@ asyncStartup: false
 # If the cached heads are older than these amount of seconds, the plugin will refresh the database
 refresh: 3600
 
+# Economy options
+economy:
+  enable: false
+  cost:
+    alphabet: 100
+    animals: 100
+    blocks: 100
+    decoration: 100
+    food-drinks: 100
+    humans: 100
+    humanoid: 100
+    miscellaneous: 100
+    monsters: 100
+    plants: 100
+    local: 1000
+
+# UI customization options.
+ui:
+  category:
+    # Head categories. You can use item: instead of head: here, but AIR is not supported.
+    alphabet:
+      location: 20
+      head: 1788
+    animals:
+      location: 21
+      head: 5741
+    blocks:
+      location: 22
+      head: 8624
+    decoration:
+      location: 23
+      head: 11046
+    food-drinks:
+      location: 24
+      head: 17442
+    humans:
+      location: 29
+      head: 19361
+    humanoid:
+      location: 30
+      head: 28320
+    miscellaneous:
+      location: 31
+      head: 32746
+    monsters:
+      location: 32
+      head: 34819
+    plants:
+      location: 33
+      head: 37278
+    # Meta categories, used for UI elements. AIR is not supported. You can use head: instead of item: here.
+    favorites:
+      location: 39
+      item: BOOK
+    search:
+      location: 40
+      item: DARK_OAK_SIGN
+    local:
+      location: 41
+      item: COMPASS
+    # Item used to fill unused slots in the categories menu. AIR is supported. You can use head: instead of item: here.
+    fill:
+      item: BLACK_STAINED_GLASS_PANE
+
 # Debug Mode
 debug: false

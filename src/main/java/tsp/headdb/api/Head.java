@@ -9,7 +9,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 import tsp.headdb.database.Category;
 import tsp.headdb.util.Log;
 import tsp.headdb.util.Utils;
-import tsp.headdb.util.XMaterial;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;

@@ -68,6 +68,13 @@
             <artifactId>anvilgui</artifactId>
             <version>1.5.1-SNAPSHOT</version>
         </dependency>
+        <!-- Vault -->
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

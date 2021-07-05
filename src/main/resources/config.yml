@@ -26,7 +26,7 @@ economy:
 # UI customization options.
 ui:
   category:
-    # Head categories.
+    # Head categories. You can use item: instead of head: here, but AIR is not supported.
     alphabet:
       location: 20
       head: 1788
@@ -57,7 +57,7 @@ ui:
     plants:
       location: 33
       head: 37278
-    # Meta categories, used for UI elements.
+    # Meta categories, used for UI elements. AIR is not supported. You can use head: instead of item: here.
     favorites:
       location: 39
       item: BOOK
@@ -67,6 +67,9 @@ ui:
     local:
       location: 41
       item: COMPASS
+    # Item used to fill unused slots in the categories menu. AIR is supported. You can use head: instead of item: here.
+    fill:
+      item: BLACK_STAINED_GLASS_PANE
 
 # Debug Mode
 debug: false

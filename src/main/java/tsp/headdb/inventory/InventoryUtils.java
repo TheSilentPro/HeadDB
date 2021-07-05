@@ -56,7 +56,9 @@ public class InventoryUtils {
         if (HeadDB.getInstance().getCfg().contains("ui.category." + category + ".item")) {
             String cfg = HeadDB.getInstance().getCfg().getString("ui.category." + category + ".item");
             Material mat = Material.matchMaterial(cfg);
-            if (mat != null && mat != Material.AIR) {
+
+            // AIR is allowed as the fill material for the menu, but not as a category item.
+            if (mat != null && (category.equals("fill") || mat != Material.AIR)) {
                 uiItem.put(category, new ItemStack(mat));
                 return uiItem.get(category);
             }
@@ -226,14 +228,17 @@ public class InventoryUtils {
             ));
         }
 
-        fill(inventory, new ItemStack(Material.BLACK_STAINED_GLASS_PANE));
+        fill(inventory);
         player.openInventory(inventory);
     }
 
-    public static void fill(Inventory inv, ItemStack item) {
-        int size = inv.getSize();
+    public static void fill(Inventory inv) {
+        ItemStack item = uiGetItem("fill", new ItemStack(Material.BLACK_STAINED_GLASS_PANE));
+        // Do not bother filling the inventory if item to fill it with is AIR.
+        if (item == null || item.getType() == Material.AIR) return;
 
         // Fill any non-empty inventory slots with the given item.
+        int size = inv.getSize();
         for (int i = 0; i < size; i++) {
             ItemStack slotItem = inv.getItem(i);
             if (slotItem == null || slotItem.getType() == Material.AIR) {

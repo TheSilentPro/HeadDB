@@ -4,7 +4,7 @@ description: ${project.description}
 main: tsp.headdb.HeadDB
 version: ${project.version}
 softdepend: [Vault]
-api-version: 1.16
+api-version: 1.13
 author: Silent
 
 commands:

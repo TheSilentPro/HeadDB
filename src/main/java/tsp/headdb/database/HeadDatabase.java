@@ -16,6 +16,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 
 /**
  * This is the Database that holds all heads
@@ -53,10 +54,10 @@ public class HeadDatabase {
         return null;
     }
 
-    public Head getHeadByUUID(UUID uuid) {
+    public Head getHeadByUniqueId(UUID uuid) {
         List<Head> heads = getHeads();
         for (Head head : heads) {
-            if (head.getUUID().equals(uuid)) {
+            if (head.getUniqueId().equals(uuid)) {
                 return head;
             }
         }
@@ -118,6 +119,12 @@ public class HeadDatabase {
         return getHeads();
     }
 
+    /**
+     * Gets all heads from the api provider
+     *
+     * @return Map containing each head in it's category. Returns null if the fetching failed.
+     */
+    @Nullable
     public Map<Category, List<Head>> getHeadsNoCache() {
         Map<Category, List<Head>> result = new HashMap<>();
         List<Category> categories = Category.getCategories();
@@ -125,6 +132,7 @@ public class HeadDatabase {
         int id = 1;
         for (Category category : categories) {
             Log.debug("Caching heads from: " + category.getName());
+            long start = System.currentTimeMillis();
             List<Head> heads = new ArrayList<>();
             try {
                 String line;
@@ -143,10 +151,10 @@ public class HeadDatabase {
                 for (Object o : array) {
                     JSONObject obj = (JSONObject) o;
                     String uuid = obj.get("uuid").toString();
-                    
+
                     Head head = new Head(id)
                             .withName(obj.get("name").toString())
-                            .withUUID(uuid.isEmpty() ? UUID.randomUUID() : UUID.fromString(uuid))
+                            .withUniqueId(uuid.isEmpty() ? UUID.randomUUID() : UUID.fromString(uuid))
                             .withValue(obj.get("value").toString())
                             .withTags(obj.get("tags") != null ? obj.get("tags").toString() : "None")
                             .withCategory(category);
@@ -154,9 +162,13 @@ public class HeadDatabase {
                     id++;
                     heads.add(head);
                 }
+
+                long elapsed = (System.currentTimeMillis() - start);
+                Log.debug(category.getName() + " -> Done! Time: " + elapsed + "ms (" + TimeUnit.MILLISECONDS.toSeconds(elapsed) + "s)");
             } catch (ParseException | IOException e) {
                 Log.error("Failed to fetch heads (no-cache) | Stack Trace:");
                 e.printStackTrace();
+                return null;
             }
 
             updated = System.nanoTime();
@@ -166,12 +178,23 @@ public class HeadDatabase {
         return result;
     }
 
-    public void update() {
+    /**
+     * Updates the cached heads
+     *
+     * @return Returns true if the update was successful.
+     */
+    public boolean update() {
         Map<Category, List<Head>> heads = getHeadsNoCache();
+        if (heads == null) {
+            Log.error("Failed to update database! Check above for any errors.");
+            return false;
+        }
+
         HEADS.clear();
         for (Map.Entry<Category, List<Head>> entry : heads.entrySet()) {
             HEADS.put(entry.getKey(), entry.getValue());
         }
+        return true;
     }
 
     public long getLastUpdate() {
@@ -181,8 +204,8 @@ public class HeadDatabase {
     }
 
     public boolean isLastUpdateOld() {
-        if (HeadDB.getInstance().getCfg() == null && getLastUpdate() >= 3600) return true;
-        return getLastUpdate() >= HeadDB.getInstance().getCfg().getLong("refresh");
+        if (HeadDB.getInstance().getConfiguration() == null && getLastUpdate() >= 3600) return true;
+        return getLastUpdate() >= HeadDB.getInstance().getConfiguration().getLong("refresh");
     }
 
 }

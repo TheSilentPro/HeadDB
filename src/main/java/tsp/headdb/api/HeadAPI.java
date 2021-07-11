@@ -81,8 +81,8 @@ public final class HeadAPI {
      * @return The head
      */
     @Nullable
-    public static Head getHeadByUUID(UUID uuid) {
-        return database.getHeadByUUID(uuid);
+    public static Head getHeadByUniqueId(UUID uuid) {
+        return database.getHeadByUniqueId(uuid);
     }
 
     public static List<Head> getHeadsByTag(String tag) {
@@ -147,11 +147,11 @@ public final class HeadAPI {
      * @param id The ID of the head
      */
     public static void addFavoriteHead(UUID uuid, int id) {
-        List<Integer> favs = HeadDB.getInstance().getPlayerdata().getIntegerList(uuid.toString() + ".favorites");
+        List<Integer> favs = HeadDB.getInstance().getConfiguration().getIntegerList(uuid.toString() + ".favorites");
         if (!favs.contains(id)) {
             favs.add(id);
         }
-        HeadDB.getInstance().getPlayerdata().set(uuid.toString() + ".favorites", favs);
+        HeadDB.getInstance().getStorage().getPlayerData().set(uuid.toString() + ".favorites", favs);
     }
 
     /**
@@ -161,14 +161,14 @@ public final class HeadAPI {
      * @param id The ID of the head
      */
     public static void removeFavoriteHead(UUID uuid, int id) {
-        List<Integer> favs = HeadDB.getInstance().getPlayerdata().getIntegerList(uuid.toString() + ".favorites");
+        List<Integer> favs = HeadDB.getInstance().getStorage().getPlayerData().getIntegerList(uuid.toString() + ".favorites");
         for (int i = 0; i < favs.size(); i++) {
             if (favs.get(i) == id) {
                 favs.remove(i);
                 break;
             }
         }
-        HeadDB.getInstance().getPlayerdata().set(uuid.toString() + ".favorites", favs);
+        HeadDB.getInstance().getStorage().getPlayerData().set(uuid.toString() + ".favorites", favs);
     }
 
     /**
@@ -179,7 +179,7 @@ public final class HeadAPI {
      */
     public static List<Head> getFavoriteHeads(UUID uuid) {
         List<Head> heads = new ArrayList<>();
-        List<Integer> ids = HeadDB.getInstance().getPlayerdata().getIntegerList(uuid.toString() + ".favorites");
+        List<Integer> ids = HeadDB.getInstance().getStorage().getPlayerData().getIntegerList(uuid.toString() + ".favorites");
         for (int id : ids) {
             Head head = getHeadByID(id);
             heads.add(head);
@@ -196,7 +196,7 @@ public final class HeadAPI {
      */
     public static List<LocalHead> getLocalHeads() {
         List<LocalHead> heads = new ArrayList<>();
-        for (String key : HeadDB.getInstance().getPlayerdata().singleLayerKeySet()) {
+        for (String key : HeadDB.getInstance().getStorage().getPlayerData().singleLayerKeySet()) {
             OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(key));
             heads.add(new LocalHead(player.getUniqueId())
                     .withName(player.getName()));

@@ -65,7 +65,7 @@ public class Head {
         return name;
     }
 
-    public UUID getUUID() {
+    public UUID getUniqueId() {
         return uuid;
     }
 
@@ -90,7 +90,7 @@ public class Head {
         return this;
     }
 
-    public Head withUUID(UUID uuid) {
+    public Head withUniqueId(UUID uuid) {
         this.uuid = uuid;
         return this;
     }

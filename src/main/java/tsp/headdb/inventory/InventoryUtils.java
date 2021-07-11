@@ -32,8 +32,8 @@ public class InventoryUtils {
         if (uiLocation.containsKey(category)) return uiLocation.get(category);
 
         // Try to get the value from the config file.
-        if (HeadDB.getInstance().getCfg().contains("ui.category." + category + ".location")) {
-            uiLocation.put(category, HeadDB.getInstance().getCfg().getInt("ui.category." + category + ".location"));
+        if (HeadDB.getInstance().getConfiguration().contains("ui.category." + category + ".location")) {
+            uiLocation.put(category, HeadDB.getInstance().getConfiguration().getInt("ui.category." + category + ".location"));
             return uiLocation.get(category);
         }
 
@@ -47,8 +47,8 @@ public class InventoryUtils {
         if (uiItem.containsKey(category)) return uiItem.get(category);
 
         // Try to get a head from the config file.
-        if (HeadDB.getInstance().getCfg().contains("ui.category." + category + ".head")) {
-            int id = HeadDB.getInstance().getCfg().getInt("ui.category." + category + ".head");
+        if (HeadDB.getInstance().getConfiguration().contains("ui.category." + category + ".head")) {
+            int id = HeadDB.getInstance().getConfiguration().getInt("ui.category." + category + ".head");
             Head head = HeadAPI.getHeadByID(id);
             if (head != null) {
                 uiItem.put(category, head.getItemStack());
@@ -57,8 +57,8 @@ public class InventoryUtils {
         }
 
         // Try to get an item from the config file.
-        if (HeadDB.getInstance().getCfg().contains("ui.category." + category + ".item")) {
-            String cfg = HeadDB.getInstance().getCfg().getString("ui.category." + category + ".item");
+        if (HeadDB.getInstance().getConfiguration().contains("ui.category." + category + ".item")) {
+            String cfg = HeadDB.getInstance().getConfiguration().getString("ui.category." + category + ".item");
             Material mat = Material.matchMaterial(cfg);
 
             // AIR is allowed as the fill material for the menu, but not as a category item.
@@ -272,7 +272,7 @@ public class InventoryUtils {
         if (player.hasPermission("headdb.economy.free") || player.hasPermission("headdb.economy." + category + ".free")) return 0;
 
         // Otherwise, get the price for this category from the config file.
-        return HeadDB.getInstance().getCfg().getDouble("economy.cost." + category);
+        return HeadDB.getInstance().getConfiguration().getDouble("economy.cost." + category);
     }
 
     public static boolean processPayment(Player player, int amount, String category, String description) {

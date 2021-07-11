@@ -13,7 +13,7 @@ public class JoinListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
-        HeadDB.getInstance().getPlayerdata().set(e.getPlayer().getUniqueId().toString() + ".username", e.getPlayer().getName());
+        HeadDB.getInstance().getStorage().getPlayerData().set(e.getPlayer().getUniqueId().toString() + ".username", e.getPlayer().getName());
     }
 
 }

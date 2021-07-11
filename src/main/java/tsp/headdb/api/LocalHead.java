@@ -35,7 +35,7 @@ public class LocalHead {
         this.uuid = uuid;
     }
 
-    public UUID getUuid() {
+    public UUID getUniqueId() {
         return uuid;
     }
 
@@ -43,7 +43,7 @@ public class LocalHead {
         return name;
     }
 
-    public LocalHead withUUID(UUID uuid) {
+    public LocalHead withUniqueId(UUID uuid) {
         this.uuid = uuid;
         return this;
     }

@@ -5,16 +5,21 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import tsp.headdb.database.Category;
 import tsp.headdb.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class LocalHead {
+public class LocalHead extends Head {
 
     private UUID uuid;
     private String name;
+
+    public LocalHead(UUID uuid) {
+        this.uuid = uuid;
+    }
 
     public ItemStack getItemStack() {
         Validate.notNull(uuid, "uuid must not be null!");
@@ -31,16 +36,32 @@ public class LocalHead {
         return item;
     }
 
-    public LocalHead(UUID uuid) {
-        this.uuid = uuid;
-    }
-
     public UUID getUniqueId() {
         return uuid;
     }
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getValue() {
+        return null;
+    }
+
+    @Override
+    public Category getCategory() {
+        return null;
+    }
+
+    @Override
+    public int getId() {
+        return -1;
+    }
+
+    @Override
+    public List<String> getTags() {
+        return null;
     }
 
     public LocalHead withUniqueId(UUID uuid) {

@@ -13,6 +13,7 @@ import tsp.headdb.api.Head;
 import tsp.headdb.api.HeadAPI;
 import tsp.headdb.api.LocalHead;
 import tsp.headdb.database.Category;
+import tsp.headdb.event.PlayerHeadPurchaseEvent;
 import tsp.headdb.util.Utils;
 
 import net.milkbowl.vault.economy.Economy;
@@ -80,11 +81,11 @@ public class InventoryUtils {
         for (LocalHead localHead : heads) {
             pane.addButton(new Button(localHead.getItemStack(), e -> {
                 if (e.getClick() == ClickType.SHIFT_LEFT) {
-                    purchaseItem(player, localHead.getItemStack(), 64, "local", localHead.getName());
+                    purchaseHead(player, localHead, 64, "local", localHead.getName());
                     return;
                 }
                 if (e.getClick() == ClickType.LEFT) {
-                    purchaseItem(player, localHead.getItemStack(), 1, "local", localHead.getName());
+                    purchaseHead(player, localHead, 1, "local", localHead.getName());
                     return;
                 }
                 if (e.getClick() == ClickType.RIGHT) {
@@ -104,11 +105,11 @@ public class InventoryUtils {
         for (Head head : heads) {
             pane.addButton(new Button(head.getItemStack(), e -> {
                 if (e.getClick() == ClickType.SHIFT_LEFT) {
-                    purchaseItem(player, head.getItemStack(), 64, head.getCategory().getName(), head.getName());
+                    purchaseHead(player, head, 64, head.getCategory().getName(), head.getName());
                     return;
                 }
                 if (e.getClick() == ClickType.LEFT) {
-                    purchaseItem(player, head.getItemStack(), 1, head.getCategory().getName(), head.getName());
+                    purchaseHead(player, head, 1, head.getCategory().getName(), head.getName());
                 }
                 if (e.getClick() == ClickType.RIGHT) {
                     HeadAPI.removeFavoriteHead(player.getUniqueId(), head.getId());
@@ -128,11 +129,11 @@ public class InventoryUtils {
         for (Head head : heads) {
             pane.addButton(new Button(head.getItemStack(), e -> {
                 if (e.getClick() == ClickType.SHIFT_LEFT) {
-                    purchaseItem(player, head.getItemStack(), 64, head.getCategory().getName(), head.getName());
+                    purchaseHead(player, head, 64, head.getCategory().getName(), head.getName());
                     return;
                 }
                 if (e.getClick() == ClickType.LEFT) {
-                    purchaseItem(player, head.getItemStack(), 1, head.getCategory().getName(), head.getName());
+                    purchaseHead(player, head, 1, head.getCategory().getName(), head.getName());
                 }
                 if (e.getClick() == ClickType.RIGHT) {
                     HeadAPI.addFavoriteHead(player.getUniqueId(), head.getId());
@@ -152,11 +153,11 @@ public class InventoryUtils {
         for (Head head : heads) {
             pane.addButton(new Button(head.getItemStack(), e -> {
                 if (e.getClick() == ClickType.SHIFT_LEFT) {
-                    purchaseItem(player, head.getItemStack(), 64, head.getCategory().getName(), head.getName());
+                    purchaseHead(player, head, 64, head.getCategory().getName(), head.getName());
                     return;
                 }
                 if (e.getClick() == ClickType.LEFT) {
-                    purchaseItem(player, head.getItemStack(), 1, head.getCategory().getName(), head.getName());
+                    purchaseHead(player, head, 1, head.getCategory().getName(), head.getName());
                 }
                 if (e.getClick() == ClickType.RIGHT) {
                     HeadAPI.addFavoriteHead(player.getUniqueId(), head.getId());
@@ -175,11 +176,11 @@ public class InventoryUtils {
         for (Head head : heads) {
             pane.addButton(new Button(head.getItemStack(), e -> {
                 if (e.getClick() == ClickType.SHIFT_LEFT) {
-                    purchaseItem(player, head.getItemStack(), 64, head.getCategory().getName(), head.getName());
+                    purchaseHead(player, head, 64, head.getCategory().getName(), head.getName());
                     return;
                 }
                 if (e.getClick() == ClickType.LEFT) {
-                    purchaseItem(player, head.getItemStack(), 1, head.getCategory().getName(), head.getName());
+                    purchaseHead(player, head, 1, head.getCategory().getName(), head.getName());
                 }
                 if (e.getClick() == ClickType.RIGHT) {
                     HeadAPI.addFavoriteHead(player.getUniqueId(), head.getId());
@@ -303,10 +304,23 @@ public class InventoryUtils {
         return true;
     }
 
+    @Deprecated
     public static void purchaseItem(Player player, ItemStack item, int amount, String category, String description) {
         if (!processPayment(player, amount, category, description)) return;
+
         item.setAmount(amount);
         player.getInventory().addItem(item);
+    }
+
+    public static void purchaseHead(Player player, Head head, int amount, String category, String description) {
+        if (!processPayment(player, amount, category, description)) return;
+        PlayerHeadPurchaseEvent event = new PlayerHeadPurchaseEvent(player, head, getCategoryCost(player, category));
+        Bukkit.getPluginManager().callEvent(event);
+        if (!event.isCancelled()) {
+            ItemStack item = head.getItemStack();
+            item.setAmount(amount);
+            player.getInventory().addItem(item);
+        }
     }
 
 }

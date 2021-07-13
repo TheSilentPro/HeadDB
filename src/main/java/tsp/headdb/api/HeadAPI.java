@@ -23,7 +23,7 @@ public final class HeadAPI {
 
     private HeadAPI() {}
 
-    private static final HeadDatabase database = new HeadDatabase();
+    private static final HeadDatabase database = new HeadDatabase(HeadDB.getInstance());
 
     /**
      * Retrieves the main {@link HeadDatabase}
@@ -49,7 +49,7 @@ public final class HeadAPI {
      * @param player Target player
      * @param category Category to open
      */
-    public static void openDatabase(Player player, Category category) {
+    public static void openCategoryDatabase(Player player, Category category) {
         InventoryUtils.openCategoryDatabase(player, category);
     }
 
@@ -59,8 +59,12 @@ public final class HeadAPI {
      * @param player Target player
      * @param search Search term
      */
-    public static void openDatabase(Player player, String search) {
+    public static void openSearchDatabase(Player player, String search) {
         InventoryUtils.openSearchDatabase(player, search);
+    }
+
+    public static void openTagSearchDatabase(Player player, String tag) {
+        InventoryUtils.openTagSearchDatabase(player, tag);
     }
 
     /**

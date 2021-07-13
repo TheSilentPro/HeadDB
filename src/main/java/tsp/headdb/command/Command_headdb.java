@@ -28,7 +28,7 @@ public class Command_headdb implements CommandExecutor {
             Player player = (Player) sender;
 
             Utils.sendMessage(player, "Opening &cHead Database");
-            InventoryUtils.openDatabase(player);
+            HeadAPI.openDatabase(player);
             return true;
         }
         String sub = args[0];
@@ -64,7 +64,7 @@ public class Command_headdb implements CommandExecutor {
             }
             String name = builder.toString();
             Utils.sendMessage(sender, "Searching for &e" + name);
-            InventoryUtils.openSearchDatabase(player, name);
+            HeadAPI.openSearchDatabase(player, name);
             return true;
         }
 
@@ -85,7 +85,7 @@ public class Command_headdb implements CommandExecutor {
 
             String tag = args[1];
             Utils.sendMessage(sender, "Searching for heads with tag &e" + tag);
-            InventoryUtils.openTagSearchDatabase(player, tag);
+            HeadAPI.openTagSearchDatabase(player, tag);
             return true;
         }
 

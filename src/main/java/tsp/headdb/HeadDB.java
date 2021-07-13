@@ -38,6 +38,16 @@ public class HeadDB extends JavaPlugin {
             }
         }
 
+        if (storage.getConfig().getBoolean("fetchStartup")) {
+            if (storage.getConfig().getBoolean("asyncStartup")) {
+                Log.debug("Initializing Database... (ASYNC)");
+                Bukkit.getScheduler().runTaskAsynchronously(this, () -> HeadAPI.getDatabase().update());
+            } else {
+                Log.debug("Initializing Database... (SYNC)");
+                HeadAPI.getDatabase().update();
+            }
+        }
+
         Log.debug("Starting metrics...");
         new Metrics(this, Utils.METRICS_ID);
 
@@ -48,16 +58,6 @@ public class HeadDB extends JavaPlugin {
 
         Log.debug("Registering commands...");
         getCommand("headdb").setExecutor(new Command_headdb());
-
-        if (storage.getConfig().getBoolean("fetchStartup")) {
-            if (storage.getConfig().getBoolean("asyncStartup")) {
-                Log.debug("Initializing Database... (ASYNC)");
-                Bukkit.getScheduler().runTaskAsynchronously(this, () -> HeadAPI.getDatabase().update());
-            } else {
-                Log.debug("Initializing Database... (SYNC)");
-                HeadAPI.getDatabase().update();
-            }
-        }
 
         Log.info("Done!");
     }

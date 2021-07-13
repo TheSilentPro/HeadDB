@@ -1,12 +1,14 @@
 package tsp.headdb.database;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import tsp.headdb.HeadDB;
 import tsp.headdb.api.Head;
+import tsp.headdb.event.HeadDatabaseUpdateEvent;
 import tsp.headdb.util.Log;
 
 import java.io.BufferedReader;
@@ -25,12 +27,23 @@ import javax.annotation.Nullable;
  */
 public class HeadDatabase {
 
+    private final JavaPlugin plugin;
+    private final long refresh;
+    private int timeout;
     private final Map<Category, List<Head>> HEADS = new HashMap<>();
-    private final String URL = "https://minecraft-heads.com/scripts/api.php?cat=";
-    private final String TAGS = "&tags=true";
     private long updated;
-    
-    public HeadDatabase() {}
+
+    public HeadDatabase(JavaPlugin plugin) {
+        this.plugin = plugin;
+        this.refresh = 3600;
+        this.timeout = 5000;
+    }
+
+    public HeadDatabase(JavaPlugin plugin, long refresh) {
+        this.plugin = plugin;
+        this.refresh = refresh;
+        this.timeout = 5000;
+    }
 
     public Head getHeadByValue(String value) {
         List<Head> heads = getHeads();
@@ -138,9 +151,9 @@ public class HeadDatabase {
                 String line;
                 StringBuilder response = new StringBuilder();
 
-                URLConnection connection = new URL(URL + category.getName() + TAGS).openConnection();
-                connection.setConnectTimeout(5000);
-                connection.setRequestProperty("User-Agent", "HeadDB");
+                URLConnection connection = new URL("https://minecraft-heads.com/scripts/api.php?cat=" + category.getName() + "&tags=true").openConnection();
+                connection.setConnectTimeout(timeout);
+                connection.setRequestProperty("User-Agent", plugin.getName() + "-DatabaseUpdater");
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
                     while ((line = in.readLine()) != null) {
                         response.append(line);
@@ -194,6 +207,7 @@ public class HeadDatabase {
         for (Map.Entry<Category, List<Head>> entry : heads.entrySet()) {
             HEADS.put(entry.getKey(), entry.getValue());
         }
+        Bukkit.getPluginManager().callEvent(new HeadDatabaseUpdateEvent(this));
         return true;
     }
 
@@ -204,8 +218,23 @@ public class HeadDatabase {
     }
 
     public boolean isLastUpdateOld() {
-        if (HeadDB.getInstance().getConfiguration() == null && getLastUpdate() >= 3600) return true;
-        return getLastUpdate() >= HeadDB.getInstance().getConfiguration().getLong("refresh");
+        return getLastUpdate() >= refresh;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+
+    public int getTimeout() {
+        return timeout;
+    }
+
+    public long getRefresh() {
+        return refresh;
+    }
+
+    public JavaPlugin getPlugin() {
+        return plugin;
     }
 
 }

@@ -8,7 +8,10 @@ import tsp.headdb.HeadDB;
 public class JoinListener implements Listener {
 
     public JoinListener(HeadDB plugin) {
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        // If local heads are disabled, there is no need for this listener.
+        if (HeadDB.getInstance().getConfiguration().getBoolean("localHeads")) {
+            plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        }
     }
 
     @EventHandler

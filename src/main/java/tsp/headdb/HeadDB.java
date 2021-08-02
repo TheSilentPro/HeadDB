@@ -11,7 +11,6 @@ import tsp.headdb.listener.MenuListener;
 import tsp.headdb.util.Log;
 import tsp.headdb.util.Metrics;
 import tsp.headdb.util.Storage;
-import tsp.headdb.util.Utils;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import net.milkbowl.vault.economy.Economy;
 
@@ -48,9 +47,6 @@ public class HeadDB extends JavaPlugin {
             }
         }
 
-        Log.debug("Starting metrics...");
-        new Metrics(this, Utils.METRICS_ID);
-
         Log.debug("Registering listeners...");
         new PagedPaneListener(this);
         new MenuListener(this);
@@ -59,6 +55,8 @@ public class HeadDB extends JavaPlugin {
         Log.debug("Registering commands...");
         getCommand("headdb").setExecutor(new Command_headdb());
 
+        Log.debug("Starting metrics...");
+        new Metrics(this, 9152);
         Log.info("Done!");
     }
 

@@ -1,6 +1,5 @@
 package tsp.headdb.database;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONArray;
@@ -8,8 +7,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import tsp.headdb.api.Head;
-import tsp.headdb.event.HeadDatabaseUpdateEvent;
 import tsp.headdb.util.Log;
+import tsp.headdb.util.Utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -164,10 +163,11 @@ public class HeadDatabase {
                 for (Object o : array) {
                     JSONObject obj = (JSONObject) o;
                     String uuid = obj.get("uuid").toString();
+                    Log.debug(!Utils.isValid(uuid) + "Invalid UUID: " + uuid);
 
                     Head head = new Head(id)
                             .withName(obj.get("name").toString())
-                            .withUniqueId(uuid.isEmpty() ? UUID.randomUUID() : UUID.fromString(uuid))
+                            .withUniqueId(Utils.isValid(uuid) ? UUID.fromString(uuid) : UUID.randomUUID())
                             .withValue(obj.get("value").toString())
                             .withTags(obj.get("tags") != null ? obj.get("tags").toString() : "None")
                             .withCategory(category);
@@ -207,7 +207,6 @@ public class HeadDatabase {
         for (Map.Entry<Category, List<Head>> entry : heads.entrySet()) {
             HEADS.put(entry.getKey(), entry.getValue());
         }
-        Bukkit.getPluginManager().callEvent(new HeadDatabaseUpdateEvent(this));
         return true;
     }
 

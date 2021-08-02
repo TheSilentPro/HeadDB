@@ -7,6 +7,9 @@ asyncStartup: false
 # If the cached heads are older than these amount of seconds, the plugin will refresh the database
 refresh: 3600
 
+# If local heads should be enabled. Only keeps track of joined players when enabled!
+localHeads: true
+
 # Economy options
 economy:
   enable: false

@@ -21,6 +21,7 @@ public class LocalHead extends Head {
         this.uuid = uuid;
     }
 
+    @Override
     public ItemStack getItemStack() {
         Validate.notNull(uuid, "uuid must not be null!");
 
@@ -36,10 +37,12 @@ public class LocalHead extends Head {
         return item;
     }
 
+    @Override
     public UUID getUniqueId() {
         return uuid;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -64,11 +67,13 @@ public class LocalHead extends Head {
         return null;
     }
 
+    @Override
     public LocalHead withUniqueId(UUID uuid) {
         this.uuid = uuid;
         return this;
     }
 
+    @Override
     public LocalHead withName(String name) {
         this.name = name;
         return this;

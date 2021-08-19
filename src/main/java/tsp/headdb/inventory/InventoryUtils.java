@@ -195,7 +195,7 @@ public class InventoryUtils {
     public static void openDatabase(Player player) {
         Inventory inventory = Bukkit.createInventory(null, 54, Utils.colorize("&c&lHeadDB &8(" + HeadAPI.getHeads().size() + ")"));
 
-        for (Category category : Category.getCategories()) {
+        for (Category category : Category.getValues()) {
             ItemStack item = getUIItem(category.getName(), category.getItem());
             ItemMeta meta = item.getItemMeta();
             meta.setDisplayName(Utils.colorize(category.getColor() + "&l" + category.getName().toUpperCase()));
@@ -302,14 +302,6 @@ public class InventoryUtils {
         // Otherwise, the item is free.
         player.sendMessage(String.format("You received %d x %s for free!", amount, description));
         return true;
-    }
-
-    @Deprecated
-    public static void purchaseItem(Player player, ItemStack item, int amount, String category, String description) {
-        if (!processPayment(player, amount, category, description)) return;
-
-        item.setAmount(amount);
-        player.getInventory().addItem(item);
     }
 
     public static void purchaseHead(Player player, Head head, int amount, String category, String description) {

@@ -7,7 +7,12 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import tsp.headdb.api.Head;
 
-
+/**
+ * This event is called when a player purchases a {@link Head}
+ *
+ * @author TheSilentPro
+ * @see tsp.headdb.inventory.InventoryUtils#purchaseHead(Player, Head, int, String, String)
+ */
 public class PlayerHeadPurchaseEvent extends Event implements Cancellable {
 
     private final HandlerList handlerList = new HandlerList();

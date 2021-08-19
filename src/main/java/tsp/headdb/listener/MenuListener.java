@@ -14,7 +14,6 @@ import tsp.headdb.HeadDB;
 import tsp.headdb.api.HeadAPI;
 import tsp.headdb.database.Category;
 import tsp.headdb.inventory.InventoryUtils;
-import tsp.headdb.util.Log;
 import tsp.headdb.util.Utils;
 
 public class MenuListener implements Listener {

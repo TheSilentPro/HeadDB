@@ -8,14 +8,18 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import tsp.headdb.api.Head;
 import tsp.headdb.util.Log;
-import tsp.headdb.util.Utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 
@@ -139,7 +143,7 @@ public class HeadDatabase {
     @Nullable
     public Map<Category, List<Head>> getHeadsNoCache() {
         Map<Category, List<Head>> result = new HashMap<>();
-        List<Category> categories = Category.getCategories();
+        Category[] categories = Category.getValues();
 
         int id = 1;
         for (Category category : categories) {
@@ -162,12 +166,14 @@ public class HeadDatabase {
                 JSONArray array = (JSONArray) parser.parse(response.toString());
                 for (Object o : array) {
                     JSONObject obj = (JSONObject) o;
-                    String uuid = obj.get("uuid").toString();
-                    Log.debug(!Utils.isValid(uuid) + "Invalid UUID: " + uuid);
+                    UUID uuid = UUID.fromString(obj.get("uuid").toString());
+                    if (uuid.toString().length() != 36) {
+                        uuid = UUID.randomUUID();
+                    }
 
                     Head head = new Head(id)
                             .withName(obj.get("name").toString())
-                            .withUniqueId(Utils.isValid(uuid) ? UUID.fromString(uuid) : UUID.randomUUID())
+                            .withUniqueId(uuid)
                             .withValue(obj.get("value").toString())
                             .withTags(obj.get("tags") != null ? obj.get("tags").toString() : "None")
                             .withCategory(category);
@@ -204,9 +210,7 @@ public class HeadDatabase {
         }
 
         HEADS.clear();
-        for (Map.Entry<Category, List<Head>> entry : heads.entrySet()) {
-            HEADS.put(entry.getKey(), entry.getValue());
-        }
+        HEADS.putAll(heads);
         return true;
     }
 

@@ -46,10 +46,11 @@ public class Head {
             profileField = meta.getClass().getDeclaredField("profile");
             profileField.setAccessible(true);
             profileField.set(meta, profile);
-        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e1) {
+        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException ex) {
             Log.error("Could not set skull owner for " + uuid.toString() + " | Stack Trace:");
-            e1.printStackTrace();
+            ex.printStackTrace();
         }
+
         meta.setLore(Arrays.asList(
                 Utils.colorize("&cID: " + id),
                 Utils.colorize("&e" + buildTagLore(tags)),

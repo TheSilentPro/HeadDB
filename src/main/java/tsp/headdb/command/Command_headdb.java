@@ -9,8 +9,9 @@ import org.bukkit.inventory.ItemStack;
 import tsp.headdb.HeadDB;
 import tsp.headdb.api.Head;
 import tsp.headdb.api.HeadAPI;
-import tsp.headdb.inventory.InventoryUtils;
 import tsp.headdb.util.Utils;
+
+import java.util.concurrent.TimeUnit;
 
 public class Command_headdb implements CommandExecutor {
 
@@ -127,6 +128,33 @@ public class Command_headdb implements CommandExecutor {
             }
         }
 
+        if (sub.equalsIgnoreCase("update") || sub.equalsIgnoreCase("u")) {
+            if (!sender.hasPermission("headdb.update")) {
+                Utils.sendMessage(sender, "&cNo permission!");
+                return true;
+            }
+
+            Utils.sendMessage(sender, "Updating...");
+            long start = System.currentTimeMillis();
+            boolean result = HeadAPI.getDatabase().update();
+            if (result) {
+                Utils.sendMessage(sender, "&aDone! Took: " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " seconds");
+            } else {
+                Utils.sendMessage(sender, "&cFailed! Check console for errors.");
+            }
+            return true;
+        }
+
+        if (sub.equalsIgnoreCase("updateasync") || sub.equalsIgnoreCase("ua")) {
+            if (!sender.hasPermission("headdb.update")) {
+                Utils.sendMessage(sender, "&cNo permission!");
+                return true;
+            }
+
+            Utils.sendMessage(sender, "Updating...");
+            Bukkit.getScheduler().runTaskAsynchronously(HeadDB.getInstance(), () -> HeadAPI.getDatabase().update());
+        }
+
         Utils.sendMessage(sender, " ");
         Utils.sendMessage(sender, "&c&lHeadDB &c- &5Commands");
         Utils.sendMessage(sender, "&7&oParameters:&c command &9(aliases)&c arguments... &7- Description");
@@ -134,6 +162,8 @@ public class Command_headdb implements CommandExecutor {
         Utils.sendMessage(sender, " > &c/hdb info &9(i) &7- Plugin Information");
         Utils.sendMessage(sender, " > &c/hdb search &9(s) &c<name> &7- Search for heads matching a name");
         Utils.sendMessage(sender, " > &c/hdb tagsearch &9(ts) &c<tag> &7- Search for heads matching a tag");
+        Utils.sendMessage(sender, " > &c/hdb update &9(u) &7- Forcefully update the database");
+        Utils.sendMessage(sender, " > &c/hdb updateasync &9(ua) &7- Forcefully update the database ASYNCHRONOUSLY");
         Utils.sendMessage(sender, " > &c/hdb give &9(g) &c<id> <player> &6[amount] &7- Give player a head");
         Utils.sendMessage(sender, " ");
         return true;

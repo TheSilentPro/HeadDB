@@ -5,12 +5,11 @@ import org.bukkit.inventory.ItemStack;
 import tsp.headdb.api.Head;
 import tsp.headdb.api.HeadAPI;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public enum Category {
+
     ALPHABET("alphabet", ChatColor.YELLOW, 20),
     ANIMALS("animals", ChatColor.DARK_AQUA, 21),
     BLOCKS("blocks", ChatColor.DARK_GRAY, 22),
@@ -26,6 +25,7 @@ public enum Category {
     private final ChatColor color;
     private final int location;
     private final Map<Category, Head> item = new HashMap<>();
+    private static final Category[] values = values();
 
     Category(String name, ChatColor color, int location) {
         this.name = name;
@@ -55,8 +55,8 @@ public enum Category {
     }
 
     public static Category getByName(String name) {
-        for (Category category : Category.values()) {
-            if (category.getName().equals(name)) {
+        for (Category category : values) {
+            if (category.getName().equalsIgnoreCase(name)) {
                 return category;
             }
         }
@@ -64,8 +64,8 @@ public enum Category {
         return null;
     }
 
-    public static List<Category> getCategories() {
-        return Arrays.asList(Category.values());
+    public static Category[] getValues() {
+        return values;
     }
 
 }

@@ -153,6 +153,7 @@ public class Command_headdb implements CommandExecutor {
 
             Utils.sendMessage(sender, "Updating...");
             Bukkit.getScheduler().runTaskAsynchronously(HeadDB.getInstance(), () -> HeadAPI.getDatabase().update());
+            return true;
         }
 
         Utils.sendMessage(sender, " ");

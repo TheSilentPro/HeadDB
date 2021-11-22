@@ -8,6 +8,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import tsp.headdb.api.Head;
 import tsp.headdb.util.Log;
+import tsp.headdb.util.Utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -166,8 +167,13 @@ public class HeadDatabase {
                 JSONArray array = (JSONArray) parser.parse(response.toString());
                 for (Object o : array) {
                     JSONObject obj = (JSONObject) o;
-                    UUID uuid = UUID.fromString(obj.get("uuid").toString());
-                    if (uuid.toString().length() != 36) {
+                    String rawUUID = obj.get("uuid").toString();
+
+                    UUID uuid;
+                    if (Utils.validateUniqueId(rawUUID)) {
+                        uuid = UUID.fromString(rawUUID);
+                    } else {
+                        Log.debug("UUID " + rawUUID + " is invalid. Using random one for head id: " + id);
                         uuid = UUID.randomUUID();
                     }
 

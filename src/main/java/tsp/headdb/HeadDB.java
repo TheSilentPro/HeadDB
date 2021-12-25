@@ -1,7 +1,6 @@
 package tsp.headdb;
 
 import de.leonhard.storage.Config;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import tsp.headdb.api.HeadAPI;
 import tsp.headdb.command.Command_headdb;
@@ -40,10 +39,10 @@ public class HeadDB extends JavaPlugin {
         if (storage.getConfig().getBoolean("fetchStartup")) {
             if (storage.getConfig().getBoolean("asyncStartup")) {
                 Log.debug("Initializing Database... (ASYNC)");
-                Bukkit.getScheduler().runTaskAsynchronously(this, () -> HeadAPI.getDatabase().update());
+                HeadAPI.getDatabase().updateAsync();
             } else {
                 Log.debug("Initializing Database... (SYNC)");
-                HeadAPI.getDatabase().update();
+                HeadAPI.updateDatabase();
             }
         }
 

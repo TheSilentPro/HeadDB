@@ -1,5 +1,6 @@
 package tsp.headdb.database;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONArray;
@@ -22,6 +23,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -32,20 +34,14 @@ import javax.annotation.Nullable;
 public class HeadDatabase {
 
     private final JavaPlugin plugin;
-    private final long refresh;
-    private int timeout;
     private final Map<Category, List<Head>> HEADS = new HashMap<>();
+    private long refresh;
+    private int timeout;
     private long updated;
 
     public HeadDatabase(JavaPlugin plugin) {
         this.plugin = plugin;
         this.refresh = 3600;
-        this.timeout = 5000;
-    }
-
-    public HeadDatabase(JavaPlugin plugin, long refresh) {
-        this.plugin = plugin;
-        this.refresh = refresh;
         this.timeout = 5000;
     }
 
@@ -123,23 +119,28 @@ public class HeadDatabase {
         return HEADS.get(category);
     }
 
+    /**
+     * Gets all heads from the cache if available.
+     *
+     * @return List containing each head in its category.
+     */
+    @Nonnull
     public List<Head> getHeads() {
-        if (!HEADS.isEmpty() && !isLastUpdateOld()) {
-            List<Head> heads = new ArrayList<>();
-            for (Category category : HEADS.keySet()) {
-                heads.addAll(HEADS.get(category));
-            }
-            return heads;
+        if (HEADS.isEmpty() || isLastUpdateOld()) {
+            update();
         }
 
-        update();
-        return getHeads();
+        List<Head> heads = new ArrayList<>();
+        for (Category category : HEADS.keySet()) {
+            heads.addAll(HEADS.get(category));
+        }
+        return heads;
     }
 
     /**
      * Gets all heads from the api provider
      *
-     * @return Map containing each head in it's category. Returns null if the fetching failed.
+     * @return Map containing each head in its category. Returns null if the fetching failed.
      */
     @Nullable
     public Map<Category, List<Head>> getHeadsNoCache() {
@@ -220,12 +221,26 @@ public class HeadDatabase {
         return true;
     }
 
+    public void updateAsync() {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, this::update);
+    }
+
+    /**
+     * Get the last time the database was updated.
+     *
+     * @return Last update in seconds
+     */
     public long getLastUpdate() {
         long now = System.nanoTime();
         long elapsed = now - updated;
         return TimeUnit.NANOSECONDS.toSeconds(elapsed);
     }
 
+    /**
+     * Checks if the update is past the refresh time
+     *
+     * @return Whether the update is old
+     */
     public boolean isLastUpdateOld() {
         return getLastUpdate() >= refresh;
     }
@@ -240,6 +255,10 @@ public class HeadDatabase {
 
     public long getRefresh() {
         return refresh;
+    }
+
+    public void setRefresh(long refresh) {
+        this.refresh = refresh;
     }
 
     public JavaPlugin getPlugin() {

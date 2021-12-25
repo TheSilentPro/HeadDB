@@ -212,8 +212,8 @@ public final class HeadAPI {
     /**
      * Update the Head Database
      */
-    public static void updateDatabase() {
-        database.update();
+    public static boolean updateDatabase() {
+        return database.update();
     }
 
 }

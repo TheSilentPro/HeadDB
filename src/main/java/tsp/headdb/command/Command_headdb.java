@@ -136,7 +136,7 @@ public class Command_headdb implements CommandExecutor {
 
             Utils.sendMessage(sender, "Updating...");
             long start = System.currentTimeMillis();
-            boolean result = HeadAPI.getDatabase().update();
+            boolean result = HeadAPI.updateDatabase();
             if (result) {
                 Utils.sendMessage(sender, "&aDone! Took: " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " seconds");
             } else {
@@ -152,7 +152,7 @@ public class Command_headdb implements CommandExecutor {
             }
 
             Utils.sendMessage(sender, "Updating...");
-            Bukkit.getScheduler().runTaskAsynchronously(HeadDB.getInstance(), () -> HeadAPI.getDatabase().update());
+            HeadAPI.getDatabase().updateAsync();
             return true;
         }
 

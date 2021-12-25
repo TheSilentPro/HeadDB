@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 
 public class Utils {
 
-
     public static final Pattern UUID_PATTERN = Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
 
     /**

@@ -2,7 +2,7 @@
 fetchStartup: true
 
 # When enabled, heads will be fetched async (Startup Only)
-asyncStartup: false
+asyncStartup: true
 
 # If the cached heads are older than these amount of seconds, the plugin will refresh the database
 refresh: 3600

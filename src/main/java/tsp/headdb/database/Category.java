@@ -25,7 +25,7 @@ public enum Category {
     private final ChatColor color;
     private final int location;
     private final Map<Category, Head> item = new HashMap<>();
-    private static final Category[] values = values();
+    public static final Category[] cache = values();
 
     Category(String name, ChatColor color, int location) {
         this.name = name;
@@ -55,17 +55,13 @@ public enum Category {
     }
 
     public static Category getByName(String name) {
-        for (Category category : values) {
+        for (Category category : cache) {
             if (category.getName().equalsIgnoreCase(name)) {
                 return category;
             }
         }
 
         return null;
-    }
-
-    public static Category[] getValues() {
-        return values;
     }
 
 }

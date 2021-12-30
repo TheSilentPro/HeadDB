@@ -7,6 +7,7 @@ import tsp.headdb.HeadDB;
 import tsp.headdb.database.Category;
 import tsp.headdb.database.HeadDatabase;
 import tsp.headdb.inventory.InventoryUtils;
+import tsp.headdb.storage.PlayerDataFile;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -143,77 +144,34 @@ public final class HeadAPI {
     public static List<Head> getHeads() {
         return database.getHeads();
     }
-
-    /**
-     * Add a {@link Head} to a players favorites
-     *
-     * @param uuid The UUID of the player
-     * @param id The ID of the head
-     */
-    public static void addFavoriteHead(UUID uuid, int id) {
-        List<Integer> favs = HeadDB.getInstance().getConfiguration().getIntegerList(uuid.toString() + ".favorites");
-        if (!favs.contains(id)) {
-            favs.add(id);
-        }
-        HeadDB.getInstance().getStorage().getPlayerData().set(uuid.toString() + ".favorites", favs);
+    
+    public static void addFavoriteHead(UUID uuid, String textureValue) {
+        HeadDB.getInstance().getPlayerData().modifyFavorite(uuid, textureValue, PlayerDataFile.ModificationType.SET);
     }
-
-    /**
-     * Remove a {@link Head} from a players favorites
-     *
-     * @param uuid The UUID of the player
-     * @param id The ID of the head
-     */
-    public static void removeFavoriteHead(UUID uuid, int id) {
-        List<Integer> favs = HeadDB.getInstance().getStorage().getPlayerData().getIntegerList(uuid.toString() + ".favorites");
-        for (int i = 0; i < favs.size(); i++) {
-            if (favs.get(i) == id) {
-                favs.remove(i);
-                break;
-            }
-        }
-        HeadDB.getInstance().getStorage().getPlayerData().set(uuid.toString() + ".favorites", favs);
+    
+    public static void removeFavoriteHead(UUID uuid, String textureValue) {
+        HeadDB.getInstance().getPlayerData().modifyFavorite(uuid, textureValue, PlayerDataFile.ModificationType.REMOVE);
     }
-
-    /**
-     * Retrieve a {@link List} of favorite {@link Head} for a player
-     *
-     * @param uuid The UUID of the player
-     * @return List of favorite heads
-     */
+    
     public static List<Head> getFavoriteHeads(UUID uuid) {
-        List<Head> heads = new ArrayList<>();
-        List<Integer> ids = HeadDB.getInstance().getStorage().getPlayerData().getIntegerList(uuid.toString() + ".favorites");
-        for (int id : ids) {
-            Head head = getHeadByID(id);
-            heads.add(head);
+        List<Head> result = new ArrayList<>();
+        
+        List<String> textures = HeadDB.getInstance().getPlayerData().getFavoriteHeadsByTexture(uuid);
+        for (String texture : textures) {
+            result.add(HeadAPI.getHeadByValue(texture));
         }
 
-        return heads;
+        return result;
     }
 
-    /**
-     * Retrieve a {@link List} of local heads.
-     * These heads are from players that have joined the server at least once.
-     *
-     * @return List of {@link LocalHead}'s
-     */
     public static List<LocalHead> getLocalHeads() {
-        List<LocalHead> heads = new ArrayList<>();
-        for (String key : HeadDB.getInstance().getStorage().getPlayerData().singleLayerKeySet()) {
-            OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(key));
-            heads.add(new LocalHead(player.getUniqueId())
-                    .withName(player.getName()));
+        List<LocalHead> result = new ArrayList<>();
+        for (String entry : HeadDB.getInstance().getPlayerData().getEntries()) {
+            OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(entry));
+            result.add(new LocalHead(player.getUniqueId()).name(player.getName()));
         }
 
-        return heads;
-    }
-
-    /**
-     * Update the Head Database
-     */
-    public static boolean updateDatabase() {
-        return database.update();
+        return result;
     }
 
 }

@@ -13,7 +13,8 @@ import tsp.headdb.util.Utils;
 
 import java.util.concurrent.TimeUnit;
 
-public class Command_headdb implements CommandExecutor {
+// TODO: Cleaner way to handle this command
+public class CommandHeadDB implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
@@ -28,16 +29,16 @@ public class Command_headdb implements CommandExecutor {
             }
             Player player = (Player) sender;
 
-            Utils.sendMessage(player, "Opening &cHead Database");
+            Utils.sendMessage(player, "&7Opening &cHead Database");
             HeadAPI.openDatabase(player);
             return true;
         }
         String sub = args[0];
 
         if (sub.equalsIgnoreCase("info") || sub.equalsIgnoreCase("i")) {
-            Utils.sendMessage(sender, "Running &cHeadDB v" + HeadDB.getInstance().getDescription().getVersion());
-            Utils.sendMessage(sender, "Created by &c" + HeadDB.getInstance().getDescription().getAuthors());
-            Utils.sendMessage(sender, "There are currently &c" + HeadAPI.getHeads().size() + " &7heads in the database.");
+            Utils.sendMessage(sender, "&7Running &cHeadDB - " + HeadDB.getInstance().getDescription().getVersion());
+            Utils.sendMessage(sender, "&7Created by &c" + HeadDB.getInstance().getDescription().getAuthors());
+            Utils.sendMessage(sender, "&7There are currently &c" + HeadAPI.getHeads().size() + " &7heads in the database.");
             return true;
         }
 
@@ -64,7 +65,7 @@ public class Command_headdb implements CommandExecutor {
                 }
             }
             String name = builder.toString();
-            Utils.sendMessage(sender, "Searching for &e" + name);
+            Utils.sendMessage(sender, "&7Searching for &e" + name);
             HeadAPI.openSearchDatabase(player, name);
             return true;
         }
@@ -85,7 +86,7 @@ public class Command_headdb implements CommandExecutor {
             Player player = (Player) sender;
 
             String tag = args[1];
-            Utils.sendMessage(sender, "Searching for heads with tag &e" + tag);
+            Utils.sendMessage(sender, "&7Searching for heads with tag &e" + tag);
             HeadAPI.openTagSearchDatabase(player, tag);
             return true;
         }
@@ -136,36 +137,22 @@ public class Command_headdb implements CommandExecutor {
 
             Utils.sendMessage(sender, "Updating...");
             long start = System.currentTimeMillis();
-            boolean result = HeadAPI.updateDatabase();
-            if (result) {
-                Utils.sendMessage(sender, "&aDone! Took: " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " seconds");
-            } else {
-                Utils.sendMessage(sender, "&cFailed! Check console for errors.");
-            }
-            return true;
-        }
-
-        if (sub.equalsIgnoreCase("updateasync") || sub.equalsIgnoreCase("ua")) {
-            if (!sender.hasPermission("headdb.update")) {
-                Utils.sendMessage(sender, "&cNo permission!");
-                return true;
-            }
-
-            Utils.sendMessage(sender, "Updating...");
-            HeadAPI.getDatabase().updateAsync();
+            HeadAPI.getDatabase().updateAsync(heads -> {
+                Utils.sendMessage(sender, "&7Done! Took: &a" + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " &7seconds");
+                Utils.sendMessage(sender, "&7There are &a" + HeadAPI.getHeads() + " &7heads in the database!");
+            });
             return true;
         }
 
         Utils.sendMessage(sender, " ");
         Utils.sendMessage(sender, "&c&lHeadDB &c- &5Commands");
         Utils.sendMessage(sender, "&7&oParameters:&c command &9(aliases)&c arguments... &7- Description");
-        Utils.sendMessage(sender, " > &c/hdb &7- Opens the database");
-        Utils.sendMessage(sender, " > &c/hdb info &9(i) &7- Plugin Information");
-        Utils.sendMessage(sender, " > &c/hdb search &9(s) &c<name> &7- Search for heads matching a name");
-        Utils.sendMessage(sender, " > &c/hdb tagsearch &9(ts) &c<tag> &7- Search for heads matching a tag");
-        Utils.sendMessage(sender, " > &c/hdb update &9(u) &7- Forcefully update the database");
-        Utils.sendMessage(sender, " > &c/hdb updateasync &9(ua) &7- Forcefully update the database ASYNCHRONOUSLY");
-        Utils.sendMessage(sender, " > &c/hdb give &9(g) &c<id> <player> &6[amount] &7- Give player a head");
+        Utils.sendMessage(sender, "&7 > &c/hdb &7- Opens the database");
+        Utils.sendMessage(sender, "&7 > &c/hdb info &9(i) &7- Plugin Information");
+        Utils.sendMessage(sender, "&7 > &c/hdb search &9(s) &c<name> &7- Search for heads matching a name");
+        Utils.sendMessage(sender, "&7 > &c/hdb tagsearch &9(ts) &c<tag> &7- Search for heads matching a tag");
+        Utils.sendMessage(sender, "&7 > &c/hdb update &9(u) &7- Forcefully update the database");
+        Utils.sendMessage(sender, "&7 > &c/hdb give &9(g) &c<id> <player> &6[amount] &7- Give player a head");
         Utils.sendMessage(sender, " ");
         return true;
     }

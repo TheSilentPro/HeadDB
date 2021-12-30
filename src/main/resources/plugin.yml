@@ -11,7 +11,7 @@ commands:
   headdb:
     usage: /headdb <arguments>
     description: Open the database
-    aliases: [hdb, headdatabase]
+    aliases: [hdb, headdatabase, headmenu]
 
 permissions:
   headdb.admin:

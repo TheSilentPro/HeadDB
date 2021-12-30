@@ -68,13 +68,13 @@ public class LocalHead extends Head {
     }
 
     @Override
-    public LocalHead withUniqueId(UUID uuid) {
+    public LocalHead uniqueId(UUID uuid) {
         this.uuid = uuid;
         return this;
     }
 
     @Override
-    public LocalHead withName(String name) {
+    public LocalHead name(String name) {
         this.name = name;
         return this;
     }

@@ -6,7 +6,7 @@
 
     <groupId>tsp.headdb</groupId>
     <artifactId>HeadDB</artifactId>
-    <version>2.4.5</version>
+    <version>3.0.0</version>
     <packaging>jar</packaging>
 
     <name>HeadDB</name>
@@ -43,24 +43,12 @@
             <version>1.18-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
-        <!-- json-simple -->
-        <dependency>
-            <groupId>com.googlecode.json-simple</groupId>
-            <artifactId>json-simple</artifactId>
-            <version>1.1.1</version>
-        </dependency>
         <!-- Mojang Auth Lib -->
         <dependency>
             <groupId>com.mojang</groupId>
             <artifactId>authlib</artifactId>
             <version>1.5.21</version>
             <scope>provided</scope>
-        </dependency>
-        <!-- Storage Lib -->
-        <dependency>
-            <groupId>com.github.simplix-softworks</groupId>
-            <artifactId>simplixstorage</artifactId>
-            <version>3.2.0</version>
         </dependency>
         <!-- AnvilGUI -->
         <dependency>
@@ -111,7 +99,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>tsp.headdb.HeadDB</mainClass>
+                                    <mainClass>tsp.headdb.legacy.HeadDBLegacy</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

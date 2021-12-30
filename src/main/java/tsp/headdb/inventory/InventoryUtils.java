@@ -33,8 +33,8 @@ public class InventoryUtils {
         if (uiLocation.containsKey(category)) return uiLocation.get(category);
 
         // Try to get the value from the config file.
-        if (HeadDB.getInstance().getConfiguration().contains("ui.category." + category + ".location")) {
-            uiLocation.put(category, HeadDB.getInstance().getConfiguration().getInt("ui.category." + category + ".location"));
+        if (HeadDB.getInstance().getConfig().contains("ui.category." + category + ".location")) {
+            uiLocation.put(category, HeadDB.getInstance().getConfig().getInt("ui.category." + category + ".location"));
             return uiLocation.get(category);
         }
 
@@ -48,8 +48,8 @@ public class InventoryUtils {
         if (uiItem.containsKey(category)) return uiItem.get(category);
 
         // Try to get a head from the config file.
-        if (HeadDB.getInstance().getConfiguration().contains("ui.category." + category + ".head")) {
-            int id = HeadDB.getInstance().getConfiguration().getInt("ui.category." + category + ".head");
+        if (HeadDB.getInstance().getConfig().contains("ui.category." + category + ".head")) {
+            int id = HeadDB.getInstance().getConfig().getInt("ui.category." + category + ".head");
             Head head = HeadAPI.getHeadByID(id);
             if (head != null) {
                 uiItem.put(category, head.getItemStack());
@@ -58,8 +58,8 @@ public class InventoryUtils {
         }
 
         // Try to get an item from the config file.
-        if (HeadDB.getInstance().getConfiguration().contains("ui.category." + category + ".item")) {
-            String cfg = HeadDB.getInstance().getConfiguration().getString("ui.category." + category + ".item");
+        if (HeadDB.getInstance().getConfig().contains("ui.category." + category + ".item")) {
+            String cfg = HeadDB.getInstance().getConfig().getString("ui.category." + category + ".item");
             Material mat = Material.matchMaterial(cfg);
 
             // AIR is allowed as the fill material for the menu, but not as a category item.
@@ -112,9 +112,9 @@ public class InventoryUtils {
                     purchaseHead(player, head, 1, head.getCategory().getName(), head.getName());
                 }
                 if (e.getClick() == ClickType.RIGHT) {
-                    HeadAPI.removeFavoriteHead(player.getUniqueId(), head.getId());
+                    HeadAPI.removeFavoriteHead(player.getUniqueId(), head.getValue());
                     openFavoritesMenu(player);
-                    Utils.sendMessage(player, "Removed &e" + head.getName() + " &7from favorites.");
+                    Utils.sendMessage(player, "&7Removed &e" + head.getName() + " &7from favorites.");
                 }
             }));
         }
@@ -136,8 +136,8 @@ public class InventoryUtils {
                     purchaseHead(player, head, 1, head.getCategory().getName(), head.getName());
                 }
                 if (e.getClick() == ClickType.RIGHT) {
-                    HeadAPI.addFavoriteHead(player.getUniqueId(), head.getId());
-                    Utils.sendMessage(player, "Added &e" + head.getName() + " &7to favorites.");
+                    HeadAPI.addFavoriteHead(player.getUniqueId(), head.getValue());
+                    Utils.sendMessage(player, "&7Added &e" + head.getName() + " &7to favorites.");
                 }
             }));
         }
@@ -160,8 +160,8 @@ public class InventoryUtils {
                     purchaseHead(player, head, 1, head.getCategory().getName(), head.getName());
                 }
                 if (e.getClick() == ClickType.RIGHT) {
-                    HeadAPI.addFavoriteHead(player.getUniqueId(), head.getId());
-                    Utils.sendMessage(player, "Added &e" + head.getName() + " &7to favorites.");
+                    HeadAPI.addFavoriteHead(player.getUniqueId(), head.getValue());
+                    Utils.sendMessage(player, "&7Added &e" + head.getName() + " &7to favorites.");
                 }
             }));
         }
@@ -183,8 +183,8 @@ public class InventoryUtils {
                     purchaseHead(player, head, 1, head.getCategory().getName(), head.getName());
                 }
                 if (e.getClick() == ClickType.RIGHT) {
-                    HeadAPI.addFavoriteHead(player.getUniqueId(), head.getId());
-                    Utils.sendMessage(player, "Added &e" + head.getName() + " &8to favorites.");
+                    HeadAPI.addFavoriteHead(player.getUniqueId(), head.getValue());
+                    Utils.sendMessage(player, "&7Added &e" + head.getName() + " &7to favorites.");
                 }
             }));
         }
@@ -195,7 +195,7 @@ public class InventoryUtils {
     public static void openDatabase(Player player) {
         Inventory inventory = Bukkit.createInventory(null, 54, Utils.colorize("&c&lHeadDB &8(" + HeadAPI.getHeads().size() + ")"));
 
-        for (Category category : Category.getValues()) {
+        for (Category category : Category.cache) {
             ItemStack item = getUIItem(category.getName(), category.getItem());
             ItemMeta meta = item.getItemMeta();
             meta.setDisplayName(Utils.colorize(category.getColor() + "&l" + category.getName().toUpperCase()));
@@ -273,7 +273,7 @@ public class InventoryUtils {
         if (player.hasPermission("headdb.economy.free") || player.hasPermission("headdb.economy." + category + ".free")) return 0;
 
         // Otherwise, get the price for this category from the config file.
-        return HeadDB.getInstance().getConfiguration().getDouble("economy.cost." + category);
+        return HeadDB.getInstance().getConfig().getDouble("economy.cost." + category);
     }
 
     public static boolean processPayment(Player player, int amount, String category, String description) {
@@ -282,7 +282,7 @@ public class InventoryUtils {
         // If economy is disabled or no plugin is present, the item is free.
         // Don't mention receiving it for free in this case, since it is always free.
         if (economy == null) {
-            player.sendMessage(String.format("You received %d x %s!", amount, description));
+            Utils.sendMessage(player, String.format("&7You received &e%d &7x &e%s!", amount, description));
             return true;
         }
 
@@ -292,15 +292,15 @@ public class InventoryUtils {
         if (cost > 0) {
             if (economy.has(player, cost)) {
                 economy.withdrawPlayer(player, cost);
-                player.sendMessage(String.format("You purchased %d x %s for %.2f %s!", amount, description, cost, economy.currencyNamePlural()));
+                player.sendMessage(String.format("&7You purchased &e%d &7x &e%s &7for &e%.2f %s!", amount, description, cost, economy.currencyNamePlural()));
                 return true;
             }
-            player.sendMessage(String.format("You do not have enough %s to purchase %d x %s.", economy.currencyNamePlural(), amount, description));
+            Utils.sendMessage(player, String.format("&7You do not have enough &e%s &cto purchase &e%d &cx &e%s.", economy.currencyNamePlural(), amount, description));
             return false;
         }
 
         // Otherwise, the item is free.
-        player.sendMessage(String.format("You received %d x %s for free!", amount, description));
+        Utils.sendMessage(player, String.format("&7You received &e%d &7x &e%s &7for &efree&7!", amount, description));
         return true;
     }
 

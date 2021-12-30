@@ -1,32 +1,34 @@
 package tsp.headdb;
 
-import de.leonhard.storage.Config;
+import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import tsp.headdb.api.HeadAPI;
-import tsp.headdb.command.Command_headdb;
+import tsp.headdb.command.CommandHeadDB;
 import tsp.headdb.listener.JoinListener;
-import tsp.headdb.listener.PagedPaneListener;
 import tsp.headdb.listener.MenuListener;
+import tsp.headdb.listener.PagedPaneListener;
+import tsp.headdb.storage.PlayerDataFile;
 import tsp.headdb.util.Log;
 import tsp.headdb.util.Metrics;
-import tsp.headdb.util.Storage;
-import org.bukkit.plugin.RegisteredServiceProvider;
-import net.milkbowl.vault.economy.Economy;
 
 public class HeadDB extends JavaPlugin {
 
     private static HeadDB instance;
-    private Storage storage;
-    private Economy economy = null;
+    private Economy economy;
+    private PlayerDataFile playerData;
 
     @Override
     public void onEnable() {
         instance = this;
         Log.info("Loading HeadDB - " + getDescription().getVersion());
         saveDefaultConfig();
-        storage = new Storage().init(this);
 
-        if (storage.getConfig().getBoolean("economy.enable")) {
+        this.playerData = new PlayerDataFile("player_data.json");
+        this.playerData.load();
+
+        if (getConfig().getBoolean("economy.enable")) {
             Log.debug("Starting economy...");
             this.economy = this.setupEconomy();
             if (this.economy == null) {
@@ -36,27 +38,26 @@ public class HeadDB extends JavaPlugin {
             }
         }
 
-        if (storage.getConfig().getBoolean("fetchStartup")) {
-            if (storage.getConfig().getBoolean("asyncStartup")) {
-                Log.debug("Initializing Database... (ASYNC)");
-                HeadAPI.getDatabase().updateAsync();
-            } else {
-                Log.debug("Initializing Database... (SYNC)");
-                HeadAPI.updateDatabase();
-            }
-        }
+        long refresh = getConfig().getLong("refresh") * 20;
+        HeadAPI.getDatabase().setRefresh(refresh);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, task ->
+                HeadAPI.getDatabase().updateAsync(heads -> Log.info("Fetched " + HeadAPI.getHeads().size() + " heads!")),
+                0L, refresh);
 
-        Log.debug("Registering listeners...");
-        new PagedPaneListener(this);
-        new MenuListener(this);
         new JoinListener(this);
+        new MenuListener(this);
+        new PagedPaneListener(this);
 
-        Log.debug("Registering commands...");
-        getCommand("headdb").setExecutor(new Command_headdb());
+        getCommand("headdb").setExecutor(new CommandHeadDB());
 
         Log.debug("Starting metrics...");
         new Metrics(this, 9152);
         Log.info("Done!");
+    }
+
+    @Override
+    public void onDisable() {
+        this.playerData.save();
     }
 
     private Economy setupEconomy() {
@@ -68,16 +69,12 @@ public class HeadDB extends JavaPlugin {
         return this.economy = economyProvider.getProvider();
     }
 
-    public Config getConfiguration() {
-        return storage.getConfig();
-    }
-
-    public Storage getStorage() {
-        return storage;
-    }
-
     public Economy getEconomy() {
-        return this.economy;
+        return economy;
+    }
+
+    public PlayerDataFile getPlayerData() {
+        return playerData;
     }
 
     public static HeadDB getInstance() {

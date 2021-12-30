@@ -23,8 +23,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * This is the Database that holds all heads
@@ -127,7 +127,14 @@ public class HeadDatabase {
     @Nonnull
     public List<Head> getHeads() {
         if (HEADS.isEmpty() || isLastUpdateOld()) {
-            update();
+            // Technically this should never be reached due to the update task in the main class.
+            updateAsync(result -> {
+                if (result != null) {
+                    for (Category category : result.keySet()) {
+                        HEADS.put(category, result.get(category));
+                    }
+                }
+            });
         }
 
         List<Head> heads = new ArrayList<>();
@@ -137,92 +144,80 @@ public class HeadDatabase {
         return heads;
     }
 
-    /**
-     * Gets all heads from the api provider
-     *
-     * @return Map containing each head in its category. Returns null if the fetching failed.
-     */
-    @Nullable
-    public Map<Category, List<Head>> getHeadsNoCache() {
-        Map<Category, List<Head>> result = new HashMap<>();
-        Category[] categories = Category.getValues();
+    public void getHeadsNoCacheAsync(Consumer<Map<Category, List<Head>>> resultSet) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, task -> {
+            Log.debug("[" + plugin.getName() + "] Updating database... ");
+            Map<Category, List<Head>> result = new HashMap<>();
+            Category[] categories = Category.cache;
 
-        int id = 1;
-        for (Category category : categories) {
-            Log.debug("Caching heads from: " + category.getName());
-            long start = System.currentTimeMillis();
-            List<Head> heads = new ArrayList<>();
-            try {
-                String line;
-                StringBuilder response = new StringBuilder();
+            int id = 1;
+            for (Category category : categories) {
+                Log.debug("Caching heads from: " + category.getName());
+                long start = System.currentTimeMillis();
+                List<Head> heads = new ArrayList<>();
+                try {
+                    String line;
+                    StringBuilder response = new StringBuilder();
 
-                URLConnection connection = new URL("https://minecraft-heads.com/scripts/api.php?cat=" + category.getName() + "&tags=true").openConnection();
-                connection.setConnectTimeout(timeout);
-                connection.setRequestProperty("User-Agent", plugin.getName() + "-DatabaseUpdater");
-                try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                    while ((line = in.readLine()) != null) {
-                        response.append(line);
+                    URLConnection connection = new URL("https://minecraft-heads.com/scripts/api.php?cat=" + category.getName() + "&tags=true").openConnection();
+                    connection.setConnectTimeout(timeout);
+                    connection.setRequestProperty("User-Agent", plugin.getName() + "-DatabaseUpdater");
+                    try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                        while ((line = in.readLine()) != null) {
+                            response.append(line);
+                        }
                     }
-                }
-                JSONParser parser = new JSONParser();
-                JSONArray array = (JSONArray) parser.parse(response.toString());
-                for (Object o : array) {
-                    JSONObject obj = (JSONObject) o;
-                    String rawUUID = obj.get("uuid").toString();
+                    JSONParser parser = new JSONParser();
+                    JSONArray array = (JSONArray) parser.parse(response.toString());
+                    for (Object o : array) {
+                        JSONObject obj = (JSONObject) o;
+                        String rawUUID = obj.get("uuid").toString();
 
-                    UUID uuid;
-                    if (Utils.validateUniqueId(rawUUID)) {
-                        uuid = UUID.fromString(rawUUID);
-                    } else {
-                        Log.debug("UUID " + rawUUID + " is invalid. Using random one for head id: " + id);
-                        uuid = UUID.randomUUID();
+                        UUID uuid;
+                        if (Utils.validateUniqueId(rawUUID)) {
+                            uuid = UUID.fromString(rawUUID);
+                        } else {
+                            uuid = UUID.randomUUID();
+                        }
+
+                        Head head = new Head(id)
+                                .name(obj.get("name").toString())
+                                .uniqueId(uuid)
+                                .value(obj.get("value").toString())
+                                .tags(obj.get("tags") != null ? obj.get("tags").toString() : "None")
+                                .category(category);
+
+                        id++;
+                        heads.add(head);
                     }
 
-                    Head head = new Head(id)
-                            .withName(obj.get("name").toString())
-                            .withUniqueId(uuid)
-                            .withValue(obj.get("value").toString())
-                            .withTags(obj.get("tags") != null ? obj.get("tags").toString() : "None")
-                            .withCategory(category);
-
-                    id++;
-                    heads.add(head);
+                    long elapsed = (System.currentTimeMillis() - start);
+                    Log.debug(category.getName() + " -> Done! Time: " + elapsed + "ms (" + TimeUnit.MILLISECONDS.toSeconds(elapsed) + "s)");
+                } catch (ParseException | IOException e) {
+                    Log.error("[" + plugin.getName() + "] Failed to fetch heads (no-cache) | Stack Trace:");
+                    e.printStackTrace();
                 }
 
-                long elapsed = (System.currentTimeMillis() - start);
-                Log.debug(category.getName() + " -> Done! Time: " + elapsed + "ms (" + TimeUnit.MILLISECONDS.toSeconds(elapsed) + "s)");
-            } catch (ParseException | IOException e) {
-                Log.error("Failed to fetch heads (no-cache) | Stack Trace:");
-                e.printStackTrace();
-                return null;
+                updated = System.nanoTime();
+                result.put(category, heads);
             }
 
-            updated = System.nanoTime();
-            result.put(category, heads);
-        }
-
-        return result;
+            resultSet.accept(result);
+        });
     }
 
-    /**
-     * Updates the cached heads
-     *
-     * @return Returns true if the update was successful.
-     */
-    public boolean update() {
-        Map<Category, List<Head>> heads = getHeadsNoCache();
-        if (heads == null) {
-            Log.error("Failed to update database! Check above for any errors.");
-            return false;
-        }
+    public void updateAsync(Consumer<Map<Category, List<Head>>> result) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, task -> getHeadsNoCacheAsync(heads -> {
+            if (heads == null) {
+                Log.error("[" + plugin.getName() + "] Failed to update database! Check above for any errors.");
+                result.accept(null);
+                return;
+            }
 
-        HEADS.clear();
-        HEADS.putAll(heads);
-        return true;
-    }
-
-    public void updateAsync() {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, this::update);
+            HEADS.clear();
+            HEADS.putAll(heads);
+            result.accept(heads);
+        }));
     }
 
     /**

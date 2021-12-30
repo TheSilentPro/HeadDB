@@ -23,6 +23,7 @@ public class Head {
     private Category category;
     private int id;
     private List<String> tags;
+    private ItemStack itemStack;
 
     public Head() {}
 
@@ -31,35 +32,39 @@ public class Head {
     }
 
     public ItemStack getItemStack() {
-        Validate.notNull(name, "name must not be null!");
-        Validate.notNull(uuid, "uuid must not be null!");
-        Validate.notNull(value, "value must not be null!");
+        if (itemStack == null) {
+            Validate.notNull(name, "name must not be null!");
+            Validate.notNull(uuid, "uuid must not be null!");
+            Validate.notNull(value, "value must not be null!");
 
-        ItemStack item = new ItemStack(Material.PLAYER_HEAD);
-        SkullMeta meta = (SkullMeta) item.getItemMeta();
-        meta.setDisplayName(Utils.colorize(category != null ? category.getColor() + name : "&8" + name));
-        // set skull owner
-        GameProfile profile = new GameProfile(uuid, name);
-        profile.getProperties().put("textures", new Property("textures", value));
-        Field profileField;
-        try {
-            profileField = meta.getClass().getDeclaredField("profile");
-            profileField.setAccessible(true);
-            profileField.set(meta, profile);
-        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException ex) {
-            Log.error("Could not set skull owner for " + uuid.toString() + " | Stack Trace:");
-            ex.printStackTrace();
+            ItemStack item = new ItemStack(Material.PLAYER_HEAD);
+            SkullMeta meta = (SkullMeta) item.getItemMeta();
+            meta.setDisplayName(Utils.colorize(category != null ? category.getColor() + name : "&8" + name));
+            // set skull owner
+            GameProfile profile = new GameProfile(uuid, name);
+            profile.getProperties().put("textures", new Property("textures", value));
+            Field profileField;
+            try {
+                profileField = meta.getClass().getDeclaredField("profile");
+                profileField.setAccessible(true);
+                profileField.set(meta, profile);
+            } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException ex) {
+                Log.error("Could not set skull owner for " + uuid.toString() + " | Stack Trace:");
+                ex.printStackTrace();
+            }
+
+            meta.setLore(Arrays.asList(
+                    Utils.colorize("&cID: " + id),
+                    Utils.colorize("&e" + buildTagLore(tags)),
+                    "",
+                    Utils.colorize("&8Right-Click to add/remove from favorites.")
+            ));
+
+            item.setItemMeta(meta);
+            itemStack = item;
         }
 
-        meta.setLore(Arrays.asList(
-                Utils.colorize("&cID: " + id),
-                Utils.colorize("&e" + buildTagLore(tags)),
-                "",
-                Utils.colorize("&8Right-Click to add/remove from favorites.")
-        ));
-        item.setItemMeta(meta);
-
-        return item;
+        return itemStack;
     }
 
     public String getName() {
@@ -86,36 +91,36 @@ public class Head {
         return tags;
     }
 
-    public Head withName(String name) {
+    public Head name(String name) {
         this.name = name;
         return this;
     }
 
-    public Head withUniqueId(UUID uuid) {
+    public Head uniqueId(UUID uuid) {
         this.uuid = uuid;
         return this;
     }
 
-    public Head withValue(String value) {
+    public Head value(String value) {
         this.value = value;
         return this;
     }
 
-    public Head withCategory(Category category) {
+    public Head category(Category category) {
         this.category = category;
         return this;
     }
 
-    public Head withId(int id) {
+    public Head id(int id) {
         this.id = id;
         return this;
     }
-    
-    public Head withTags(String tags) {
+
+    public Head tags(String tags) {
         this.tags = Arrays.asList(tags.split(","));
         return this;
     }
-    
+
     private String buildTagLore(List<String> tags) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < tags.size(); i++) {
@@ -124,7 +129,7 @@ public class Head {
                 builder.append(",");
             }
         }
-        
+
         return builder.toString();
     }
 

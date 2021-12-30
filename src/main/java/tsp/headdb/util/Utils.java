@@ -24,7 +24,7 @@ public class Utils {
     }
 
     public static String colorize(String string) {
-        return ChatColor.translateAlternateColorCodes('&', ChatColor.GRAY + string);
+        return ChatColor.translateAlternateColorCodes('&', string);
     }
 
 }

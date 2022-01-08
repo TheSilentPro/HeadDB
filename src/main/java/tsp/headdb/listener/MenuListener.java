@@ -44,7 +44,6 @@ public class MenuListener implements Listener {
                             player.closeInventory();
                             return;
                         }
-                        player.sendMessage("Clicked on favorites!");
                         InventoryUtils.openFavoritesMenu(player);
                         return;
                     }

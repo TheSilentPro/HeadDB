@@ -23,6 +23,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class for handling the "dirty" work
+ * such as inventories and economy.
+ */
 public class InventoryUtils {
 
     private static final Map<String, Integer> uiLocation = new HashMap<>();

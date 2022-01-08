@@ -9,6 +9,7 @@ import tsp.headdb.database.HeadDatabase;
 import tsp.headdb.inventory.InventoryUtils;
 import tsp.headdb.storage.PlayerDataFile;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +21,14 @@ import java.util.UUID;
  *
  * @author TheSilentPro
  */
+// TODO: Possibly change to singleton class
 public final class HeadAPI {
 
     private HeadAPI() {}
 
+    /**
+     * Main {@link HeadDatabase} that he HeadDB plugin uses.
+     */
     private static final HeadDatabase database = new HeadDatabase(HeadDB.getInstance());
 
     /**
@@ -64,6 +69,12 @@ public final class HeadAPI {
         InventoryUtils.openSearchDatabase(player, search);
     }
 
+    /**
+     * Opens the database with results of a specific tag search term
+     *
+     * @param player Target player
+     * @param tag Tag search term
+     */
     public static void openTagSearchDatabase(Player player, String tag) {
         InventoryUtils.openTagSearchDatabase(player, tag);
     }
@@ -90,6 +101,13 @@ public final class HeadAPI {
         return database.getHeadByUniqueId(uuid);
     }
 
+    /**
+     * Retrieve a {@link List} of {@link Head}'s by their tag
+     *
+     * @param tag The tag
+     * @return List of heads
+     */
+    @Nonnull
     public static List<Head> getHeadsByTag(String tag) {
         return database.getHeadsByTag(tag);
     }
@@ -100,6 +118,7 @@ public final class HeadAPI {
      * @param name The name to match for
      * @return List of heads
      */
+    @Nonnull
     public static List<Head> getHeadsByName(String name) {
         return database.getHeadsByName(name);
     }
@@ -111,6 +130,7 @@ public final class HeadAPI {
      * @param name The name to match for
      * @return List of heads
      */
+    @Nonnull
     public static List<Head> getHeadsByName(Category category, String name) {
         return database.getHeadsByName(category, name);
     }
@@ -132,6 +152,7 @@ public final class HeadAPI {
      * @param category The category to search in
      * @return List of heads
      */
+    @Nonnull
     public static List<Head> getHeads(Category category) {
         return database.getHeads(category);
     }
@@ -141,18 +162,38 @@ public final class HeadAPI {
      *
      * @return List of all heads
      */
+    @Nonnull
     public static List<Head> getHeads() {
         return database.getHeads();
     }
-    
+
+    /**
+     * Add a favorite {@link Head} to the player
+     *
+     * @param uuid The player's unique id
+     * @param textureValue The head's texture value
+     */
     public static void addFavoriteHead(UUID uuid, String textureValue) {
         HeadDB.getInstance().getPlayerData().modifyFavorite(uuid, textureValue, PlayerDataFile.ModificationType.SET);
     }
-    
+
+    /**
+     * Remove a favorite {@link Head} from the player
+     *
+     * @param uuid The player's unique id
+     * @param textureValue The head's texture value
+     */
     public static void removeFavoriteHead(UUID uuid, String textureValue) {
         HeadDB.getInstance().getPlayerData().modifyFavorite(uuid, textureValue, PlayerDataFile.ModificationType.REMOVE);
     }
-    
+
+    /**
+     * Retrieve a {@link List} of favorite {@link Head}'s for the player
+     *
+     * @param uuid The player's unique id
+     * @return List of favorite {@link Head}'s for the player
+     */
+    @Nonnull
     public static List<Head> getFavoriteHeads(UUID uuid) {
         List<Head> result = new ArrayList<>();
         
@@ -164,6 +205,14 @@ public final class HeadAPI {
         return result;
     }
 
+    /**
+     * Retrieve a list of {@link LocalHead}'s.
+     * These are heads from players that have joined the server at least once.
+     * Requires config option localHeads = true
+     *
+     * @return List of {@link LocalHead}'s
+     */
+    @Nonnull
     public static List<LocalHead> getLocalHeads() {
         List<LocalHead> result = new ArrayList<>();
         for (String entry : HeadDB.getInstance().getPlayerData().getEntries()) {

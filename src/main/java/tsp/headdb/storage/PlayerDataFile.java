@@ -42,7 +42,6 @@ public class PlayerDataFile {
             JsonArray favorites = main.get(uuid.toString()).getAsJsonObject().get("favorites").getAsJsonArray();
             for (int i = 0; i < favorites.size(); i++) {
                 String str = favorites.get(i).toString();
-                Log.debug("str: " + str.substring(1, str.length() - 1));
                 result.add(str.substring(1, str.length() - 1));
             }
         }
@@ -133,12 +132,6 @@ public class PlayerDataFile {
 
     public File getFile() {
         return file;
-    }
-
-    public void validateFile() {
-        if (!file.exists()) {
-            HeadDB.getInstance().saveResource(file.getName(), false);
-        }
     }
 
     public enum ModificationType {

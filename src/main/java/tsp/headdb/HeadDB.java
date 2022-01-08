@@ -6,12 +6,15 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import tsp.headdb.api.HeadAPI;
 import tsp.headdb.command.CommandHeadDB;
+import tsp.headdb.database.DatabaseUpdateTask;
 import tsp.headdb.listener.JoinListener;
 import tsp.headdb.listener.MenuListener;
 import tsp.headdb.listener.PagedPaneListener;
 import tsp.headdb.storage.PlayerDataFile;
 import tsp.headdb.util.Log;
 import tsp.headdb.util.Metrics;
+
+import javax.annotation.Nullable;
 
 public class HeadDB extends JavaPlugin {
 
@@ -39,10 +42,9 @@ public class HeadDB extends JavaPlugin {
         }
 
         long refresh = getConfig().getLong("refresh") * 20;
+        HeadAPI.getDatabase().updateAsync(heads -> Log.info("Fetched " + HeadAPI.getHeads().size() + " heads!")); // Update database on startup
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, new DatabaseUpdateTask(), refresh, refresh); // Update database on set interval (also saves data)
         HeadAPI.getDatabase().setRefresh(refresh);
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, task ->
-                HeadAPI.getDatabase().updateAsync(heads -> Log.info("Fetched " + HeadAPI.getHeads().size() + " heads!")),
-                0L, refresh);
 
         new JoinListener(this);
         new MenuListener(this);
@@ -69,6 +71,7 @@ public class HeadDB extends JavaPlugin {
         return this.economy = economyProvider.getProvider();
     }
 
+    @Nullable
     public Economy getEconomy() {
         return economy;
     }

@@ -286,7 +286,7 @@ public class InventoryUtils {
         // If economy is disabled or no plugin is present, the item is free.
         // Don't mention receiving it for free in this case, since it is always free.
         if (economy == null) {
-            Utils.sendMessage(player, String.format("&7You received &e%d &7x &e%s!", amount, description));
+            Utils.sendMessage(player, String.format("&7You received &e%d &7x &e%s&7!", amount, description));
             return true;
         }
 
@@ -296,10 +296,10 @@ public class InventoryUtils {
         if (cost > 0) {
             if (economy.has(player, cost)) {
                 economy.withdrawPlayer(player, cost);
-                player.sendMessage(String.format("&7You purchased &e%d &7x &e%s &7for &e%.2f %s!", amount, description, cost, economy.currencyNamePlural()));
+                Utils.sendMessage(player, String.format("&7You purchased &e%d &7x &e%s &7for &e%.2f %s&7!", amount, description, cost, economy.currencyNamePlural()));
                 return true;
             }
-            Utils.sendMessage(player, String.format("&7You do not have enough &e%s &cto purchase &e%d &cx &e%s.", economy.currencyNamePlural(), amount, description));
+            Utils.sendMessage(player, String.format("&7You do not have enough &e%s &cto purchase &e%d &cx &e%s&7.", economy.currencyNamePlural(), amount, description));
             return false;
         }
 

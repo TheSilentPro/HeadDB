@@ -93,7 +93,6 @@ public class InventoryUtils {
                     return;
                 }
                 if (e.getClick() == ClickType.RIGHT) {
-                    player.closeInventory();
                     Utils.sendMessage(player, "&cLocal heads can not be added to favorites!");
                 }
             }));
@@ -119,6 +118,7 @@ public class InventoryUtils {
                     HeadAPI.removeFavoriteHead(player.getUniqueId(), head.getValue());
                     openFavoritesMenu(player);
                     Utils.sendMessage(player, "&7Removed &e" + head.getName() + " &7from favorites.");
+                    Utils.playSound(player, "removeFavorite");
                 }
             }));
         }
@@ -140,8 +140,15 @@ public class InventoryUtils {
                     purchaseHead(player, head, 1, head.getCategory().getName(), head.getName());
                 }
                 if (e.getClick() == ClickType.RIGHT) {
+                    if (!player.hasPermission("headdb.favorites")) {
+                        Utils.sendMessage(player, "&cYou do not have permission for favorites!");
+                        Utils.playSound(player, "noPermission");
+                        return;
+                    }
+
                     HeadAPI.addFavoriteHead(player.getUniqueId(), head.getValue());
                     Utils.sendMessage(player, "&7Added &e" + head.getName() + " &7to favorites.");
+                    Utils.playSound(player, "addFavorite");
                 }
             }));
         }
@@ -164,8 +171,15 @@ public class InventoryUtils {
                     purchaseHead(player, head, 1, head.getCategory().getName(), head.getName());
                 }
                 if (e.getClick() == ClickType.RIGHT) {
+                    if (!player.hasPermission("headdb.favorites")) {
+                        Utils.sendMessage(player, "&cYou do not have permission for favorites!");
+                        Utils.playSound(player, "noPermission");
+                        return;
+                    }
+
                     HeadAPI.addFavoriteHead(player.getUniqueId(), head.getValue());
                     Utils.sendMessage(player, "&7Added &e" + head.getName() + " &7to favorites.");
+                    Utils.playSound(player, "addFavorite");
                 }
             }));
         }
@@ -187,8 +201,15 @@ public class InventoryUtils {
                     purchaseHead(player, head, 1, head.getCategory().getName(), head.getName());
                 }
                 if (e.getClick() == ClickType.RIGHT) {
+                    if (!player.hasPermission("headdb.favorites")) {
+                        Utils.sendMessage(player, "&cYou do not have permission for favorites!");
+                        Utils.playSound(player, "noPermission");
+                        return;
+                    }
+
                     HeadAPI.addFavoriteHead(player.getUniqueId(), head.getValue());
                     Utils.sendMessage(player, "&7Added &e" + head.getName() + " &7to favorites.");
+                    Utils.playSound(player, "addFavorite");
                 }
             }));
         }
@@ -287,6 +308,7 @@ public class InventoryUtils {
         // Don't mention receiving it for free in this case, since it is always free.
         if (economy == null) {
             Utils.sendMessage(player, String.format("&7You received &e%d &7x &e%s&7!", amount, description));
+            Utils.playSound(player, "noEconomy");
             return true;
         }
 
@@ -296,20 +318,24 @@ public class InventoryUtils {
         if (cost > 0) {
             if (economy.has(player, cost)) {
                 economy.withdrawPlayer(player, cost);
-                Utils.sendMessage(player, String.format("&7You purchased &e%d &7x &e%s &7for &e%.2f %s&7!", amount, description, cost, economy.currencyNamePlural()));
+                Utils.sendMessage(player, String.format("&7You purchased &e%d &7x &e%s &7for &e%.2f&7!", amount, description, cost));
+                Utils.playSound(player, "paid");
                 return true;
             }
-            Utils.sendMessage(player, String.format("&7You do not have enough &e%s &cto purchase &e%d &cx &e%s&7.", economy.currencyNamePlural(), amount, description));
+            Utils.sendMessage(player, String.format("&cYou do not have enough to purchase &e%d &cx &e%s&7.", amount, description));
+            Utils.playSound(player, "unavailable");
             return false;
         }
 
         // Otherwise, the item is free.
         Utils.sendMessage(player, String.format("&7You received &e%d &7x &e%s &7for &efree&7!", amount, description));
+        Utils.playSound(player, "free");
         return true;
     }
 
     public static void purchaseHead(Player player, Head head, int amount, String category, String description) {
         if (!processPayment(player, amount, category, description)) return;
+
         PlayerHeadPurchaseEvent event = new PlayerHeadPurchaseEvent(player, head, getCategoryCost(player, category));
         Bukkit.getPluginManager().callEvent(event);
         if (!event.isCancelled()) {

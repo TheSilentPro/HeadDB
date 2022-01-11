@@ -40,23 +40,34 @@ public class MenuListener implements Listener {
                     String name = ChatColor.stripColor(item.getItemMeta().getDisplayName().toLowerCase());
                     if (name.equalsIgnoreCase("favorites")) {
                         if (!player.hasPermission("headdb.favorites")) {
-                            Utils.sendMessage(player, "&cYou do not have permission for favorites!");
                             player.closeInventory();
+                            Utils.sendMessage(player, "&cYou do not have permission for favorites!");
+                            Utils.playSound(player, "noPermission");
                             return;
                         }
                         InventoryUtils.openFavoritesMenu(player);
+                        Utils.playSound(player, "open");
                         return;
                     }
                     if (name.equalsIgnoreCase("local")) {
                         if (!player.hasPermission("headdb.local")) {
-                            Utils.sendMessage(player, "&cYou do not have permission to view local heads!");
                             player.closeInventory();
+                            Utils.sendMessage(player, "&cYou do not have permission to view local heads!");
+                            Utils.playSound(player, "noPermission");
                             return;
                         }
                         InventoryUtils.openLocalMenu(player);
+                        Utils.playSound(player, "open");
                         return;
                     }
                     if (name.equalsIgnoreCase("search")) {
+                        if (!player.hasPermission("headdb.search")) {
+                            player.closeInventory();
+                            Utils.sendMessage(player, "&cYou do not have permission for the search function!");
+                            Utils.playSound(player, "noPermission");
+                            return;
+                        }
+
                         new AnvilGUI.Builder()
                                 .onComplete((p, text) -> {
                                     InventoryUtils.openSearchDatabase(p, text);
@@ -66,12 +77,20 @@ public class MenuListener implements Listener {
                                 .text("Name...")
                                 .plugin(HeadDB.getInstance())
                                 .open(player);
+                        Utils.playSound(player, "open");
                         return;
                     }
 
                     Category category = Category.getByName(name);
 
                     if (category != null) {
+                        if (HeadDB.getInstance().getConfig().getBoolean("requireCategoryPermission") && !player.hasPermission("headdb.category." + category)) {
+                            Utils.sendMessage(player, "&cYou do not have permission for this category! (&e" + category.getName() + "&c)");
+                            Utils.playSound(player, "noPermission");
+                            return;
+                        }
+
+                        Utils.playSound(player, "open");
                         HeadAPI.openCategoryDatabase(player, category);
                     }
                 }

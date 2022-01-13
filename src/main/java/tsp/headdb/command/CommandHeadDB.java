@@ -121,7 +121,7 @@ public class CommandHeadDB implements CommandExecutor {
                 ItemStack item = head.getItemStack();
                 item.setAmount(amount);
                 target.getInventory().addItem(item);
-                Utils.sendMessage(sender, "Given &c" + target.getName() + " &ex" + amount + " " + head.getName());
+                Utils.sendMessage(sender, "&7Gave &6" + target.getName() + " &ex" + amount + " " + head.getName());
                 return true;
             } catch (NumberFormatException nfe) {
                 Utils.sendMessage(sender, "&cID/Amount must be a number!");
@@ -135,11 +135,11 @@ public class CommandHeadDB implements CommandExecutor {
                 return true;
             }
 
-            Utils.sendMessage(sender, "Updating...");
+            Utils.sendMessage(sender, "&7Updating...");
             long start = System.currentTimeMillis();
             HeadAPI.getDatabase().updateAsync(heads -> {
                 Utils.sendMessage(sender, "&7Done! Took: &a" + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " &7seconds");
-                Utils.sendMessage(sender, "&7There are &a" + HeadAPI.getHeads() + " &7heads in the database!");
+                Utils.sendMessage(sender, "&7There are &a" + HeadAPI.getHeads().size() + " &7heads in the database!");
             });
             return true;
         }

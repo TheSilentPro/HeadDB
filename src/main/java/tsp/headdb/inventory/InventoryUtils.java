@@ -14,6 +14,7 @@ import tsp.headdb.api.HeadAPI;
 import tsp.headdb.api.LocalHead;
 import tsp.headdb.database.Category;
 import tsp.headdb.event.PlayerHeadPurchaseEvent;
+import tsp.headdb.util.Localization;
 import tsp.headdb.util.Utils;
 
 import net.milkbowl.vault.economy.Economy;
@@ -29,6 +30,7 @@ import java.util.Map;
  */
 public class InventoryUtils {
 
+    private static final Localization localization = HeadDB.getInstance().getLocalization();
     private static final Map<String, Integer> uiLocation = new HashMap<>();
     private static final Map<String, ItemStack> uiItem = new HashMap<>();
 
@@ -56,7 +58,7 @@ public class InventoryUtils {
             int id = HeadDB.getInstance().getConfig().getInt("ui.category." + category + ".head");
             Head head = HeadAPI.getHeadByID(id);
             if (head != null) {
-                uiItem.put(category, head.getItemStack());
+                uiItem.put(category, head.getMenuItem());
                 return uiItem.get(category);
             }
         }
@@ -79,11 +81,12 @@ public class InventoryUtils {
     }
 
     public static void openLocalMenu(Player player) {
-        PagedPane pane = new PagedPane(4, 6, Utils.colorize("&c&lHeadDB &8- &aLocal Heads"));
-
         List<LocalHead> heads = HeadAPI.getLocalHeads();
+
+        PagedPane pane = new PagedPane(4, 6,
+                replace(localization.getMessage("menu.local"), heads.size(), "Local", "None", player));
         for (LocalHead localHead : heads) {
-            pane.addButton(new Button(localHead.getItemStack(), e -> {
+            pane.addButton(new Button(localHead.getMenuItem(), e -> {
                 if (e.getClick() == ClickType.SHIFT_LEFT) {
                     purchaseHead(player, localHead, 64, "local", localHead.getName());
                     return;
@@ -93,7 +96,7 @@ public class InventoryUtils {
                     return;
                 }
                 if (e.getClick() == ClickType.RIGHT) {
-                    Utils.sendMessage(player, "&cLocal heads can not be added to favorites!");
+                    Utils.sendMessage(player, localization.getMessage("localFavorites"));
                 }
             }));
         }
@@ -102,11 +105,12 @@ public class InventoryUtils {
     }
 
     public static void openFavoritesMenu(Player player) {
-        PagedPane pane = new PagedPane(4, 6, Utils.colorize("&c&lHeadDB &8- &eFavorites: " + player.getName()));
-
         List<Head> heads = HeadAPI.getFavoriteHeads(player.getUniqueId());
+
+        PagedPane pane = new PagedPane(4, 6,
+                replace(localization.getMessage("menu.favorites"), heads.size(), "Favorites", "None", player));
         for (Head head : heads) {
-            pane.addButton(new Button(head.getItemStack(), e -> {
+            pane.addButton(new Button(head.getMenuItem(), e -> {
                 if (e.getClick() == ClickType.SHIFT_LEFT) {
                     purchaseHead(player, head, 64, head.getCategory().getName(), head.getName());
                     return;
@@ -127,11 +131,12 @@ public class InventoryUtils {
     }
 
     public static PagedPane openSearchDatabase(Player player, String search) {
-        PagedPane pane = new PagedPane(4, 6, Utils.colorize("&c&lHeadDB &8- &eSearch: " + search));
-
         List<Head> heads = HeadAPI.getHeadsByName(search);
+
+        PagedPane pane = new PagedPane(4, 6,
+                replace(localization.getMessage("menu.search"), heads.size(), "None", search, player));
         for (Head head : heads) {
-            pane.addButton(new Button(head.getItemStack(), e -> {
+            pane.addButton(new Button(head.getMenuItem(), e -> {
                 if (e.getClick() == ClickType.SHIFT_LEFT) {
                     purchaseHead(player, head, 64, head.getCategory().getName(), head.getName());
                     return;
@@ -141,7 +146,7 @@ public class InventoryUtils {
                 }
                 if (e.getClick() == ClickType.RIGHT) {
                     if (!player.hasPermission("headdb.favorites")) {
-                        Utils.sendMessage(player, "&cYou do not have permission for favorites!");
+                        Utils.sendMessage(player, localization.getMessage("noPermission"));
                         Utils.playSound(player, "noPermission");
                         return;
                     }
@@ -158,11 +163,12 @@ public class InventoryUtils {
     }
 
     public static void openTagSearchDatabase(Player player, String tag) {
-        PagedPane pane = new PagedPane(4, 6, Utils.colorize("&c&lHeadDB &8- &eTag Search: " + tag));
-
         List<Head> heads = HeadAPI.getHeadsByTag(tag);
+
+        PagedPane pane = new PagedPane(4, 6,
+                replace(localization.getMessage("menu.tagSearch"), heads.size(), "None", tag, player));
         for (Head head : heads) {
-            pane.addButton(new Button(head.getItemStack(), e -> {
+            pane.addButton(new Button(head.getMenuItem(), e -> {
                 if (e.getClick() == ClickType.SHIFT_LEFT) {
                     purchaseHead(player, head, 64, head.getCategory().getName(), head.getName());
                     return;
@@ -172,7 +178,7 @@ public class InventoryUtils {
                 }
                 if (e.getClick() == ClickType.RIGHT) {
                     if (!player.hasPermission("headdb.favorites")) {
-                        Utils.sendMessage(player, "&cYou do not have permission for favorites!");
+                        Utils.sendMessage(player, localization.getMessage("noPermission"));
                         Utils.playSound(player, "noPermission");
                         return;
                     }
@@ -188,11 +194,12 @@ public class InventoryUtils {
     }
 
     public static void openCategoryDatabase(Player player, Category category) {
-        PagedPane pane = new PagedPane(4, 6, Utils.colorize("&c&lHeadDB &8- &e" + category.getName()));
-
         List<Head> heads = HeadAPI.getHeads(category);
+
+        PagedPane pane = new PagedPane(4, 6,
+                replace(localization.getMessage("menu.category"), heads.size(), category.getName(), "None", player));
         for (Head head : heads) {
-            pane.addButton(new Button(head.getItemStack(), e -> {
+            pane.addButton(new Button(head.getMenuItem(), e -> {
                 if (e.getClick() == ClickType.SHIFT_LEFT) {
                     purchaseHead(player, head, 64, head.getCategory().getName(), head.getName());
                     return;
@@ -202,7 +209,7 @@ public class InventoryUtils {
                 }
                 if (e.getClick() == ClickType.RIGHT) {
                     if (!player.hasPermission("headdb.favorites")) {
-                        Utils.sendMessage(player, "&cYou do not have permission for favorites!");
+                        Utils.sendMessage(player, localization.getMessage("noPermission"));
                         Utils.playSound(player, "noPermission");
                         return;
                     }
@@ -218,7 +225,8 @@ public class InventoryUtils {
     }
 
     public static void openDatabase(Player player) {
-        Inventory inventory = Bukkit.createInventory(null, 54, Utils.colorize("&c&lHeadDB &8(" + HeadAPI.getHeads().size() + ")"));
+        Inventory inventory = Bukkit.createInventory(null, 54,
+                replace(localization.getMessage("menu.main"), HeadAPI.getHeads().size(), "Main", "None", player));
 
         for (Category category : Category.cache) {
             ItemStack item = getUIItem(category.getName(), category.getItem());
@@ -343,6 +351,14 @@ public class InventoryUtils {
             item.setAmount(amount);
             player.getInventory().addItem(item);
         }
+    }
+
+    private static String replace(String message, int size, String category, String search, Player player) {
+        return message
+                .replace("%size%", String.valueOf(size))
+                .replace("%category%", category)
+                .replace("%search%", search)
+                .replace("%player%", player.getName());
     }
 
 }

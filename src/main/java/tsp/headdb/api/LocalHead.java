@@ -22,7 +22,7 @@ public class LocalHead extends Head {
     }
 
     @Override
-    public ItemStack getItemStack() {
+    public ItemStack getMenuItem() {
         Validate.notNull(uuid, "uuid must not be null!");
 
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);

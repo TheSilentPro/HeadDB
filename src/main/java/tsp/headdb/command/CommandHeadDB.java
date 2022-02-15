@@ -9,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import tsp.headdb.HeadDB;
 import tsp.headdb.api.Head;
 import tsp.headdb.api.HeadAPI;
+import tsp.headdb.util.Localization;
 import tsp.headdb.util.Utils;
 
 import java.util.concurrent.TimeUnit;
@@ -18,24 +19,26 @@ public class CommandHeadDB implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
+        Localization localization = HeadDB.getInstance().getLocalization();
         if (args.length == 0) {
             if (!sender.hasPermission("headdb.open")) {
-                Utils.sendMessage(sender, "&cNo permission!");
+                Utils.sendMessage(sender, localization.getMessage("noPermission"));
                 return true;
             }
             if (!(sender instanceof Player)) {
-                Utils.sendMessage(sender, "&cOnly players may open the database.");
+                Utils.sendMessage(sender, localization.getMessage("onlyPlayers"));
                 return true;
             }
             Player player = (Player) sender;
 
-            Utils.sendMessage(player, "&7Opening &cHead Database");
+            Utils.sendMessage(player, localization.getMessage("databaseOpen"));
             HeadAPI.openDatabase(player);
             return true;
         }
         String sub = args[0];
 
         if (sub.equalsIgnoreCase("info") || sub.equalsIgnoreCase("i")) {
+            // These should not be customizable
             Utils.sendMessage(sender, "&7Running &cHeadDB - " + HeadDB.getInstance().getDescription().getVersion());
             Utils.sendMessage(sender, "&7Created by &c" + HeadDB.getInstance().getDescription().getAuthors());
             Utils.sendMessage(sender, "&7There are currently &c" + HeadAPI.getHeads().size() + " &7heads in the database.");
@@ -44,7 +47,7 @@ public class CommandHeadDB implements CommandExecutor {
 
         if (sub.equalsIgnoreCase("search") || sub.equalsIgnoreCase("s")) {
             if (!sender.hasPermission("headdb.search")) {
-                Utils.sendMessage(sender, "&cNo permission!");
+                Utils.sendMessage(sender, localization.getMessage("noPermission"));
                 return true;
             }
             if (args.length < 2) {
@@ -52,7 +55,7 @@ public class CommandHeadDB implements CommandExecutor {
                 return true;
             }
             if (!(sender instanceof Player)) {
-                Utils.sendMessage(sender, "&cOnly players may open the database.");
+                Utils.sendMessage(sender, localization.getMessage("onlyPlayers"));
                 return true;
             }
             Player player = (Player) sender;
@@ -72,7 +75,7 @@ public class CommandHeadDB implements CommandExecutor {
 
         if (sub.equalsIgnoreCase("tagsearch") || sub.equalsIgnoreCase("ts")) {
             if (!sender.hasPermission("headdb.tagsearch")) {
-                Utils.sendMessage(sender, "&cNo permission!");
+                Utils.sendMessage(sender, localization.getMessage("noPermission"));
                 return true;
             }
             if (args.length < 2) {
@@ -80,7 +83,7 @@ public class CommandHeadDB implements CommandExecutor {
                 return true;
             }
             if (!(sender instanceof Player)) {
-                Utils.sendMessage(sender, "&cOnly players may open the database.");
+                Utils.sendMessage(sender, localization.getMessage("onlyPlayers"));
                 return true;
             }
             Player player = (Player) sender;
@@ -93,7 +96,7 @@ public class CommandHeadDB implements CommandExecutor {
 
         if (sub.equalsIgnoreCase("give") || sub.equalsIgnoreCase("g")) {
             if (!sender.hasPermission("headdb.give")) {
-                Utils.sendMessage(sender, "&cNo permission!");
+                Utils.sendMessage(sender, localization.getMessage("noPermission"));
                 return true;
             }
             if (args.length < 3) {
@@ -104,7 +107,7 @@ public class CommandHeadDB implements CommandExecutor {
                 int id = Integer.parseInt(args[1]);
                 Player target = Bukkit.getPlayer(args[2]);
                 if (target == null) {
-                    Utils.sendMessage(sender, "&cPlayer is not online!");
+                    Utils.sendMessage(sender, localization.getMessage("invalidPlayer"));
                     return true;
                 }
 

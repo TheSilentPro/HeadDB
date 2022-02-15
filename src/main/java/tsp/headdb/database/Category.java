@@ -47,7 +47,7 @@ public enum Category {
 
     public ItemStack getItem() {
         if (item.containsKey(this)) {
-            return item.get(this).getItemStack();
+            return item.get(this).getMenuItem();
         }
 
         item.put(this, HeadAPI.getHeads(this).get(0));

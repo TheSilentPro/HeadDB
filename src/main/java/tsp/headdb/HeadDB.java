@@ -11,22 +11,28 @@ import tsp.headdb.listener.JoinListener;
 import tsp.headdb.listener.MenuListener;
 import tsp.headdb.listener.PagedPaneListener;
 import tsp.headdb.storage.PlayerDataFile;
+import tsp.headdb.util.Localization;
 import tsp.headdb.util.Log;
 import tsp.headdb.util.Metrics;
 
 import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 public class HeadDB extends JavaPlugin {
 
     private static HeadDB instance;
     private Economy economy;
     private PlayerDataFile playerData;
+    private Localization localization;
 
     @Override
     public void onEnable() {
         instance = this;
         Log.info("Loading HeadDB - " + getDescription().getVersion());
         saveDefaultConfig();
+        createLocalizationFile();
 
         this.playerData = new PlayerDataFile("player_data.json");
         this.playerData.load();
@@ -62,13 +68,8 @@ public class HeadDB extends JavaPlugin {
         this.playerData.save();
     }
 
-    private Economy setupEconomy() {
-        if (!this.getServer().getPluginManager().isPluginEnabled("Vault")) return null;
-
-        RegisteredServiceProvider<Economy> economyProvider = this.getServer().getServicesManager().getRegistration(Economy.class);
-        if (economyProvider == null) return null;
-
-        return this.economy = economyProvider.getProvider();
+    public Localization getLocalization() {
+        return localization;
     }
 
     @Nullable
@@ -83,5 +84,37 @@ public class HeadDB extends JavaPlugin {
     public static HeadDB getInstance() {
         return instance;
     }
+
+    private Economy setupEconomy() {
+        if (!this.getServer().getPluginManager().isPluginEnabled("Vault")) return null;
+
+        RegisteredServiceProvider<Economy> economyProvider = this.getServer().getServicesManager().getRegistration(Economy.class);
+        if (economyProvider == null) return null;
+
+        return this.economy = economyProvider.getProvider();
+    }
+
+    private void createLocalizationFile() {
+        if (getClass().getResource("messages.yml") == null || new File(getDataFolder() + "/messages.yml").exists()) {
+            // File exists or not default available
+            return;
+        }
+
+        try {
+            saveResource("messages.yml", false);
+            File messagesFile = new File(getDataFolder() + "/messages.yml");
+            if (!messagesFile.exists()) {
+                messagesFile = new File(getClass().getResource("messages.yml").toURI());
+                messagesFile.createNewFile();
+            }
+            this.localization = new Localization(messagesFile);
+            this.localization.load();
+            Log.debug("Localization loaded from jar file.");
+        } catch (URISyntaxException | IOException ex) {
+            Log.error("Failed to load localization!");
+            Log.error(ex);
+        }
+    }
+
 
 }

@@ -5,7 +5,9 @@ import com.mojang.authlib.properties.Property;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import tsp.headdb.HeadDB;
 import tsp.headdb.database.Category;
 import tsp.headdb.util.Log;
 import tsp.headdb.util.Utils;
@@ -23,6 +25,7 @@ public class Head {
     private Category category;
     private int id;
     private List<String> tags;
+    private ItemStack menuItem;
     private ItemStack itemStack;
 
     public Head() {}
@@ -31,8 +34,8 @@ public class Head {
         this.id = id;
     }
 
-    public ItemStack getItemStack() {
-        if (itemStack == null) {
+    public ItemStack getMenuItem() {
+        if (menuItem == null) {
             Validate.notNull(name, "name must not be null!");
             Validate.notNull(uuid, "uuid must not be null!");
             Validate.notNull(value, "value must not be null!");
@@ -61,7 +64,19 @@ public class Head {
             ));
 
             item.setItemMeta(meta);
-            itemStack = item;
+            menuItem = item;
+        }
+
+        return menuItem;
+    }
+
+    public ItemStack getItemStack() {
+        if (itemStack == null) {
+            itemStack = menuItem;
+            ItemMeta meta = itemStack.getItemMeta();
+            meta.setDisplayName(HeadDB.getInstance().getLocalization().getMessage("head.name"));
+            meta.setLore(HeadDB.getInstance().getLocalization().getData().getStringList("head.lore"));
+            itemStack.setItemMeta(meta);
         }
 
         return itemStack;

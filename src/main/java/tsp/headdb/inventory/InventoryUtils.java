@@ -344,7 +344,7 @@ public class InventoryUtils {
         PlayerHeadPurchaseEvent event = new PlayerHeadPurchaseEvent(player, head, getCategoryCost(player, category));
         Bukkit.getPluginManager().callEvent(event);
         if (!event.isCancelled()) {
-            ItemStack item = head.getItemStack();
+            ItemStack item = head.getMenuItem();
             item.setAmount(amount);
             player.getInventory().addItem(item);
         }

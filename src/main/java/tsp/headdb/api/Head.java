@@ -26,7 +26,7 @@ public class Head {
     private int id;
     private List<String> tags;
     private ItemStack menuItem;
-    private ItemStack itemStack;
+    //Unimplemented private ItemStack itemStack;
 
     public Head() {}
 
@@ -70,6 +70,7 @@ public class Head {
         return menuItem;
     }
 
+    /* For some reason this causes issues with some heads in categories not having lore
     public ItemStack getItemStack() {
         if (itemStack == null) {
             itemStack = menuItem;
@@ -85,6 +86,7 @@ public class Head {
 
         return itemStack;
     }
+    */
 
     public String getName() {
         return name;

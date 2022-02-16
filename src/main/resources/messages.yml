@@ -11,9 +11,3 @@ menu:
   search: "&c&lHeadDB &8- &eSearch: %search%"
   favorites: "&c&lHeadDB &8- &eFavorites: %player%"
   local: "&c&lHeadDB &8- &aLocal Heads &7(%size%)"
-
-# Head item given to players
-head:
-  name: "%name%"
-  lore:
-    - ''

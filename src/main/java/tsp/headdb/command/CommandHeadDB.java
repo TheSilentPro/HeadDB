@@ -122,7 +122,7 @@ public class CommandHeadDB implements CommandExecutor {
                     Utils.sendMessage(sender, "&cCould not find head with id &e" + id);
                     return true;
                 }
-                ItemStack item = head.getItemStack();
+                ItemStack item = head.getMenuItem();
                 item.setAmount(amount);
                 target.getInventory().addItem(item);
                 Utils.sendMessage(sender, "&7Gave &6" + target.getName() + " &ex" + amount + " " + head.getName());

@@ -17,8 +17,6 @@ import tsp.headdb.util.Metrics;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
 
 public class HeadDB extends JavaPlugin {
 
@@ -95,25 +93,14 @@ public class HeadDB extends JavaPlugin {
     }
 
     private void createLocalizationFile() {
-        if (getClass().getResource("messages.yml") == null || new File(getDataFolder() + "/messages.yml").exists()) {
-            // File exists or not default available
-            return;
+        if (getClass().getResource("messages.yml") != null && !new File(getDataFolder() + "/messages.yml").exists()) {
+            saveResource("messages.yml", false);
+            Log.debug("Localization loaded from jar file.");
         }
 
-        try {
-            saveResource("messages.yml", false);
-            File messagesFile = new File(getDataFolder() + "/messages.yml");
-            if (!messagesFile.exists()) {
-                messagesFile = new File(getClass().getResource("messages.yml").toURI());
-                messagesFile.createNewFile();
-            }
-            this.localization = new Localization(messagesFile);
-            this.localization.load();
-            Log.debug("Localization loaded from jar file.");
-        } catch (URISyntaxException | IOException ex) {
-            Log.error("Failed to load localization!");
-            Log.error(ex);
-        }
+        File messagesFile = new File(getDataFolder() + "/messages.yml");
+        this.localization = new Localization(messagesFile);
+        this.localization.load();
     }
 
 

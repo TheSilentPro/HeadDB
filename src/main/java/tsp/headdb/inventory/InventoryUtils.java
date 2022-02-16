@@ -34,52 +34,6 @@ public class InventoryUtils {
     private static final Map<String, Integer> uiLocation = new HashMap<>();
     private static final Map<String, ItemStack> uiItem = new HashMap<>();
 
-    public static int getUILocation(String category, int slot) {
-        // Try to use the cached value first.
-        if (uiLocation.containsKey(category)) return uiLocation.get(category);
-
-        // Try to get the value from the config file.
-        if (HeadDB.getInstance().getConfig().contains("ui.category." + category + ".location")) {
-            uiLocation.put(category, HeadDB.getInstance().getConfig().getInt("ui.category." + category + ".location"));
-            return uiLocation.get(category);
-        }
-
-        // No valid value in the config file, return the given default.
-        uiLocation.put(category, slot);
-        return slot;
-    }
-
-    public static ItemStack getUIItem(String category, ItemStack item) {
-        // Try to use the cached item first.
-        if (uiItem.containsKey(category)) return uiItem.get(category);
-
-        // Try to get a head from the config file.
-        if (HeadDB.getInstance().getConfig().contains("ui.category." + category + ".head")) {
-            int id = HeadDB.getInstance().getConfig().getInt("ui.category." + category + ".head");
-            Head head = HeadAPI.getHeadByID(id);
-            if (head != null) {
-                uiItem.put(category, head.getMenuItem());
-                return uiItem.get(category);
-            }
-        }
-
-        // Try to get an item from the config file.
-        if (HeadDB.getInstance().getConfig().contains("ui.category." + category + ".item")) {
-            String cfg = HeadDB.getInstance().getConfig().getString("ui.category." + category + ".item");
-            Material mat = Material.matchMaterial(cfg);
-
-            // AIR is allowed as the fill material for the menu, but not as a category item.
-            if (mat != null && (category.equals("fill") || mat != Material.AIR)) {
-                uiItem.put(category, new ItemStack(mat));
-                return uiItem.get(category);
-            }
-        }
-
-        // No valid head or item in the config file, return the given default.
-        uiItem.put(category, item);
-        return item;
-    }
-
     public static void openLocalMenu(Player player) {
         List<LocalHead> heads = HeadAPI.getLocalHeads();
 
@@ -113,7 +67,6 @@ public class InventoryUtils {
             pane.addButton(new Button(head.getMenuItem(), e -> {
                 if (e.getClick() == ClickType.SHIFT_LEFT) {
                     purchaseHead(player, head, 64, head.getCategory().getName(), head.getName());
-                    return;
                 }
                 if (e.getClick() == ClickType.LEFT) {
                     purchaseHead(player, head, 1, head.getCategory().getName(), head.getName());
@@ -139,7 +92,6 @@ public class InventoryUtils {
             pane.addButton(new Button(head.getMenuItem(), e -> {
                 if (e.getClick() == ClickType.SHIFT_LEFT) {
                     purchaseHead(player, head, 64, head.getCategory().getName(), head.getName());
-                    return;
                 }
                 if (e.getClick() == ClickType.LEFT) {
                     purchaseHead(player, head, 1, head.getCategory().getName(), head.getName());
@@ -171,7 +123,6 @@ public class InventoryUtils {
             pane.addButton(new Button(head.getMenuItem(), e -> {
                 if (e.getClick() == ClickType.SHIFT_LEFT) {
                     purchaseHead(player, head, 64, head.getCategory().getName(), head.getName());
-                    return;
                 }
                 if (e.getClick() == ClickType.LEFT) {
                     purchaseHead(player, head, 1, head.getCategory().getName(), head.getName());
@@ -202,7 +153,6 @@ public class InventoryUtils {
             pane.addButton(new Button(head.getMenuItem(), e -> {
                 if (e.getClick() == ClickType.SHIFT_LEFT) {
                     purchaseHead(player, head, 64, head.getCategory().getName(), head.getName());
-                    return;
                 }
                 if (e.getClick() == ClickType.LEFT) {
                     purchaseHead(player, head, 1, head.getCategory().getName(), head.getName());
@@ -270,7 +220,7 @@ public class InventoryUtils {
         player.openInventory(inventory);
     }
 
-    public static void fill(Inventory inv) {
+    private static void fill(Inventory inv) {
         ItemStack item = getUIItem("fill", new ItemStack(Material.BLACK_STAINED_GLASS_PANE));
         // Do not bother filling the inventory if item to fill it with is AIR.
         if (item == null || item.getType() == Material.AIR) return;
@@ -284,6 +234,53 @@ public class InventoryUtils {
             }
         }
     }
+
+    private static int getUILocation(String category, int slot) {
+        // Try to use the cached value first.
+        if (uiLocation.containsKey(category)) return uiLocation.get(category);
+
+        // Try to get the value from the config file.
+        if (HeadDB.getInstance().getConfig().contains("ui.category." + category + ".location")) {
+            uiLocation.put(category, HeadDB.getInstance().getConfig().getInt("ui.category." + category + ".location"));
+            return uiLocation.get(category);
+        }
+
+        // No valid value in the config file, return the given default.
+        uiLocation.put(category, slot);
+        return slot;
+    }
+
+    private static ItemStack getUIItem(String category, ItemStack item) {
+        // Try to use the cached item first.
+        if (uiItem.containsKey(category)) return uiItem.get(category);
+
+        // Try to get a head from the config file.
+        if (HeadDB.getInstance().getConfig().contains("ui.category." + category + ".head")) {
+            int id = HeadDB.getInstance().getConfig().getInt("ui.category." + category + ".head");
+            Head head = HeadAPI.getHeadByID(id);
+            if (head != null) {
+                uiItem.put(category, head.getMenuItem());
+                return uiItem.get(category);
+            }
+        }
+
+        // Try to get an item from the config file.
+        if (HeadDB.getInstance().getConfig().contains("ui.category." + category + ".item")) {
+            String cfg = HeadDB.getInstance().getConfig().getString("ui.category." + category + ".item");
+            Material mat = Material.matchMaterial(cfg);
+
+            // AIR is allowed as the fill material for the menu, but not as a category item.
+            if (mat != null && (category.equals("fill") || mat != Material.AIR)) {
+                uiItem.put(category, new ItemStack(mat));
+                return uiItem.get(category);
+            }
+        }
+
+        // No valid head or item in the config file, return the given default.
+        uiItem.put(category, item);
+        return item;
+    }
+
 
     private static ItemStack buildButton(ItemStack item, String name, String... lore) {
         ItemMeta meta = item.getItemMeta();

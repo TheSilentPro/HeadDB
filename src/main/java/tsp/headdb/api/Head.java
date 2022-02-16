@@ -74,7 +74,11 @@ public class Head {
         if (itemStack == null) {
             itemStack = menuItem;
             ItemMeta meta = itemStack.getItemMeta();
-            meta.setDisplayName(HeadDB.getInstance().getLocalization().getMessage("head.name"));
+            meta.setDisplayName(HeadDB.getInstance().getLocalization().getMessage("head.name")
+                    .replace("%name%", name)
+                    .replace("%id%", String.valueOf(id))
+                    .replace("%value%", value)
+                    .replace("%tags%", buildTagLore(tags)));
             meta.setLore(HeadDB.getInstance().getLocalization().getData().getStringList("head.lore"));
             itemStack.setItemMeta(meta);
         }

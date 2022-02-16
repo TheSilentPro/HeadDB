@@ -50,15 +50,16 @@ public class CommandHeadDB implements CommandExecutor {
                 Utils.sendMessage(sender, localization.getMessage("noPermission"));
                 return true;
             }
-            if (args.length < 2) {
-                Utils.sendMessage(sender, "&c/hdb search <name>");
-                return true;
-            }
             if (!(sender instanceof Player)) {
                 Utils.sendMessage(sender, localization.getMessage("onlyPlayers"));
                 return true;
             }
             Player player = (Player) sender;
+
+            if (args.length < 2) {
+                Utils.sendMessage(player, "&c/hdb search <name>");
+                return true;
+            }
 
             StringBuilder builder = new StringBuilder();
             for (int i = 1; i < args.length; i++) {

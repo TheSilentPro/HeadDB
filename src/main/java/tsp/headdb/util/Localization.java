@@ -7,7 +7,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
-import java.util.function.UnaryOperator;
 
 /**
  * Localization class for a messages file
@@ -31,15 +30,7 @@ public class Localization {
         Validate.notNull(data, "File data is null.");
         Validate.notNull(key, "Message key can not be null.");
 
-        return Utils.colorize(data.getString(key));
-    }
-
-    public String getMessage(@Nonnull String key, @Nonnull UnaryOperator<String> function) {
-        Validate.notNull(data, "File data is null.");
-        Validate.notNull(key, "Message key can not be null.");
-        Validate.notNull(function, "Function can not be null.");
-
-        return function.apply(getMessage(key));
+        return Utils.colorize(data.getString(key, "null"));
     }
 
     public void load() {

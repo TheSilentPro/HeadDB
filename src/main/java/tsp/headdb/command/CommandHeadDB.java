@@ -45,6 +45,12 @@ public class CommandHeadDB implements CommandExecutor {
             return true;
         }
 
+        if (sub.equalsIgnoreCase("reload") || sub.equalsIgnoreCase("r")) {
+            HeadDB.getInstance().getLocalization().load();
+            Utils.sendMessage(sender, "&aReloaded messages file!");
+            return true;
+        }
+
         if (sub.equalsIgnoreCase("search") || sub.equalsIgnoreCase("s")) {
             if (!sender.hasPermission("headdb.search")) {
                 Utils.sendMessage(sender, localization.getMessage("noPermission"));
@@ -153,6 +159,7 @@ public class CommandHeadDB implements CommandExecutor {
         Utils.sendMessage(sender, "&7&oParameters:&c command &9(aliases)&c arguments... &7- Description");
         Utils.sendMessage(sender, "&7 > &c/hdb &7- Opens the database");
         Utils.sendMessage(sender, "&7 > &c/hdb info &9(i) &7- Plugin Information");
+        Utils.sendMessage(sender, "&7 > &c/hdb reload &9(r) &7- Reloads the messages file");
         Utils.sendMessage(sender, "&7 > &c/hdb search &9(s) &c<name> &7- Search for heads matching a name");
         Utils.sendMessage(sender, "&7 > &c/hdb tagsearch &9(ts) &c<tag> &7- Search for heads matching a tag");
         Utils.sendMessage(sender, "&7 > &c/hdb update &9(u) &7- Forcefully update the database");

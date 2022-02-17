@@ -93,12 +93,12 @@ public class HeadDB extends JavaPlugin {
     }
 
     private void createLocalizationFile() {
-        if (getClass().getResource("messages.yml") != null && !new File(getDataFolder() + "/messages.yml").exists()) {
+        File messagesFile = new File(getDataFolder().getAbsolutePath() + "/messages.yml");
+        if (!messagesFile.exists()) {
             saveResource("messages.yml", false);
             Log.debug("Localization loaded from jar file.");
         }
 
-        File messagesFile = new File(getDataFolder() + "/messages.yml");
         this.localization = new Localization(messagesFile);
         this.localization.load();
     }

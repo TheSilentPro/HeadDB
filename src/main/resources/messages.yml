@@ -7,6 +7,7 @@ noEconomy: "&7You received &e%d &7x &e%s&7!"
 purchasedHead: "&7You purchased &e%d &7x &e%s &7for &e%.2f&7!"
 notEnoughMoney: "&cYou do not have enough to purchase &e%d &cx &e%s&7."
 free: "&7You received &e%d &7x &e%s &7for &efree&7!"
+reloadMessages: "&aReloaded messages file!"
 
 menu:
   main: "&c&lHeadDB &7(%size%)"

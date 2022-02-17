@@ -37,7 +37,9 @@ public class Utils {
     }
 
     public static void sendMessage(CommandSender sender, String message) {
-        sender.sendMessage(colorize(message));
+        if (!message.isEmpty()) {
+            sender.sendMessage(colorize(message));
+        }
     }
 
     public static String colorize(String string) {

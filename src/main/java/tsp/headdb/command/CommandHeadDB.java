@@ -46,8 +46,12 @@ public class CommandHeadDB implements CommandExecutor {
         }
 
         if (sub.equalsIgnoreCase("reload") || sub.equalsIgnoreCase("r")) {
+            if (!sender.hasPermission("headdb.reload")) {
+                Utils.sendMessage(sender, localization.getMessage("noPermission"));
+                return true;
+            }
             HeadDB.getInstance().getLocalization().load();
-            Utils.sendMessage(sender, "&aReloaded messages file!");
+            Utils.sendMessage(sender, localization.getMessage("reloadMessages"));
             return true;
         }
 

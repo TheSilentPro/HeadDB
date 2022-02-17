@@ -24,6 +24,7 @@ permissions:
       headdb.local: true
       headdb.tagsearch: true
       headdb.update: true
+      headdb.reload: true
   headdb.open:
     default: op
   headdb.search:
@@ -37,4 +38,6 @@ permissions:
   headdb.tagsearch:
     default: op
   headdb.update:
+    default: op
+  headdb.reload:
     default: op

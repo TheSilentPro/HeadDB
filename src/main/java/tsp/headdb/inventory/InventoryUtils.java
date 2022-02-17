@@ -181,9 +181,9 @@ public class InventoryUtils {
         for (Category category : Category.cache) {
             ItemStack item = getUIItem(category.getName(), category.getItem());
             ItemMeta meta = item.getItemMeta();
-            meta.setDisplayName(Utils.colorize(category.getColor() + "&l" + category.getName().toUpperCase()));
+            meta.setDisplayName(Utils.colorize(localization.getMessage("menu.heads." + category.getName())));
             List<String> lore = new ArrayList<>();
-            lore.add(Utils.colorize("&e" + HeadAPI.getHeads(category).size() + " heads"));
+            lore.add(Utils.colorize(replace(localization.getMessage("menu.lore"), HeadAPI.getHeads(category).size(), "Main", "None", player)));
             meta.setLore(lore);
             item.setItemMeta(meta);
             inventory.setItem(getUILocation(category.getName(), category.getLocation()), item);
@@ -312,7 +312,7 @@ public class InventoryUtils {
         // If economy is disabled or no plugin is present, the item is free.
         // Don't mention receiving it for free in this case, since it is always free.
         if (economy == null) {
-            Utils.sendMessage(player, String.format("&7You received &e%d &7x &e%s&7!", amount, description));
+            Utils.sendMessage(player, String.format(localization.getMessage("noEconomy"), amount, description));
             Utils.playSound(player, "noEconomy");
             return true;
         }
@@ -323,17 +323,17 @@ public class InventoryUtils {
         if (cost > 0) {
             if (economy.has(player, cost)) {
                 economy.withdrawPlayer(player, cost);
-                Utils.sendMessage(player, String.format("&7You purchased &e%d &7x &e%s &7for &e%.2f&7!", amount, description, cost));
+                Utils.sendMessage(player, String.format(localization.getMessage("purchasedHead"), amount, description, cost));
                 Utils.playSound(player, "paid");
                 return true;
             }
-            Utils.sendMessage(player, String.format("&cYou do not have enough to purchase &e%d &cx &e%s&7.", amount, description));
+            Utils.sendMessage(player, String.format(localization.getMessage("notEnoughMoney"), amount, description));
             Utils.playSound(player, "unavailable");
             return false;
         }
 
         // Otherwise, the item is free.
-        Utils.sendMessage(player, String.format("&7You received &e%d &7x &e%s &7for &efree&7!", amount, description));
+        Utils.sendMessage(player, String.format(localization.getMessage("free"), amount, description));
         Utils.playSound(player, "free");
         return true;
     }

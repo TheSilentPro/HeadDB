@@ -6,7 +6,7 @@
 
     <groupId>tsp.headdb</groupId>
     <artifactId>HeadDB</artifactId>
-    <version>3.2.2</version>
+    <version>3.2.3</version>
     <packaging>jar</packaging>
 
     <name>HeadDB</name>

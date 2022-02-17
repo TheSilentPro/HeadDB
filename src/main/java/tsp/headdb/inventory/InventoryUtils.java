@@ -181,7 +181,7 @@ public class InventoryUtils {
         for (Category category : Category.cache) {
             ItemStack item = getUIItem(category.getName(), category.getItem());
             ItemMeta meta = item.getItemMeta();
-            meta.setDisplayName(Utils.colorize(category.getColor() + "&l" + category.getName().toUpperCase()));
+            meta.setDisplayName(Utils.colorize(localization.getMessage("menu.heads." + category.getName())));
             List<String> lore = new ArrayList<>();
             lore.add(Utils.colorize("&e" + HeadAPI.getHeads(category).size() + " heads"));
             meta.setLore(lore);

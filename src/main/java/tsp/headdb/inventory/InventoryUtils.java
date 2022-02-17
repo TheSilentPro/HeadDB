@@ -183,7 +183,7 @@ public class InventoryUtils {
             ItemMeta meta = item.getItemMeta();
             meta.setDisplayName(Utils.colorize(localization.getMessage("menu.heads." + category.getName())));
             List<String> lore = new ArrayList<>();
-            lore.add(Utils.colorize(localization.getMessage("menu.lore").replace("%size%", String.valueOf(HeadAPI.getHeads(category).size()))));
+            lore.add(Utils.colorize(replace(localization.getMessage("menu.lore"), HeadAPI.getHeads(category).size(), "Main", "None", player)));
             meta.setLore(lore);
             item.setItemMeta(meta);
             inventory.setItem(getUILocation(category.getName(), category.getLocation()), item);

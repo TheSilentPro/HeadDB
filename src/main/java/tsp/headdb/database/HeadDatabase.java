@@ -1,14 +1,13 @@
 package tsp.headdb.database;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import tsp.headdb.api.Head;
-import tsp.headdb.event.DatabaseUpdateEvent;
 import tsp.headdb.util.Log;
 import tsp.headdb.util.Utils;
 
@@ -18,7 +17,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -158,13 +156,21 @@ public class HeadDatabase {
                 long start = System.currentTimeMillis();
                 List<Head> heads = new ArrayList<>();
                 try {
+                    String line;
+                    StringBuilder response = new StringBuilder();
+
                     URLConnection connection = new URL("https://minecraft-heads.com/scripts/api.php?cat=" + category.getName() + "&tags=true").openConnection();
                     connection.setConnectTimeout(timeout);
                     connection.setRequestProperty("User-Agent", plugin.getName() + "-DatabaseUpdater");
-
-                    JsonArray array = JsonParser.parseReader(new BufferedReader(new InputStreamReader(connection.getInputStream()))).getAsJsonArray();
-                    for (JsonElement entry : array) {
-                        JsonObject obj = entry.getAsJsonObject();
+                    try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                        while ((line = in.readLine()) != null) {
+                            response.append(line);
+                        }
+                    }
+                    JSONParser parser = new JSONParser();
+                    JSONArray array = (JSONArray) parser.parse(response.toString());
+                    for (Object o : array) {
+                        JSONObject obj = (JSONObject) o;
                         String rawUUID = obj.get("uuid").toString();
 
                         UUID uuid;
@@ -187,7 +193,7 @@ public class HeadDatabase {
 
                     long elapsed = (System.currentTimeMillis() - start);
                     Log.debug(category.getName() + " -> Done! Time: " + elapsed + "ms (" + TimeUnit.MILLISECONDS.toSeconds(elapsed) + "s)");
-                } catch (IOException e) {
+                } catch (ParseException | IOException e) {
                     Log.error("[" + plugin.getName() + "] Failed to fetch heads (no-cache) | Stack Trace:");
                     e.printStackTrace();
                 }
@@ -204,14 +210,13 @@ public class HeadDatabase {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, task -> getHeadsNoCacheAsync(heads -> {
             if (heads == null) {
                 Log.error("[" + plugin.getName() + "] Failed to update database! Check above for any errors.");
-                result.accept(Collections.emptyMap());
+                result.accept(null);
                 return;
             }
 
             HEADS.clear();
             HEADS.putAll(heads);
             result.accept(heads);
-            Bukkit.getPluginManager().callEvent(new DatabaseUpdateEvent(this, heads));
         }));
     }
 

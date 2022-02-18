@@ -8,6 +8,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import tsp.headdb.api.Head;
+import tsp.headdb.event.DatabaseUpdateEvent;
 import tsp.headdb.util.Log;
 import tsp.headdb.util.Utils;
 
@@ -217,6 +218,7 @@ public class HeadDatabase {
             HEADS.clear();
             HEADS.putAll(heads);
             result.accept(heads);
+            Bukkit.getPluginManager().callEvent(new DatabaseUpdateEvent(this, heads));
         }));
     }
 

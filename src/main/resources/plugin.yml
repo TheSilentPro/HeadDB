@@ -3,7 +3,7 @@ description: ${project.description}
 
 main: tsp.headdb.HeadDB
 version: ${project.version}
-softdepend: [Vault]
+softdepend: [Vault, Treasury]
 api-version: 1.13
 author: Silent
 

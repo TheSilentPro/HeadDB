@@ -13,12 +13,14 @@ import tsp.headdb.api.Head;
 import tsp.headdb.api.HeadAPI;
 import tsp.headdb.api.LocalHead;
 import tsp.headdb.database.Category;
+import tsp.headdb.economy.HEconomyProvider;
 import tsp.headdb.event.PlayerHeadPurchaseEvent;
 import tsp.headdb.util.Localization;
 import tsp.headdb.util.Utils;
 
 import net.milkbowl.vault.economy.Economy;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -307,26 +309,27 @@ public class InventoryUtils {
     }
 
     public static boolean processPayment(Player player, int amount, String category, String description) {
-        Economy economy = HeadDB.getInstance().getEconomy();
+        HEconomyProvider economyProvider = HeadDB.getInstance().getEconomyProvider();
 
         // If economy is disabled or no plugin is present, the item is free.
         // Don't mention receiving it for free in this case, since it is always free.
-        if (economy == null) {
+        if (economyProvider == null) {
             Utils.sendMessage(player, String.format(localization.getMessage("noEconomy"), amount, description));
             Utils.playSound(player, "noEconomy");
             return true;
         }
 
-        double cost = getCategoryCost(player, category) * amount;
+        BigDecimal cost = BigDecimal.valueOf(getCategoryCost(player, category) * amount);
 
         // If the cost is higher than zero, attempt to charge for it.
-        if (cost > 0) {
-            if (economy.has(player, cost)) {
-                economy.withdrawPlayer(player, cost);
+        if (cost.compareTo(BigDecimal.ZERO) > 0) {
+            if (economyProvider.canPurchase(player, cost)) {
+                economyProvider.charge(player, cost);
                 Utils.sendMessage(player, String.format(localization.getMessage("purchasedHead"), amount, description, cost));
                 Utils.playSound(player, "paid");
                 return true;
             }
+
             Utils.sendMessage(player, String.format(localization.getMessage("notEnoughMoney"), amount, description));
             Utils.playSound(player, "unavailable");
             return false;

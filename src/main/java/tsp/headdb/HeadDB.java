@@ -1,12 +1,12 @@
 package tsp.headdb;
 
-import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import tsp.headdb.api.HeadAPI;
 import tsp.headdb.command.CommandHeadDB;
 import tsp.headdb.database.DatabaseUpdateTask;
+import tsp.headdb.economy.HEconomyProvider;
+import tsp.headdb.economy.VaultProvider;
 import tsp.headdb.listener.JoinListener;
 import tsp.headdb.listener.MenuListener;
 import tsp.headdb.listener.PagedPaneListener;
@@ -14,6 +14,7 @@ import tsp.headdb.storage.PlayerDataFile;
 import tsp.headdb.util.Localization;
 import tsp.headdb.util.Log;
 import tsp.headdb.util.Metrics;
+import tsp.headdb.util.Utils;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -21,7 +22,7 @@ import java.io.File;
 public class HeadDB extends JavaPlugin {
 
     private static HeadDB instance;
-    private Economy economy;
+    private HEconomyProvider economyProvider;
     private PlayerDataFile playerData;
     private Localization localization;
 
@@ -36,12 +37,11 @@ public class HeadDB extends JavaPlugin {
         this.playerData.load();
 
         if (getConfig().getBoolean("economy.enable")) {
-            Log.debug("Starting economy...");
-            this.economy = this.setupEconomy();
-            if (this.economy == null) {
-                Log.error("Economy support requires Vault and an economy provider plugin.");
-            } else {
-                Log.info("Economy provider: " + this.economy.getName());
+            String rawProvider = getConfig().getString("economy.provider", "VAULT");
+            Log.debug("Starting economy with provider: " + rawProvider);
+            if (rawProvider.equalsIgnoreCase("vault")) {
+                economyProvider = new VaultProvider();
+                economyProvider.initProvider();
             }
         }
 
@@ -58,6 +58,14 @@ public class HeadDB extends JavaPlugin {
 
         Log.debug("Starting metrics...");
         new Metrics(this, 9152);
+
+        Utils.isLatestVersion(this, 84967, latest -> {
+            if (!latest) {
+                Log.warning("There is a new update available for HeadDB on spigot!");
+                Log.warning("Download: https://www.spigotmc.org/resources/84967");
+            }
+        });
+
         Log.info("Done!");
     }
 
@@ -70,26 +78,17 @@ public class HeadDB extends JavaPlugin {
         return localization;
     }
 
-    @Nullable
-    public Economy getEconomy() {
-        return economy;
-    }
-
     public PlayerDataFile getPlayerData() {
         return playerData;
     }
 
-    public static HeadDB getInstance() {
-        return instance;
+    @Nullable
+    public HEconomyProvider getEconomyProvider() {
+        return economyProvider;
     }
 
-    private Economy setupEconomy() {
-        if (!this.getServer().getPluginManager().isPluginEnabled("Vault")) return null;
-
-        RegisteredServiceProvider<Economy> economyProvider = this.getServer().getServicesManager().getRegistration(Economy.class);
-        if (economyProvider == null) return null;
-
-        return this.economy = economyProvider.getProvider();
+    public static HeadDB getInstance() {
+        return instance;
     }
 
     private void createLocalizationFile() {

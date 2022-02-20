@@ -11,6 +11,8 @@ requireCategoryPermission: false
 # Economy options
 economy:
   enable: false
+  # Supported: VAULT
+  provider: "VAULT"
   cost:
     alphabet: 100
     animals: 100

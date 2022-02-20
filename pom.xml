@@ -6,7 +6,7 @@
 
     <groupId>tsp.headdb</groupId>
     <artifactId>HeadDB</artifactId>
-    <version>3.2.4</version>
+    <version>3.3.0</version>
     <packaging>jar</packaging>
 
     <name>HeadDB</name>
@@ -30,8 +30,8 @@
         </repository>
         <!-- CodeMC -->
         <repository>
-            <id>codemc-snapshots</id>
-            <url>https://repo.codemc.io/repository/maven-snapshots/</url>
+            <id>CodeMC</id>
+            <url>https://repo.codemc.org/repository/maven-public</url>
         </repository>
     </repositories>
 

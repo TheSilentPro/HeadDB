@@ -1,11 +1,10 @@
-package tsp.headdb.api;
+package tsp.headdb.implementation;
 
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
-import tsp.headdb.database.Category;
 import tsp.headdb.util.Utils;
 
 import java.util.ArrayList;

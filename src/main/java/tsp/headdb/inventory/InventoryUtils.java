@@ -9,22 +9,21 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import tsp.headdb.HeadDB;
-import tsp.headdb.api.Head;
+import tsp.headdb.implementation.Head;
 import tsp.headdb.api.HeadAPI;
-import tsp.headdb.api.LocalHead;
-import tsp.headdb.database.Category;
-import tsp.headdb.economy.HEconomyProvider;
-import tsp.headdb.event.PlayerHeadPurchaseEvent;
+import tsp.headdb.implementation.LocalHead;
+import tsp.headdb.implementation.Category;
+import tsp.headdb.economy.BasicEconomyProvider;
+import tsp.headdb.api.event.PlayerHeadPurchaseEvent;
 import tsp.headdb.util.Localization;
 import tsp.headdb.util.Utils;
-
-import net.milkbowl.vault.economy.Economy;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Class for handling the "dirty" work
@@ -308,49 +307,62 @@ public class InventoryUtils {
         return HeadDB.getInstance().getConfig().getDouble("economy.cost." + category);
     }
 
-    public static boolean processPayment(Player player, int amount, String category, String description) {
-        HEconomyProvider economyProvider = HeadDB.getInstance().getEconomyProvider();
+    public static void processPayment(Player player, int amount, String category, String description, Consumer<Boolean> result) {
+        Utils.async(task -> {
+            BasicEconomyProvider economyProvider = HeadDB.getInstance().getEconomyProvider();
 
-        // If economy is disabled or no plugin is present, the item is free.
-        // Don't mention receiving it for free in this case, since it is always free.
-        if (economyProvider == null) {
-            Utils.sendMessage(player, String.format(localization.getMessage("noEconomy"), amount, description));
-            Utils.playSound(player, "noEconomy");
-            return true;
-        }
-
-        BigDecimal cost = BigDecimal.valueOf(getCategoryCost(player, category) * amount);
-
-        // If the cost is higher than zero, attempt to charge for it.
-        if (cost.compareTo(BigDecimal.ZERO) > 0) {
-            if (economyProvider.canPurchase(player, cost)) {
-                economyProvider.charge(player, cost);
-                Utils.sendMessage(player, String.format(localization.getMessage("purchasedHead"), amount, description, cost));
-                Utils.playSound(player, "paid");
-                return true;
+            // If economy is disabled or no plugin is present, the item is free.
+            // Don't mention receiving it for free in this case, since it is always free.
+            if (economyProvider == null) {
+                Utils.sendMessage(player, String.format(localization.getMessage("noEconomy"), amount, description));
+                Utils.playSound(player, "noEconomy");
+                result.accept(true);
+                return;
             }
 
-            Utils.sendMessage(player, String.format(localization.getMessage("notEnoughMoney"), amount, description));
-            Utils.playSound(player, "unavailable");
-            return false;
-        }
+            BigDecimal cost = BigDecimal.valueOf(getCategoryCost(player, category) * amount);
 
-        // Otherwise, the item is free.
-        Utils.sendMessage(player, String.format(localization.getMessage("free"), amount, description));
-        Utils.playSound(player, "free");
-        return true;
+            // If the cost is higher than zero, attempt to charge for it.
+            if (cost.compareTo(BigDecimal.ZERO) > 0) {
+                economyProvider.canPurchase(player, cost, paymentResult -> {
+                    if (paymentResult) {
+                        economyProvider.charge(player, cost, chargeResult -> {
+                            if (chargeResult) {
+                                Utils.sendMessage(player, String.format(localization.getMessage("purchasedHead"), amount, description, cost));
+                                Utils.playSound(player, "paid");
+                                result.accept(true);
+                                return;
+                            }
+                        });
+                    }
+                });
+
+                Utils.sendMessage(player, String.format(localization.getMessage("notEnoughMoney"), amount, description));
+                Utils.playSound(player, "unavailable");
+                result.accept(false);
+                return;
+            }
+
+            // Otherwise, the item is free.
+            Utils.sendMessage(player, String.format(localization.getMessage("free"), amount, description));
+            Utils.playSound(player, "free");
+            result.accept(true);
+        });
     }
 
     public static void purchaseHead(Player player, Head head, int amount, String category, String description) {
-        if (!processPayment(player, amount, category, description)) return;
-
-        PlayerHeadPurchaseEvent event = new PlayerHeadPurchaseEvent(player, head, getCategoryCost(player, category));
-        Bukkit.getPluginManager().callEvent(event);
-        if (!event.isCancelled()) {
-            ItemStack item = head.getMenuItem();
-            item.setAmount(amount);
-            player.getInventory().addItem(item);
-        }
+        Utils.sendMessage(player, "&7Purchasing &e" + amount + "x " + head.getName() + "&7. Please wait...");
+        processPayment(player, amount, category, description, result -> {
+            if (result) {
+                PlayerHeadPurchaseEvent event = new PlayerHeadPurchaseEvent(player, head, getCategoryCost(player, category));
+                Bukkit.getPluginManager().callEvent(event);
+                if (!event.isCancelled()) {
+                    ItemStack item = head.getMenuItem();
+                    item.setAmount(amount);
+                    player.getInventory().addItem(item);
+                }
+            }
+        });
     }
 
     private static String replace(String message, int size, String category, String search, Player player) {

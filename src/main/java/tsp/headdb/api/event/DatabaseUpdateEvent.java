@@ -1,16 +1,16 @@
-package tsp.headdb.event;
+package tsp.headdb.api.event;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import tsp.headdb.api.Head;
-import tsp.headdb.database.Category;
-import tsp.headdb.database.HeadDatabase;
+import tsp.headdb.implementation.Head;
+import tsp.headdb.implementation.Category;
+import tsp.headdb.implementation.HeadDatabase;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * This event is called AFTER a {@link tsp.headdb.database.HeadDatabase} updates.
+ * This event is called AFTER a {@link HeadDatabase} updates.
  * The event is called asynchronously and can not be cancelled.
  *
  * @author TheSilentPro

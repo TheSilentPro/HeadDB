@@ -1,4 +1,4 @@
-package tsp.headdb.database;
+package tsp.headdb.implementation;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -7,8 +7,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import tsp.headdb.api.Head;
-import tsp.headdb.event.DatabaseUpdateEvent;
+import tsp.headdb.api.event.DatabaseUpdateEvent;
 import tsp.headdb.util.Log;
 import tsp.headdb.util.Utils;
 
@@ -18,6 +17,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -117,7 +117,7 @@ public class HeadDatabase {
     }
 
     public List<Head> getHeads(Category category) {
-        return HEADS.get(category);
+        return Collections.unmodifiableList(HEADS.get(category));
     }
 
     /**
@@ -129,7 +129,7 @@ public class HeadDatabase {
     public List<Head> getHeads() {
         if (HEADS.isEmpty() || isLastUpdateOld()) {
             // Technically this should never be reached due to the update task in the main class.
-            updateAsync(result -> {
+            update(result -> {
                 if (result != null) {
                     for (Category category : result.keySet()) {
                         HEADS.put(category, result.get(category));
@@ -145,7 +145,7 @@ public class HeadDatabase {
         return heads;
     }
 
-    public void getHeadsNoCacheAsync(Consumer<Map<Category, List<Head>>> resultSet) {
+    public void getHeadsNoCache(Consumer<Map<Category, List<Head>>> resultSet) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, task -> {
             Log.debug("[" + plugin.getName() + "] Updating database... ");
             Map<Category, List<Head>> result = new HashMap<>();
@@ -207,8 +207,8 @@ public class HeadDatabase {
         });
     }
 
-    public void updateAsync(Consumer<Map<Category, List<Head>>> result) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, task -> getHeadsNoCacheAsync(heads -> {
+    public void update(Consumer<Map<Category, List<Head>>> result) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, task -> getHeadsNoCache(heads -> {
             if (heads == null) {
                 Log.error("[" + plugin.getName() + "] Failed to update database! Check above for any errors.");
                 result.accept(null);

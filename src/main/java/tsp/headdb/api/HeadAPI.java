@@ -4,8 +4,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import tsp.headdb.HeadDB;
-import tsp.headdb.database.Category;
-import tsp.headdb.database.HeadDatabase;
+import tsp.headdb.implementation.Category;
+import tsp.headdb.implementation.Head;
+import tsp.headdb.implementation.HeadDatabase;
+import tsp.headdb.implementation.LocalHead;
 import tsp.headdb.inventory.InventoryUtils;
 import tsp.headdb.storage.PlayerDataFile;
 
@@ -14,6 +16,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * This class provides simple methods
@@ -21,7 +24,6 @@ import java.util.UUID;
  *
  * @author TheSilentPro
  */
-// TODO: Possibly change to singleton class
 public final class HeadAPI {
 
     private HeadAPI() {}
@@ -195,14 +197,9 @@ public final class HeadAPI {
      */
     @Nonnull
     public static List<Head> getFavoriteHeads(UUID uuid) {
-        List<Head> result = new ArrayList<>();
-        
-        List<String> textures = HeadDB.getInstance().getPlayerData().getFavoriteHeadsByTexture(uuid);
-        for (String texture : textures) {
-            result.add(HeadAPI.getHeadByValue(texture));
-        }
-
-        return result;
+        return HeadDB.getInstance().getPlayerData().getFavoriteHeadsByTexture(uuid).stream()
+                .map(HeadAPI::getHeadByValue)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -214,13 +211,10 @@ public final class HeadAPI {
      */
     @Nonnull
     public static List<LocalHead> getLocalHeads() {
-        List<LocalHead> result = new ArrayList<>();
-        for (String entry : HeadDB.getInstance().getPlayerData().getEntries()) {
-            OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(entry));
-            result.add(new LocalHead(player.getUniqueId()).name(player.getName()));
-        }
-
-        return result;
+        return HeadDB.getInstance().getPlayerData().getEntries().stream()
+                .map(entry -> Bukkit.getOfflinePlayer(UUID.fromString(entry)))
+                .map(player -> new LocalHead(player.getUniqueId()).name(player.getName()))
+                .collect(Collectors.toList());
     }
 
 }

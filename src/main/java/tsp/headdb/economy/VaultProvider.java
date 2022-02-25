@@ -5,21 +5,29 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import tsp.headdb.util.Log;
+import tsp.headdb.util.Utils;
 
 import java.math.BigDecimal;
+import java.util.function.Consumer;
 
-public class VaultProvider implements HEconomyProvider {
+/**
+ * A {@link BasicEconomyProvider} for Vault
+ *
+ * @author TheSilentPro
+ * @since 4.0.0
+ */
+public class VaultProvider implements BasicEconomyProvider {
 
     private Economy economy;
 
     @Override
-    public boolean canPurchase(Player player, BigDecimal cost) {
-        return economy.has(player, cost.doubleValue());
+    public void canPurchase(Player player, BigDecimal cost, Consumer<Boolean> result) {
+        Utils.async(t -> result.accept(economy.has(player, cost.doubleValue())));
     }
 
     @Override
-    public void charge(Player player, BigDecimal amount) {
-        economy.withdrawPlayer(player, amount.doubleValue());
+    public void charge(Player player, BigDecimal amount, Consumer<Boolean> result) {
+        Utils.async(t -> result.accept(economy.withdrawPlayer(player, amount.doubleValue()).transactionSuccess()));
     }
 
     public void initProvider() {

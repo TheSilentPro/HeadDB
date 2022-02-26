@@ -1,10 +1,10 @@
-package tsp.headdb.event;
+package tsp.headdb.api.event;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import tsp.headdb.api.Head;
+import tsp.headdb.implementation.Head;
 
 /**
  * This event is called when a player purchases a {@link Head}
@@ -21,6 +21,7 @@ public class PlayerHeadPurchaseEvent extends Event implements Cancellable {
     private double cost;
 
     public PlayerHeadPurchaseEvent(Player player, Head head, double cost) {
+        super(true);
         this.player = player;
         this.head = head;
         this.cost = cost;

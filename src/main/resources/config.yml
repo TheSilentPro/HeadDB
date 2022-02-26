@@ -11,8 +11,12 @@ requireCategoryPermission: false
 # Economy options
 economy:
   enable: false
-  # Supported: VAULT
+  # Supported: VAULT, TREASURY
   provider: "VAULT"
+  # Providers like treasury support multiple currencies
+  # Set the ID of the one used for head purchasing below.
+  # Leave empty to use the primary currency or if the provider does not support multiple currencies
+  currency: ''
   cost:
     alphabet: 100
     animals: 100

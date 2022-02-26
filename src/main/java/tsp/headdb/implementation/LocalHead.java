@@ -1,17 +1,21 @@
-package tsp.headdb.api;
+package tsp.headdb.implementation;
 
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
-import tsp.headdb.database.Category;
 import tsp.headdb.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Represents a local player head that can be obtained via the LocalHeads option
+ *
+ * @author TheSilentPro
+ */
 public class LocalHead extends Head {
 
     private UUID uuid;

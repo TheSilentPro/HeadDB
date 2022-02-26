@@ -1,14 +1,11 @@
-package tsp.headdb.api;
+package tsp.headdb.implementation;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import tsp.headdb.HeadDB;
-import tsp.headdb.database.Category;
 import tsp.headdb.util.Log;
 import tsp.headdb.util.Utils;
 
@@ -17,6 +14,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Represents a Head that a player can obtain via the database
+ *
+ * @author TheSilentPro
+ */
 public class Head {
 
     private String name;

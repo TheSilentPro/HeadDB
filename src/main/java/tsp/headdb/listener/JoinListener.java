@@ -6,6 +6,10 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import tsp.headdb.HeadDB;
 import tsp.headdb.storage.PlayerDataFile;
 
+/**
+ * This saves heads from players that join
+ * Used for local heads option
+ */
 public class JoinListener implements Listener {
 
     public JoinListener(HeadDB plugin) {

@@ -1,11 +1,14 @@
 package tsp.headdb.api;
 
+import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import tsp.headdb.HeadDB;
-import tsp.headdb.database.Category;
-import tsp.headdb.database.HeadDatabase;
+import tsp.headdb.implementation.Category;
+import tsp.headdb.implementation.Head;
+import tsp.headdb.implementation.HeadDatabase;
+import tsp.headdb.implementation.LocalHead;
 import tsp.headdb.inventory.InventoryUtils;
 import tsp.headdb.storage.PlayerDataFile;
 
@@ -14,6 +17,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * This class provides simple methods
@@ -21,7 +25,6 @@ import java.util.UUID;
  *
  * @author TheSilentPro
  */
-// TODO: Possibly change to singleton class
 public final class HeadAPI {
 
     private HeadAPI() {}
@@ -45,7 +48,9 @@ public final class HeadAPI {
      * 
      * @param player Target player
      */
-    public static void openDatabase(Player player) {
+    public static void openDatabase(@Nonnull Player player) {
+        Validate.notNull(player, "Player can not be null!");
+
         InventoryUtils.openDatabase(player);
     }
 
@@ -55,7 +60,10 @@ public final class HeadAPI {
      * @param player Target player
      * @param category Category to open
      */
-    public static void openCategoryDatabase(Player player, Category category) {
+    public static void openCategoryDatabase(@Nonnull Player player, @Nonnull Category category) {
+        Validate.notNull(player, "Player can not be null!");
+        Validate.notNull(category, "Category can not be null!");
+
         InventoryUtils.openCategoryDatabase(player, category);
     }
 
@@ -65,7 +73,10 @@ public final class HeadAPI {
      * @param player Target player
      * @param search Search term
      */
-    public static void openSearchDatabase(Player player, String search) {
+    public static void openSearchDatabase(@Nonnull Player player, @Nonnull String search) {
+        Validate.notNull(player, "Player can not be null!");
+        Validate.notNull(search, "Search can not be null!");
+
         InventoryUtils.openSearchDatabase(player, search);
     }
 
@@ -75,7 +86,10 @@ public final class HeadAPI {
      * @param player Target player
      * @param tag Tag search term
      */
-    public static void openTagSearchDatabase(Player player, String tag) {
+    public static void openTagSearchDatabase(@Nonnull Player player, @Nonnull String tag) {
+        Validate.notNull(player, "Player can not be null!");
+        Validate.notNull(tag, "Tag can not be null!");
+
         InventoryUtils.openTagSearchDatabase(player, tag);
     }
 
@@ -97,7 +111,9 @@ public final class HeadAPI {
      * @return The head
      */
     @Nullable
-    public static Head getHeadByUniqueId(UUID uuid) {
+    public static Head getHeadByUniqueId(@Nonnull UUID uuid) {
+        Validate.notNull(uuid, "UUID can not be null!");
+
         return database.getHeadByUniqueId(uuid);
     }
 
@@ -108,7 +124,9 @@ public final class HeadAPI {
      * @return List of heads
      */
     @Nonnull
-    public static List<Head> getHeadsByTag(String tag) {
+    public static List<Head> getHeadsByTag(@Nonnull String tag) {
+        Validate.notNull(tag, "Tag can not be null!");
+
         return database.getHeadsByTag(tag);
     }
 
@@ -119,7 +137,9 @@ public final class HeadAPI {
      * @return List of heads
      */
     @Nonnull
-    public static List<Head> getHeadsByName(String name) {
+    public static List<Head> getHeadsByName(@Nonnull String name) {
+        Validate.notNull(name, "Name can not be null!");
+
         return database.getHeadsByName(name);
     }
 
@@ -131,7 +151,10 @@ public final class HeadAPI {
      * @return List of heads
      */
     @Nonnull
-    public static List<Head> getHeadsByName(Category category, String name) {
+    public static List<Head> getHeadsByName(@Nonnull Category category, @Nonnull String name) {
+        Validate.notNull(category, "Category can not be null!");
+        Validate.notNull(name, "Name can not be null!");
+
         return database.getHeadsByName(category, name);
     }
 
@@ -142,7 +165,9 @@ public final class HeadAPI {
      * @return The head
      */
     @Nullable
-    public static Head getHeadByValue(String value) {
+    public static Head getHeadByValue(@Nonnull String value) {
+        Validate.notNull(value, "Value can not be null!");
+
         return database.getHeadByValue(value);
     }
 
@@ -153,7 +178,9 @@ public final class HeadAPI {
      * @return List of heads
      */
     @Nonnull
-    public static List<Head> getHeads(Category category) {
+    public static List<Head> getHeads(@Nonnull Category category) {
+        Validate.notNull(category, "Category can not be null!");
+
         return database.getHeads(category);
     }
 
@@ -173,7 +200,10 @@ public final class HeadAPI {
      * @param uuid The player's unique id
      * @param textureValue The head's texture value
      */
-    public static void addFavoriteHead(UUID uuid, String textureValue) {
+    public static void addFavoriteHead(@Nonnull UUID uuid, @Nonnull String textureValue) {
+        Validate.notNull(uuid, "UUID can not be null!");
+        Validate.notNull(textureValue, "Value can not be null!");
+
         HeadDB.getInstance().getPlayerData().modifyFavorite(uuid, textureValue, PlayerDataFile.ModificationType.SET);
     }
 
@@ -183,7 +213,10 @@ public final class HeadAPI {
      * @param uuid The player's unique id
      * @param textureValue The head's texture value
      */
-    public static void removeFavoriteHead(UUID uuid, String textureValue) {
+    public static void removeFavoriteHead(@Nonnull UUID uuid, @Nonnull String textureValue) {
+        Validate.notNull(uuid, "UUID can not be null!");
+        Validate.notNull(textureValue, "Value can not be null!");
+
         HeadDB.getInstance().getPlayerData().modifyFavorite(uuid, textureValue, PlayerDataFile.ModificationType.REMOVE);
     }
 
@@ -194,15 +227,13 @@ public final class HeadAPI {
      * @return List of favorite {@link Head}'s for the player
      */
     @Nonnull
-    public static List<Head> getFavoriteHeads(UUID uuid) {
-        List<Head> result = new ArrayList<>();
-        
-        List<String> textures = HeadDB.getInstance().getPlayerData().getFavoriteHeadsByTexture(uuid);
-        for (String texture : textures) {
-            result.add(HeadAPI.getHeadByValue(texture));
-        }
+    public static List<Head> getFavoriteHeads(@Nonnull UUID uuid) {
+        Validate.notNull(uuid, "UUID can not be null!");
 
-        return result;
+        return HeadDB.getInstance().getPlayerData().getFavoriteHeadsByTexture(uuid).stream()
+                .map(HeadAPI::getHeadByValue)
+                .filter(head -> head != null)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -214,13 +245,10 @@ public final class HeadAPI {
      */
     @Nonnull
     public static List<LocalHead> getLocalHeads() {
-        List<LocalHead> result = new ArrayList<>();
-        for (String entry : HeadDB.getInstance().getPlayerData().getEntries()) {
-            OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(entry));
-            result.add(new LocalHead(player.getUniqueId()).name(player.getName()));
-        }
-
-        return result;
+        return HeadDB.getInstance().getPlayerData().getEntries().stream()
+                .map(entry -> Bukkit.getOfflinePlayer(UUID.fromString(entry)))
+                .map(player -> new LocalHead(player.getUniqueId()).name(player.getName()))
+                .collect(Collectors.toList());
     }
 
 }

@@ -12,10 +12,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import tsp.headdb.HeadDB;
 import tsp.headdb.api.HeadAPI;
-import tsp.headdb.database.Category;
+import tsp.headdb.implementation.Category;
 import tsp.headdb.inventory.InventoryUtils;
 import tsp.headdb.util.Utils;
 
+/**
+ * This handles all clicks on the main inventory
+ */
 public class MenuListener implements Listener {
 
     public MenuListener(JavaPlugin plugin) {

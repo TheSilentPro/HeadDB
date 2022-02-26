@@ -3,9 +3,10 @@ package tsp.headdb;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import tsp.headdb.api.HeadAPI;
-import tsp.headdb.command.CommandHeadDB;
-import tsp.headdb.database.DatabaseUpdateTask;
-import tsp.headdb.economy.HEconomyProvider;
+import tsp.headdb.command.HeadDBCommand;
+import tsp.headdb.economy.TreasuryProvider;
+import tsp.headdb.implementation.DatabaseUpdateTask;
+import tsp.headdb.economy.BasicEconomyProvider;
 import tsp.headdb.economy.VaultProvider;
 import tsp.headdb.listener.JoinListener;
 import tsp.headdb.listener.MenuListener;
@@ -19,10 +20,13 @@ import tsp.headdb.util.Utils;
 import javax.annotation.Nullable;
 import java.io.File;
 
+/**
+ * Main class of HeadDB
+ */
 public class HeadDB extends JavaPlugin {
 
     private static HeadDB instance;
-    private HEconomyProvider economyProvider;
+    private BasicEconomyProvider economyProvider;
     private PlayerDataFile playerData;
     private Localization localization;
 
@@ -42,11 +46,14 @@ public class HeadDB extends JavaPlugin {
             if (rawProvider.equalsIgnoreCase("vault")) {
                 economyProvider = new VaultProvider();
                 economyProvider.initProvider();
+            } else if (rawProvider.equalsIgnoreCase("treasury")) {
+                economyProvider = new TreasuryProvider();
+                economyProvider.initProvider();
             }
         }
 
         long refresh = getConfig().getLong("refresh") * 20;
-        HeadAPI.getDatabase().updateAsync(heads -> Log.info("Fetched " + HeadAPI.getHeads().size() + " heads!")); // Update database on startup
+        HeadAPI.getDatabase().update(heads -> Log.info("Fetched " + HeadAPI.getHeads().size() + " heads!")); // Update database on startup
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, new DatabaseUpdateTask(), refresh, refresh); // Update database on set interval (also saves data)
         HeadAPI.getDatabase().setRefresh(refresh);
 
@@ -54,7 +61,7 @@ public class HeadDB extends JavaPlugin {
         new MenuListener(this);
         new PagedPaneListener(this);
 
-        getCommand("headdb").setExecutor(new CommandHeadDB());
+        getCommand("headdb").setExecutor(new HeadDBCommand());
 
         Log.debug("Starting metrics...");
         new Metrics(this, 9152);
@@ -83,7 +90,7 @@ public class HeadDB extends JavaPlugin {
     }
 
     @Nullable
-    public HEconomyProvider getEconomyProvider() {
+    public BasicEconomyProvider getEconomyProvider() {
         return economyProvider;
     }
 

@@ -7,6 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 import tsp.headdb.HeadDB;
 
 import java.io.BufferedReader;
@@ -17,10 +18,17 @@ import java.net.URLConnection;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
+/**
+ * Several utilities used by the plugin
+ */
 public class Utils {
 
     private static final FileConfiguration config = HeadDB.getInstance().getConfig();
     public static final Pattern UUID_PATTERN = Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
+
+    public static void async(Consumer<BukkitTask> task) {
+        Bukkit.getScheduler().runTaskAsynchronously(HeadDB.getInstance(), task);
+    }
 
     /**
      * Retrieve the latest release from spigot

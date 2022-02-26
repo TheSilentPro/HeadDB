@@ -351,7 +351,7 @@ public class InventoryUtils {
     }
 
     public static void purchaseHead(Player player, Head head, int amount, String category, String description) {
-        Utils.sendMessage(player, "&7Purchasing &e" + amount + "x " + head.getName() + "&7. Please wait...");
+        Utils.sendMessage(player, String.format(localization.getMessage("processPayment"), amount, head.getName()));
         processPayment(player, amount, category, description, result -> {
             if (result) {
                 PlayerHeadPurchaseEvent event = new PlayerHeadPurchaseEvent(player, head, getCategoryCost(player, category));

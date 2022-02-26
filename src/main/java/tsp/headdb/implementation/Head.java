@@ -14,6 +14,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Represents a Head that a player can obtain via the database
+ *
+ * @author TheSilentPro
+ */
 public class Head {
 
     private String name;

@@ -11,6 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Represents a local player head that can be obtained via the LocalHeads option
+ *
+ * @author TheSilentPro
+ */
 public class LocalHead extends Head {
 
     private UUID uuid;

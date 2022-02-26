@@ -20,6 +20,9 @@ import tsp.headdb.util.Utils;
 import javax.annotation.Nullable;
 import java.io.File;
 
+/**
+ * Main class of HeadDB
+ */
 public class HeadDB extends JavaPlugin {
 
     private static HeadDB instance;

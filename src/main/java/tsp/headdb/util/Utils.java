@@ -18,6 +18,9 @@ import java.net.URLConnection;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
+/**
+ * Several utilities used by the plugin
+ */
 public class Utils {
 
     private static final FileConfiguration config = HeadDB.getInstance().getConfig();

@@ -19,6 +19,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Manages the data file that stores information
+ */
 public class PlayerDataFile {
 
     private final File file;

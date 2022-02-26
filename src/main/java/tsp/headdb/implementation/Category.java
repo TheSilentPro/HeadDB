@@ -8,6 +8,11 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Represents a category for heads
+ *
+ * @author TheSilentPro
+ */
 public enum Category {
 
     ALPHABET("alphabet", ChatColor.YELLOW, 20),

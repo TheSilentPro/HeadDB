@@ -21,6 +21,7 @@ public class PlayerHeadPurchaseEvent extends Event implements Cancellable {
     private double cost;
 
     public PlayerHeadPurchaseEvent(Player player, Head head, double cost) {
+        super(true);
         this.player = player;
         this.head = head;
         this.cost = cost;

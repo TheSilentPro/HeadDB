@@ -16,6 +16,9 @@ import tsp.headdb.implementation.Category;
 import tsp.headdb.inventory.InventoryUtils;
 import tsp.headdb.util.Utils;
 
+/**
+ * This handles all clicks on the main inventory
+ */
 public class MenuListener implements Listener {
 
     public MenuListener(JavaPlugin plugin) {

@@ -4,9 +4,10 @@ databaseOpen: "&7Opening &cHead Database"
 invalidPlayer: "&cPlayer is not online!"
 localFavorites: "&cLocal heads can not be added to favorites!"
 noEconomy: "&7You received &e%d &7x &e%s&7!"
-purchasedHead: "&7You purchased &e%d &7x &e%s &7for &e%.2f&7!"
-notEnoughMoney: "&cYou do not have enough to purchase &e%d &cx &e%s&7."
-free: "&7You received &e%d &7x &e%s &7for &efree&7!"
+purchasedHead: "&7You purchased &e%dx %s &7for &e%.2f&7!"
+proccessPayment: "&7Purchasing &e%dx %s&7. Please wait..."
+notEnoughMoney: "&cYou do not have enough to purchase &e%dx %s&c."
+free: "&7You received &e%dx %s &7for &efree&7!"
 reloadMessages: "&aReloaded messages file!"
 
 menu:

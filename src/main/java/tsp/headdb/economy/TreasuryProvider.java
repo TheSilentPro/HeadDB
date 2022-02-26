@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 public class TreasuryProvider implements BasicEconomyProvider {
 
     private EconomyProvider provider;
+    private EconomyTransactionInitiator<?> transactionInitiator;
     private Currency currency;
 
     @Override
@@ -58,7 +59,7 @@ public class TreasuryProvider implements BasicEconomyProvider {
                 }).whenComplete((account, ex) -> {
                     account.withdrawBalance(
                             amount,
-                            EconomyTransactionInitiator.createInitiator(EconomyTransactionInitiator.Type.PLUGIN, "HeadDB"),
+                            transactionInitiator,
                             currency,
                             new EconomySubscriber<BigDecimal>() {
                                 @Override
@@ -85,6 +86,7 @@ public class TreasuryProvider implements BasicEconomyProvider {
         }
 
         provider = service.get().get();
+        transactionInitiator = EconomyTransactionInitiator.createInitiator(EconomyTransactionInitiator.Type.PLUGIN, "HeadDB");
 
         String rawCurrency = HeadDB.getInstance().getConfig().getString("economy.currency");
         if (rawCurrency == null || rawCurrency.isEmpty()) {

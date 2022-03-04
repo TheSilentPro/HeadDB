@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 /**
@@ -116,8 +117,9 @@ public class HeadDatabase {
         return result;
     }
 
+    @Nonnull
     public List<Head> getHeads(Category category) {
-        return Collections.unmodifiableList(HEADS.get(category));
+        return HEADS.get(category) != null ? Collections.unmodifiableList(HEADS.get(category)) : new ArrayList<>();
     }
 
     /**
@@ -127,20 +129,9 @@ public class HeadDatabase {
      */
     @Nonnull
     public List<Head> getHeads() {
-        if (HEADS.isEmpty() || isLastUpdateOld()) {
-            // Technically this should never be reached due to the update task in the main class.
-            update(result -> {
-                if (result != null) {
-                    for (Category category : result.keySet()) {
-                        HEADS.put(category, result.get(category));
-                    }
-                }
-            });
-        }
-
         List<Head> heads = new ArrayList<>();
         for (Category category : HEADS.keySet()) {
-            heads.addAll(HEADS.get(category));
+            heads.addAll(getHeads(category));
         }
         return heads;
     }

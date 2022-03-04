@@ -122,11 +122,17 @@ public class PlayerDataFile {
     }
 
     public void save() {
+        if (main == null) {
+            Log.debug("No data to save! Skipping...");
+            return;
+        }
+
         FileWriter writer;
         try {
             writer = new FileWriter(file);
             writer.write(main.toString());
             writer.close();
+            Log.debug("Saved data to " + file.getName());
         } catch (IOException e) {
             Log.error("Failed to save player_data.json contents!");
             Log.error(e);

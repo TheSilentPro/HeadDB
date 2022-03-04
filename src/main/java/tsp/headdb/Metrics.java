@@ -1,4 +1,4 @@
-package tsp.headdb.util;
+package tsp.headdb;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -28,7 +28,7 @@ import java.util.zip.GZIPOutputStream;
  * Check out https://bStats.org/ to learn more about bStats!
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
-public class Metrics {
+class Metrics {
 
     static {
         // You can use the property to disable the check in your test environment

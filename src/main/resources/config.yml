@@ -124,5 +124,9 @@ ui:
       volume: 1
       pitch: 1
 
+# If the original fetching fails and this is enabled,
+# the plugin will attempt to fetch the heads from an archive.
+fallback: true
+
 # Debug Mode
 debug: false

@@ -7,6 +7,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import tsp.headdb.HeadDB;
 import tsp.headdb.api.event.DatabaseUpdateEvent;
 import tsp.headdb.util.Log;
 import tsp.headdb.util.Utils;
@@ -25,7 +26,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 /**
@@ -40,6 +40,7 @@ public class HeadDatabase {
     private long refresh;
     private int timeout;
     private long updated;
+    private int nextId; // Internal only
 
     public HeadDatabase(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -142,52 +143,26 @@ public class HeadDatabase {
             Map<Category, List<Head>> result = new HashMap<>();
             Category[] categories = Category.cache;
 
-            int id = 1;
             for (Category category : categories) {
                 Log.debug("Caching heads from: " + category.getName());
-                long start = System.currentTimeMillis();
                 List<Head> heads = new ArrayList<>();
                 try {
-                    String line;
-                    StringBuilder response = new StringBuilder();
-
-                    URLConnection connection = new URL("https://minecraft-heads.com/scripts/api.php?cat=" + category.getName() + "&tags=true").openConnection();
-                    connection.setConnectTimeout(timeout);
-                    connection.setRequestProperty("User-Agent", plugin.getName() + "-DatabaseUpdater");
-                    try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                        while ((line = in.readLine()) != null) {
-                            response.append(line);
-                        }
-                    }
-                    JSONParser parser = new JSONParser();
-                    JSONArray array = (JSONArray) parser.parse(response.toString());
-                    for (Object o : array) {
-                        JSONObject obj = (JSONObject) o;
-                        String rawUUID = obj.get("uuid").toString();
-
-                        UUID uuid;
-                        if (Utils.validateUniqueId(rawUUID)) {
-                            uuid = UUID.fromString(rawUUID);
-                        } else {
-                            uuid = UUID.randomUUID();
-                        }
-
-                        Head head = new Head(id)
-                                .name(obj.get("name").toString())
-                                .uniqueId(uuid)
-                                .value(obj.get("value").toString())
-                                .tags(obj.get("tags") != null ? obj.get("tags").toString() : "None")
-                                .category(category);
-
-                        id++;
-                        heads.add(head);
-                    }
-
-                    long elapsed = (System.currentTimeMillis() - start);
-                    Log.debug(category.getName() + " -> Done! Time: " + elapsed + "ms (" + TimeUnit.MILLISECONDS.toSeconds(elapsed) + "s)");
+                    // First the original api is fetched
+                    heads = gather("https://minecraft-heads.com/scripts/api.php?cat=" + category.getName() + "&tags=true", category);
                 } catch (ParseException | IOException e) {
-                    Log.error("[" + plugin.getName() + "] Failed to fetch heads (no-cache) | Stack Trace:");
-                    e.printStackTrace();
+                    Log.debug("[" + plugin.getName() + "] Failed to fetch heads (no-cache) from category " + category.getName() + " | Stack Trace:");
+                    Log.debug(e);
+                    Log.warning("Failed to fetch heads for " + category.getName());
+                    if (HeadDB.getInstance().getConfig().getBoolean("fallback", true)) {
+                        Log.info("Attempting fallback provider for: " + category.getName());
+                        try {
+                            // If the original fails and fallback is enabled, fetch from static archive
+                            heads = gather("https://heads.pages.dev/archive/" + category.getName() + ".json", category);
+                        } catch (IOException | ParseException ex) {
+                            Log.error("Failed to fetch heads for " + category.getName() + "! (OF)"); // OF = Original-Fallback, both failed
+                            ex.printStackTrace();
+                        }
+                    }
                 }
 
                 updated = System.nanoTime();
@@ -196,6 +171,71 @@ public class HeadDatabase {
 
             resultSet.accept(result);
         });
+    }
+
+    /**
+     * Fetches and gathers the heads from the url.
+     * For internal use only!
+     *
+     * @param url The url
+     * @param category The category of the heads
+     * @return List of heads for that category
+     * @throws IOException error
+     * @throws ParseException error
+     */
+    private List<Head> gather(String url, Category category) throws IOException, ParseException {
+        long start = System.currentTimeMillis();
+        List<Head> heads = new ArrayList<>();
+        JSONParser parser = new JSONParser();
+        JSONArray array = (JSONArray) parser.parse(fetch(url));
+        for (Object o : array) {
+            JSONObject obj = (JSONObject) o;
+            String rawUUID = obj.get("uuid").toString();
+
+            UUID uuid;
+            if (Utils.validateUniqueId(rawUUID)) {
+                uuid = UUID.fromString(rawUUID);
+            } else {
+                uuid = UUID.randomUUID();
+            }
+
+            Head head = new Head(nextId)
+                    .name(obj.get("name").toString())
+                    .uniqueId(uuid)
+                    .value(obj.get("value").toString())
+                    .tags(obj.get("tags") != null ? obj.get("tags").toString() : "None")
+                    .category(category);
+
+            nextId++;
+            heads.add(head);
+        }
+
+        long elapsed = (System.currentTimeMillis() - start);
+        Log.debug(category.getName() + " -> Done! Time: " + elapsed + "ms (" + TimeUnit.MILLISECONDS.toSeconds(elapsed) + "s)");
+        return heads;
+    }
+
+    /**
+     * Fetches heads from the url.
+     * For internal use only!
+     *
+     * @param url The url
+     * @return JSON-string response
+     * @throws IOException error
+     */
+    private String fetch(String url) throws IOException {
+        String line;
+        StringBuilder response = new StringBuilder();
+
+        URLConnection connection = new URL(url).openConnection();
+        connection.setConnectTimeout(timeout);
+        connection.setRequestProperty("User-Agent", plugin.getName() + "-DatabaseUpdater");
+        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        while ((line = in.readLine()) != null) {
+            response.append(line);
+        }
+
+        return response.toString();
     }
 
     public void update(Consumer<Map<Category, List<Head>>> result) {

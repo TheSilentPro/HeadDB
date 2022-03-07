@@ -27,11 +27,15 @@ public class Log {
     }
 
     public static void error(Throwable ex) {
-        log(ex);
+        log(LogLevel.ERROR, ex);
     }
 
     public static void debug(String message) {
         log(LogLevel.DEBUG, message);
+    }
+
+    public static void debug(Throwable ex) {
+        log(LogLevel.DEBUG, ex);
     }
 
     public static void log(LogLevel level, String message) {
@@ -41,8 +45,11 @@ public class Log {
         Bukkit.getConsoleSender().sendMessage(Utils.colorize("&7[&9&l" + name + "&7] " + level.getColor() + "[" + level.name() + "]: " + message));
     }
 
-    public static void log(Throwable ex) {
-        Bukkit.getConsoleSender().sendMessage(Utils.colorize("&7[" + name + "&7] " + "&4&l[EXCEPTION]: " + ex.getMessage()));
+    public static void log(LogLevel level, Throwable ex) {
+        if (level == LogLevel.DEBUG && !HeadDB.getInstance().getConfig().getBoolean("debug")) {
+            return;
+        }
+        Bukkit.getConsoleSender().sendMessage(Utils.colorize("&7[" + name + "&7] " + level.getColor() + "[" + level.name() + "]: " + "&4&l[EXCEPTION]: " + ex.getMessage()));
         Bukkit.getConsoleSender().sendMessage(Utils.colorize("&4&l[StackTrace]: " + getStackTrace(ex)));
     }
 

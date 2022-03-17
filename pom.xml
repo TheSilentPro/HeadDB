@@ -6,8 +6,15 @@
 
     <groupId>tsp.headdb</groupId>
     <artifactId>HeadDB</artifactId>
-    <version>4.2.1</version>
+    <version>4.2.2</version>
     <packaging>jar</packaging>
+
+    <properties>
+        <sonar.projectKey>TheSilentPro_HeadDB</sonar.projectKey>
+        <sonar.organization>silent</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <spigot.id>84967</spigot.id>
+    </properties>
 
     <name>HeadDB</name>
     <description>Database with thousands of heads</description>
@@ -119,6 +126,16 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.3.2</version>
+            </plugin>
+
+            <!-- Sonarcloud -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.9.1.2184</version>
+                <configuration>
+                    <goalPrefix>sonar</goalPrefix>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -6,6 +6,7 @@ version: ${project.version}
 softdepend: [Vault, Treasury]
 api-version: 1.13
 author: Silent
+spigot-id: ${spigot.id}
 
 commands:
   headdb:

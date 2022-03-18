@@ -8,6 +8,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import tsp.headdb.util.Utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -68,7 +69,7 @@ public class LocalHead extends Head {
 
     @Override
     public List<String> getTags() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

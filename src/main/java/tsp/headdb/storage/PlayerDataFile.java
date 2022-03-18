@@ -30,11 +30,11 @@ public class PlayerDataFile {
     public PlayerDataFile(String name) {
         HeadDB plugin = HeadDB.getInstance();
         // This check avoids warning in console
-        if (plugin.getResource(name) != null && !new File(plugin.getDataFolder() + "/" + name).exists()) {
+        if (plugin.getResource(name) != null && !new File(plugin.getDataFolder(), name).exists()) {
             plugin.saveResource(name, false);
         }
 
-        this.file = new File(plugin.getDataFolder() + "/" + name);
+        this.file = new File(plugin.getDataFolder(), name);
     }
 
     @Nonnull
@@ -127,15 +127,12 @@ public class PlayerDataFile {
             return;
         }
 
-        FileWriter writer;
-        try {
-            writer = new FileWriter(file);
+        try (FileWriter writer = new FileWriter(file)) {
             writer.write(main.toString());
-            writer.close();
             Log.debug("Saved data to " + file.getName());
-        } catch (IOException e) {
+        } catch (IOException ex) {
             Log.error("Failed to save player_data.json contents!");
-            Log.error(e);
+            Log.error(ex);
         }
     }
 

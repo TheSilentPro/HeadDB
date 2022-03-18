@@ -19,16 +19,14 @@ public class TagSearchCommand implements HeadSubCommand {
             return;
         }
 
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             Utils.sendMessage(sender, getLocalization().getMessage("onlyPlayers"));
             return;
         }
 
-        Player player = (Player) sender;
         String tag = args[1];
         Utils.sendMessage(sender, "&7Searching for heads with tag &e" + tag);
         HeadAPI.openTagSearchDatabase(player, tag);
-        return;
     }
     
 }

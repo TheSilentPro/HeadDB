@@ -19,6 +19,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -36,7 +37,7 @@ import javax.annotation.Nonnull;
 public class HeadDatabase {
 
     private final JavaPlugin plugin;
-    private final Map<Category, List<Head>> HEADS = new HashMap<>();
+    private final EnumMap<Category, List<Head>> heads = new EnumMap<>(Category.class);
     private long refresh;
     private int timeout;
     private long updated;
@@ -49,8 +50,8 @@ public class HeadDatabase {
     }
 
     public Head getHeadByValue(String value) {
-        List<Head> heads = getHeads();
-        for (Head head : heads) {
+        List<Head> fetched = getHeads();
+        for (Head head : fetched) {
             if (head.getValue().equals(value)) {
                 return head;
             }
@@ -60,8 +61,8 @@ public class HeadDatabase {
     }
 
     public Head getHeadByID(int id) {
-        List<Head> heads = getHeads();
-        for (Head head : heads) {
+        List<Head> fetched = getHeads();
+        for (Head head : fetched) {
             if (head.getId() == id) {
                 return head;
             }
@@ -71,8 +72,8 @@ public class HeadDatabase {
     }
 
     public Head getHeadByUniqueId(UUID uuid) {
-        List<Head> heads = getHeads();
-        for (Head head : heads) {
+        List<Head> fetched = getHeads();
+        for (Head head : fetched) {
             if (head.getUniqueId().equals(uuid)) {
                 return head;
             }
@@ -83,9 +84,9 @@ public class HeadDatabase {
 
     public List<Head> getHeadsByTag(String tag) {
         List<Head> result = new ArrayList<>();
-        List<Head> heads = getHeads();
+        List<Head> fetched = getHeads();
         tag = tag.toLowerCase(Locale.ROOT);
-        for (Head head : heads) {
+        for (Head head : fetched) {
             for (String t : head.getTags()) {
                 if (t.toLowerCase(Locale.ROOT).contains(tag)) {
                     result.add(head);
@@ -98,8 +99,8 @@ public class HeadDatabase {
 
     public List<Head> getHeadsByName(Category category, String name) {
         List<Head> result = new ArrayList<>();
-        List<Head> heads = getHeads(category);
-        for (Head head : heads) {
+        List<Head> fetched = getHeads(category);
+        for (Head head : fetched) {
             String hName = ChatColor.stripColor(head.getName().toLowerCase(Locale.ROOT));
             if (hName.contains(ChatColor.stripColor(name.toLowerCase(Locale.ROOT)))) {
                 result.add(head);
@@ -111,7 +112,7 @@ public class HeadDatabase {
 
     public List<Head> getHeadsByName(String name) {
         List<Head> result = new ArrayList<>();
-        for (Category category : Category.values()) {
+        for (Category category : Category.getCache()) {
             result.addAll(getHeadsByName(category, name));
         }
 
@@ -120,7 +121,7 @@ public class HeadDatabase {
 
     @Nonnull
     public List<Head> getHeads(Category category) {
-        return HEADS.get(category) != null ? Collections.unmodifiableList(HEADS.get(category)) : new ArrayList<>();
+        return heads.get(category) != null ? Collections.unmodifiableList(heads.get(category)) : new ArrayList<>();
     }
 
     /**
@@ -130,18 +131,18 @@ public class HeadDatabase {
      */
     @Nonnull
     public List<Head> getHeads() {
-        List<Head> heads = new ArrayList<>();
-        for (Category category : HEADS.keySet()) {
-            heads.addAll(getHeads(category));
+        List<Head> result = new ArrayList<>();
+        for (Category category : heads.keySet()) {
+            result.addAll(getHeads(category));
         }
-        return heads;
+        return result;
     }
 
     public void getHeadsNoCache(Consumer<Map<Category, List<Head>>> resultSet) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, task -> {
             Log.debug("[" + plugin.getName() + "] Updating database... ");
-            Map<Category, List<Head>> result = new HashMap<>();
-            Category[] categories = Category.cache;
+            EnumMap<Category, List<Head>> result = new EnumMap<>(Category.class);
+            Category[] categories = Category.getCache();
 
             for (Category category : categories) {
                 Log.debug("Caching heads from: " + category.getName());
@@ -160,7 +161,7 @@ public class HeadDatabase {
                             heads = gather("https://heads.pages.dev/archive/" + category.getName() + ".json", category);
                         } catch (IOException | ParseException ex) {
                             Log.error("Failed to fetch heads for " + category.getName() + "! (OF)"); // OF = Original-Fallback, both failed
-                            ex.printStackTrace();
+                            Log.error(ex);
                         }
                     }
                 }
@@ -185,7 +186,7 @@ public class HeadDatabase {
      */
     private List<Head> gather(String url, Category category) throws IOException, ParseException {
         long start = System.currentTimeMillis();
-        List<Head> heads = new ArrayList<>();
+        List<Head> headList = new ArrayList<>();
         JSONParser parser = new JSONParser();
         JSONArray array = (JSONArray) parser.parse(fetch(url));
         for (Object o : array) {
@@ -207,12 +208,12 @@ public class HeadDatabase {
                     .category(category);
 
             nextId++;
-            heads.add(head);
+            headList.add(head);
         }
 
         long elapsed = (System.currentTimeMillis() - start);
         Log.debug(category.getName() + " -> Done! Time: " + elapsed + "ms (" + TimeUnit.MILLISECONDS.toSeconds(elapsed) + "s)");
-        return heads;
+        return headList;
     }
 
     /**
@@ -239,15 +240,15 @@ public class HeadDatabase {
     }
 
     public void update(Consumer<Map<Category, List<Head>>> result) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, task -> getHeadsNoCache(heads -> {
-            if (heads == null) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, task -> getHeadsNoCache(headsList -> {
+            if (headsList == null) {
                 Log.error("[" + plugin.getName() + "] Failed to update database! Check above for any errors.");
                 result.accept(null);
                 return;
             }
 
-            HEADS.clear();
-            HEADS.putAll(heads);
+            heads.clear();
+            heads.putAll(headsList);
             result.accept(heads);
             Bukkit.getPluginManager().callEvent(new DatabaseUpdateEvent(this, heads));
         }));

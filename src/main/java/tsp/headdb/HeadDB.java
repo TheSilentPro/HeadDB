@@ -67,7 +67,7 @@ public class HeadDB extends JavaPlugin {
         initMetrics();
 
         Utils.isLatestVersion(this, 84967, latest -> {
-            if (!latest) {
+            if (!Boolean.TRUE.equals(latest)) {
                 Log.warning("There is a new update available for HeadDB on spigot!");
                 Log.warning("Download: https://www.spigotmc.org/resources/84967");
             }
@@ -112,10 +112,6 @@ public class HeadDB extends JavaPlugin {
 
     private void initMetrics() {
         Metrics metrics = new Metrics(this, 9152);
-        if (!metrics.isEnabled()) {
-            Log.debug("Metrics are disabled.");
-            return;
-        }
 
         metrics.addCustomChart(new Metrics.SimplePie("economy_provider", () -> {
             if (this.getEconomyProvider() != null) {

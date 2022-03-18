@@ -20,8 +20,8 @@ public class PagedPaneListener implements Listener {
     public void onClick(InventoryClickEvent event) {
         InventoryHolder holder = event.getInventory().getHolder();
 
-        if (holder instanceof PagedPane) {
-            ((PagedPane) holder).onClick(event);
+        if (holder instanceof PagedPane pane) {
+            pane.onClick(event);
         }
     }
 }

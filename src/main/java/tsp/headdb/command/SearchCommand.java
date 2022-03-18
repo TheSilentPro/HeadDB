@@ -13,11 +13,10 @@ public class SearchCommand implements HeadSubCommand {
             Utils.sendMessage(sender, getLocalization().getMessage("noPermission"));
             return;
         }
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             Utils.sendMessage(sender, getLocalization().getMessage("onlyPlayers"));
             return;
         }
-        Player player = (Player) sender;
 
         if (args.length < 2) {
             Utils.sendMessage(player, "&c/hdb search <name>");
@@ -34,7 +33,6 @@ public class SearchCommand implements HeadSubCommand {
         String name = builder.toString();
         Utils.sendMessage(sender, "&7Searching for &e" + name);
         HeadAPI.openSearchDatabase(player, name);
-        return;
     }
     
 }

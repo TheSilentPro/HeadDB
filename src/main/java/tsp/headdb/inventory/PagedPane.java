@@ -241,43 +241,41 @@ public class PagedPane implements InventoryHolder {
             inventory.setItem(inventory.getSize() - 2, itemStack);
         }
 
-        {
-            String name = String.format(
-                    Locale.ROOT,
-                    "&3&lPage &a&l%d &7/ &c&l%d",
-                    getCurrentPage(), getPageAmount()
-            );
-            ItemStack itemStack = setMeta(HeadAPI.getHeadByValue("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2Q5MWY1MTI2NmVkZGM2MjA3ZjEyYWU4ZDdhNDljNWRiMDQxNWFkYTA0ZGFiOTJiYjc2ODZhZmRiMTdmNGQ0ZSJ9fX0=").getMenuItem(),
-                    name,
-                    "&7Left-Click to go to the &cMain Menu",
-                    "&7Right-Click to go to a &6Specific Page");
-            controlMain = new Button(itemStack, event -> {
-                if (event.getClick() == ClickType.RIGHT) {
-                    new AnvilGUI.Builder()
-                            .onComplete((player, text) -> {
-                                try {
-                                    int i = Integer.parseInt(text);
-                                    if (i > getPageAmount()) {
-                                        Utils.sendMessage(player, "&cPage number is out of bounds! Max: &e" + getPageAmount());
-                                        return AnvilGUI.Response.text("&cOut of bounds!");
-                                    }
-                                    selectPage(i - 1);
-                                    return AnvilGUI.Response.openInventory(this.getInventory());
-                                } catch (NumberFormatException nfe) {
-                                    Utils.sendMessage(player, "&cValue must be a number!");
-                                    return AnvilGUI.Response.text(Utils.colorize("&cValue must be a number!"));
+        String name = String.format(
+                Locale.ROOT,
+                "&3&lPage &a&l%d &7/ &c&l%d",
+                getCurrentPage(), getPageAmount()
+        );
+        ItemStack itemStack = setMeta(HeadAPI.getHeadByValue("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2Q5MWY1MTI2NmVkZGM2MjA3ZjEyYWU4ZDdhNDljNWRiMDQxNWFkYTA0ZGFiOTJiYjc2ODZhZmRiMTdmNGQ0ZSJ9fX0=").getMenuItem(),
+                name,
+                "&7Left-Click to go to the &cMain Menu",
+                "&7Right-Click to go to a &6Specific Page");
+        controlMain = new Button(itemStack, event -> {
+            if (event.getClick() == ClickType.RIGHT) {
+                new AnvilGUI.Builder()
+                        .onComplete((player, text) -> {
+                            try {
+                                int i = Integer.parseInt(text);
+                                if (i > getPageAmount()) {
+                                    Utils.sendMessage(player, "&cPage number is out of bounds! Max: &e" + getPageAmount());
+                                    return AnvilGUI.Response.text("&cOut of bounds!");
                                 }
-                            })
-                            .title("Select Page")
-                            .text("Page number...")
-                            .plugin(HeadDB.getInstance())
-                            .open((Player) event.getWhoClicked());
-                } else {
-                    InventoryUtils.openDatabase((Player) event.getWhoClicked());
-                }
-            });
-            inventory.setItem(inventory.getSize() - 5, itemStack);
-        }
+                                selectPage(i - 1);
+                                return AnvilGUI.Response.openInventory(this.getInventory());
+                            } catch (NumberFormatException nfe) {
+                                Utils.sendMessage(player, "&cValue must be a number!");
+                                return AnvilGUI.Response.text(Utils.colorize("&cValue must be a number!"));
+                            }
+                        })
+                        .title("Select Page")
+                        .text("Page number...")
+                        .plugin(HeadDB.getInstance())
+                        .open((Player) event.getWhoClicked());
+            } else {
+                InventoryUtils.openDatabase((Player) event.getWhoClicked());
+            }
+        });
+        inventory.setItem(inventory.getSize() - 5, itemStack);
     }
 
     private void fillRow(int rowIndex, ItemStack itemStack, Inventory inventory) {
@@ -291,26 +289,8 @@ public class PagedPane implements InventoryHolder {
     protected ItemStack setMeta(ItemStack itemStack, String name, String... lore) {
         ItemMeta meta = itemStack.getItemMeta();
         meta.setDisplayName(Utils.colorize(name));
-        meta.setLore(Arrays.stream(lore).map(this::color).collect(Collectors.toList()));
+        meta.setLore(Arrays.stream(lore).map(this::color).toList());
         itemStack.setItemMeta(meta);
-        return itemStack;
-    }
-
-    @SuppressWarnings("WeakerAccess")
-    @Deprecated
-    protected ItemStack getItemStack(Material type, int durability, String name, String... lore) {
-        ItemStack itemStack = new ItemStack(type, 1, (short) durability);
-
-        ItemMeta itemMeta = itemStack.getItemMeta();
-
-        if (name != null) {
-            itemMeta.setDisplayName(color(name));
-        }
-        if (lore != null && lore.length != 0) {
-            itemMeta.setLore(Arrays.stream(lore).map(this::color).collect(Collectors.toList()));
-        }
-        itemStack.setItemMeta(itemMeta);
-
         return itemStack;
     }
 

@@ -34,16 +34,14 @@ public class TreasuryProvider implements BasicEconomyProvider {
         EconomySubscriber
                 .<Boolean>asFuture(s -> provider.hasPlayerAccount(player.getUniqueId(), s))
                 .thenCompose(val -> {
-                    if (val) {
+                    if (Boolean.TRUE.equals(val)) {
                         return EconomySubscriber.<PlayerAccount>asFuture(s -> provider.retrievePlayerAccount(player.getUniqueId(), s));
                     } else {
                         return EconomySubscriber.<PlayerAccount>asFuture(s -> provider.createPlayerAccount(player.getUniqueId(), s));
                     }
                 })
                 .thenCompose(account -> EconomySubscriber.<BigDecimal>asFuture(s -> account.retrieveBalance(currency, s)))
-                .whenComplete((bal, ex) -> {
-                    result.accept(bal.compareTo(cost) >= 0);
-                });
+                .whenComplete((bal, ex) -> result.accept(bal.compareTo(cost) >= 0));
     }
 
     @Override
@@ -51,29 +49,27 @@ public class TreasuryProvider implements BasicEconomyProvider {
         EconomySubscriber
                 .<Boolean>asFuture(s -> provider.hasPlayerAccount(player.getUniqueId(), s))
                 .thenCompose(val -> {
-                    if (val) {
+                    if (Boolean.TRUE.equals(val)) {
                         return EconomySubscriber.<PlayerAccount>asFuture(s -> provider.retrievePlayerAccount(player.getUniqueId(), s));
                     } else {
                         return EconomySubscriber.<PlayerAccount>asFuture(s -> provider.createPlayerAccount(player.getUniqueId(), s));
                     }
-                }).whenComplete((account, ex) -> {
-                    account.withdrawBalance(
-                            amount,
-                            transactionInitiator,
-                            currency,
-                            new EconomySubscriber<BigDecimal>() {
-                                @Override
-                                public void succeed(@NotNull BigDecimal bigDecimal) {
-                                    result.accept(true);
-                                }
+                }).whenComplete((account, ex) -> account.withdrawBalance(
+                        amount,
+                        transactionInitiator,
+                        currency,
+                        new EconomySubscriber<BigDecimal>() {
+                            @Override
+                            public void succeed(@NotNull BigDecimal bigDecimal) {
+                                result.accept(true);
+                            }
 
-                                @Override
-                                public void fail(@NotNull EconomyException exception) {
-                                    result.accept(false);
-                                    exception.printStackTrace();
-                                }
-                            });
-                });
+                            @Override
+                            public void fail(@NotNull EconomyException exception) {
+                                result.accept(false);
+                                Log.error(ex);
+                            }
+                        }));
     }
 
     @Override
@@ -92,9 +88,10 @@ public class TreasuryProvider implements BasicEconomyProvider {
         if (rawCurrency == null || rawCurrency.isEmpty()) {
             currency = provider.getPrimaryCurrency();
         } else {
-            currency = provider.getCurrencies().stream()
+            provider.getCurrencies().stream()
                     .filter(currency -> currency.getIdentifier().equalsIgnoreCase(rawCurrency))
-                    .findFirst().get();
+                    .findFirst()
+                    .ifPresentOrElse(c -> currency = c, () -> Log.error("Could not find currency: " + rawCurrency));
         }
     }
 

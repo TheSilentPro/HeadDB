@@ -21,7 +21,9 @@ import java.util.regex.Pattern;
 /**
  * Several utilities used by the plugin
  */
-public class Utils {
+public final class Utils {
+
+    private Utils() {}
 
     private static final FileConfiguration config = HeadDB.getInstance().getConfig();
     public static final Pattern UUID_PATTERN = Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
@@ -45,9 +47,9 @@ public class Utils {
                 connection.setRequestProperty("User-Agent", plugin.getName() + "-VersionChecker");
 
                 latest.accept(new BufferedReader(new InputStreamReader(connection.getInputStream())).readLine().equals(plugin.getDescription().getVersion()));
-            } catch (IOException e) {
+            } catch (IOException ex) {
                 latest.accept(true); // Assume the version is latest if checking fails
-                e.printStackTrace();
+                Log.error(ex);
             }
         });
     }

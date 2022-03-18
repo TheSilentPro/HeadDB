@@ -1,12 +1,13 @@
 package tsp.headdb.implementation;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import tsp.headdb.api.HeadAPI;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Represents a category for heads
@@ -29,8 +30,7 @@ public enum Category {
     private final String name;
     private final ChatColor color;
     private final int location;
-    private final Map<Category, Head> item = new HashMap<>();
-    public static final Category[] cache = values();
+    private static final Category[] cache = values();
 
     Category(String name, ChatColor color, int location) {
         this.name = name;
@@ -56,9 +56,15 @@ public enum Category {
      * @return First valid head
      */
     public ItemStack getItem() {
-        return HeadAPI.getHeads(this).stream()
-                .filter(head -> head != null)
-                .findFirst().get().getMenuItem();
+        Optional<Head> result = HeadAPI.getHeads(this).stream()
+                .filter(Objects::nonNull)
+                .findFirst();
+
+        if (result.isPresent()) {
+            return result.get().getMenuItem();
+        } else {
+            return new ItemStack(Material.PLAYER_HEAD);
+        }
     }
 
     /**
@@ -76,6 +82,10 @@ public enum Category {
         }
 
         return null;
+    }
+
+    public static Category[] getCache() {
+        return cache;
     }
 
 }

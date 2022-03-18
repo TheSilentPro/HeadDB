@@ -31,6 +31,8 @@ import java.util.function.Consumer;
  */
 public class InventoryUtils {
 
+    private InventoryUtils() {}
+
     private static final Localization localization = HeadDB.getInstance().getLocalization();
     private static final Map<String, Integer> uiLocation = new HashMap<>();
     private static final Map<String, ItemStack> uiItem = new HashMap<>();
@@ -179,7 +181,7 @@ public class InventoryUtils {
         Inventory inventory = Bukkit.createInventory(null, 54,
                 replace(localization.getMessage("menu.main"), HeadAPI.getHeads().size(), "Main", "None", player));
 
-        for (Category category : Category.cache) {
+        for (Category category : Category.getCache()) {
             ItemStack item = getUIItem(category.getName(), category.getItem());
             ItemMeta meta = item.getItemMeta();
             meta.setDisplayName(Utils.colorize(localization.getMessage("menu.heads." + category.getName())));
@@ -325,9 +327,9 @@ public class InventoryUtils {
             // If the cost is higher than zero, attempt to charge for it.
             if (cost.compareTo(BigDecimal.ZERO) > 0) {
                 economyProvider.canPurchase(player, cost, paymentResult -> {
-                    if (paymentResult) {
+                    if (Boolean.TRUE.equals(paymentResult)) {
                         economyProvider.charge(player, cost, chargeResult -> {
-                            if (chargeResult) {
+                            if (Boolean.TRUE.equals(chargeResult)) {
                                 Utils.sendMessage(player, String.format(localization.getMessage("purchasedHead"), amount, description, cost));
                                 Utils.playSound(player, "paid");
                                 result.accept(true);
@@ -353,7 +355,7 @@ public class InventoryUtils {
     public static void purchaseHead(Player player, Head head, int amount, String category, String description) {
         Utils.sendMessage(player, String.format(localization.getMessage("processPayment"), amount, head.getName()));
         processPayment(player, amount, category, description, result -> {
-            if (result) {
+            if (Boolean.TRUE.equals(result)) {
                 PlayerHeadPurchaseEvent event = new PlayerHeadPurchaseEvent(player, head, getCategoryCost(player, category));
                 Bukkit.getPluginManager().callEvent(event);
                 if (!event.isCancelled()) {

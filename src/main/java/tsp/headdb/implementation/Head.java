@@ -28,7 +28,6 @@ public class Head {
     private int id;
     private List<String> tags;
     private ItemStack menuItem;
-    //Unimplemented private ItemStack itemStack;
 
     public Head() {}
 
@@ -55,7 +54,7 @@ public class Head {
                 profileField.set(meta, profile);
             } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException ex) {
                 Log.error("Could not set skull owner for " + uuid.toString() + " | Stack Trace:");
-                ex.printStackTrace();
+                Log.error(ex);
             }
 
             meta.setLore(Arrays.asList(
@@ -71,24 +70,6 @@ public class Head {
 
         return menuItem;
     }
-
-    /* For some reason this causes issues with some heads in categories not having lore
-    public ItemStack getItemStack() {
-        if (itemStack == null) {
-            itemStack = menuItem;
-            ItemMeta meta = itemStack.getItemMeta();
-            meta.setDisplayName(HeadDB.getInstance().getLocalization().getMessage("head.name")
-                    .replace("%name%", name)
-                    .replace("%id%", String.valueOf(id))
-                    .replace("%value%", value)
-                    .replace("%tags%", buildTagLore(tags)));
-            meta.setLore(HeadDB.getInstance().getLocalization().getData().getStringList("head.lore"));
-            itemStack.setItemMeta(meta);
-        }
-
-        return itemStack;
-    }
-    */
 
     public String getName() {
         return name;

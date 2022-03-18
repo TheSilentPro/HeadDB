@@ -11,23 +11,21 @@ import tsp.headdb.util.Utils;
 
 public class HeadDBCommand implements CommandExecutor {
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
+    private void handle(CommandSender sender, String[] args) {
         Localization localization = HeadDB.getInstance().getLocalization();
         if (args.length == 0) {
             if (!sender.hasPermission("headdb.open")) {
                 Utils.sendMessage(sender, localization.getMessage("noPermission"));
-                return true;
+                return;
             }
-            if (!(sender instanceof Player)) {
+            if (!(sender instanceof Player player)) {
                 Utils.sendMessage(sender, localization.getMessage("onlyPlayers"));
-                return true;
+                return;
             }
-            Player player = (Player) sender;
 
             Utils.sendMessage(player, localization.getMessage("databaseOpen"));
             HeadAPI.openDatabase(player);
-            return true;
+            return;
         }
 
         String sub = args[0];
@@ -48,7 +46,7 @@ public class HeadDBCommand implements CommandExecutor {
 
         if (subCommand != null) {
             subCommand.handle(sender, args);
-            return true;
+            return;
         }
 
         Utils.sendMessage(sender, " ");
@@ -62,6 +60,11 @@ public class HeadDBCommand implements CommandExecutor {
         Utils.sendMessage(sender, "&7 > &c/hdb update &9(u) &7- Forcefully update the database");
         Utils.sendMessage(sender, "&7 > &c/hdb give &9(g) &c<id> <player> &6[amount] &7- Give player a head");
         Utils.sendMessage(sender, " ");
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
+        handle(sender, args);
         return true;
     }
 

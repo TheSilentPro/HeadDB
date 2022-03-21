@@ -89,7 +89,7 @@ public class TreasuryProvider implements BasicEconomyProvider {
             currency = provider.getPrimaryCurrency();
         } else {
             provider.getCurrencies().stream()
-                    .filter(currency -> currency.getIdentifier().equalsIgnoreCase(rawCurrency))
+                    .filter(c -> c.getIdentifier().equalsIgnoreCase(rawCurrency))
                     .findFirst()
                     .ifPresentOrElse(c -> currency = c, () -> Log.error("Could not find currency: " + rawCurrency));
         }

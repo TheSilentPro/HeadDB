@@ -116,8 +116,9 @@ public class PlayerDataFile {
     public void load() {
         try {
             main = new JsonParser().parse(new FileReader(file)).getAsJsonObject();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        } catch (FileNotFoundException ex) {
+            Log.error("Failed to load player_data.json!");
+            Log.error(ex);
         }
     }
 
@@ -131,7 +132,7 @@ public class PlayerDataFile {
             writer.write(main.toString());
             Log.debug("Saved data to " + file.getName());
         } catch (IOException ex) {
-            Log.error("Failed to save player_data.json contents!");
+            Log.error("Failed to save player_data.json!");
             Log.error(ex);
         }
     }

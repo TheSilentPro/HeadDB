@@ -20,7 +20,6 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -146,10 +145,10 @@ public class HeadDatabase {
 
             for (Category category : categories) {
                 Log.debug("Caching heads from: " + category.getName());
-                List<Head> heads = new ArrayList<>();
+                List<Head> results = new ArrayList<>();
                 try {
                     // First the original api is fetched
-                    heads = gather("https://minecraft-heads.com/scripts/api.php?cat=" + category.getName() + "&tags=true", category);
+                    results = gather("https://minecraft-heads.com/scripts/api.php?cat=" + category.getName() + "&tags=true", category);
                 } catch (ParseException | IOException e) {
                     Log.debug("[" + plugin.getName() + "] Failed to fetch heads (no-cache) from category " + category.getName() + " | Stack Trace:");
                     Log.debug(e);
@@ -158,7 +157,7 @@ public class HeadDatabase {
                         Log.info("Attempting fallback provider for: " + category.getName());
                         try {
                             // If the original fails and fallback is enabled, fetch from static archive
-                            heads = gather("https://heads.pages.dev/archive/" + category.getName() + ".json", category);
+                            results = gather("https://heads.pages.dev/archive/" + category.getName() + ".json", category);
                         } catch (IOException | ParseException ex) {
                             Log.error("Failed to fetch heads for " + category.getName() + "! (OF)"); // OF = Original-Fallback, both failed
                             Log.error(ex);
@@ -167,7 +166,7 @@ public class HeadDatabase {
                 }
 
                 updated = System.nanoTime();
-                result.put(category, heads);
+                result.put(category, results);
             }
 
             resultSet.accept(result);

@@ -18,7 +18,6 @@ import tsp.headdb.util.Utils;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 /**
  * A paged pane. Credits @ I Al Ianstaan

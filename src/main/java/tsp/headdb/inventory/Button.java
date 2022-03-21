@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 public class Button {
 
     private static int counter = 0;
-    private static final int id = counter++;
+    private static final int ID = counter++;
 
     private final ItemStack itemStack;
     private Consumer<InventoryClickEvent> action;
@@ -67,14 +67,12 @@ public class Button {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Button button)) {
-            return false;
-        }
-        return id == button.id;
+
+        return o instanceof Button;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(ID);
     }
 }

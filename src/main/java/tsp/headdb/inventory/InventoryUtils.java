@@ -2,6 +2,7 @@ package tsp.headdb.inventory;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
@@ -24,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Class for handling the "dirty" work
@@ -32,6 +34,7 @@ import java.util.function.Consumer;
 public class InventoryUtils {
 
     private InventoryUtils() {}
+    private static final FileConfiguration config = HeadDB.getInstance().getConfig();
 
     private static final Localization localization = HeadDB.getInstance().getLocalization();
     private static final Map<String, Integer> uiLocation = new HashMap<>();
@@ -62,7 +65,7 @@ public class InventoryUtils {
     }
 
     public static void openFavoritesMenu(Player player) {
-        List<Head> heads = HeadAPI.getFavoriteHeads(player.getUniqueId());
+        List<Head> heads = config.getBoolean("hidden.hideFavorites") ? filter(HeadAPI.getFavoriteHeads(player.getUniqueId())) : HeadAPI.getFavoriteHeads(player.getUniqueId());
 
         PagedPane pane = new PagedPane(4, 6,
                 replace(localization.getMessage("menu.favorites"), heads.size(), "Favorites", "None", player));
@@ -87,7 +90,7 @@ public class InventoryUtils {
     }
 
     public static PagedPane openSearchDatabase(Player player, String search) {
-        List<Head> heads = HeadAPI.getHeadsByName(search);
+        List<Head> heads = filter(HeadAPI.getHeadsByName(search));
 
         PagedPane pane = new PagedPane(4, 6,
                 replace(localization.getMessage("menu.search"), heads.size(), "None", search, player));
@@ -118,7 +121,7 @@ public class InventoryUtils {
     }
 
     public static void openTagSearchDatabase(Player player, String tag) {
-        List<Head> heads = HeadAPI.getHeadsByTag(tag);
+        List<Head> heads = filter(HeadAPI.getHeadsByTag(tag));
 
         PagedPane pane = new PagedPane(4, 6,
                 replace(localization.getMessage("menu.tagSearch"), heads.size(), "None", tag, player));
@@ -148,7 +151,7 @@ public class InventoryUtils {
     }
 
     public static void openCategoryDatabase(Player player, Category category) {
-        List<Head> heads = HeadAPI.getHeads(category);
+        List<Head> heads = filter(HeadAPI.getHeads(category));
 
         PagedPane pane = new PagedPane(4, 6,
                 replace(localization.getMessage("menu.category"), heads.size(), category.getName(), "None", player));
@@ -373,6 +376,29 @@ public class InventoryUtils {
                 .replace("%category%", category)
                 .replace("%search%", search)
                 .replace("%player%", player.getName());
+    }
+
+    private static List<Head> filter(List<Head> source) {
+        if (!config.getBoolean("hidden.enabled")) {
+            return source;
+        }
+
+        List<Head> result = new ArrayList<>();
+        List<String> tags = config.getStringList("hidden.tags");
+        List<String> names = config.getStringList("hidden.names");
+
+        for (Head head : source) {
+            if (!names.contains(head.getName()) && !contains(head.getTags(), tags)) {
+                result.add(head);
+            }
+        }
+
+
+        return result;
+    }
+
+    private static boolean contains(List<String> list1, List<String> list2) {
+        return list1.stream().anyMatch(list2.stream().collect(Collectors.toSet())::contains);
     }
 
 }

@@ -13,6 +13,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * Represents a Head that a player can obtain via the database
@@ -21,6 +22,7 @@ import java.util.UUID;
  */
 public class Head {
 
+    public static final Pattern SPLIT = Pattern.compile(",");
     private String name;
     private UUID uuid;
     private String value;
@@ -121,7 +123,7 @@ public class Head {
     }
 
     public Head tags(String tags) {
-        this.tags = Arrays.asList(tags.split(","));
+        this.tags = Arrays.asList(SPLIT.split(tags));
         return this;
     }
 

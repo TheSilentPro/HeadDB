@@ -8,6 +8,18 @@ localHeads: true
 # Permission: headdb.category.<category>
 requireCategoryPermission: false
 
+# Hidden heads from the menu
+hidden:
+  enabled: false
+  # If enabled it will also hide any heads matching these tags in the favorites menu
+  hideFavorites: true
+  # If the head name matches any of the listen words it will be hidden (case-sensitive)
+  names:
+    - ""
+  # If the head has one of the listed tags it will be hidden
+  tags:
+    - ""
+
 # Economy options
 economy:
   enable: false
@@ -16,7 +28,7 @@ economy:
   # Providers like treasury support multiple currencies
   # Set the ID of the one used for head purchasing below.
   # Leave empty to use the primary currency or if the provider does not support multiple currencies
-  currency: ''
+  currency: ""
   cost:
     alphabet: 100
     animals: 100

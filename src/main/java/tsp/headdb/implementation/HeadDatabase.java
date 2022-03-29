@@ -183,7 +183,7 @@ public class HeadDatabase {
      * @throws IOException error
      * @throws ParseException error
      */
-    private List<Head> gather(String url, Category category) throws IOException, ParseException {
+    protected List<Head> gather(String url, Category category) throws IOException, ParseException {
         long start = System.currentTimeMillis();
         List<Head> headList = new ArrayList<>();
         JSONParser parser = new JSONParser();
@@ -199,14 +199,13 @@ public class HeadDatabase {
                 uuid = UUID.randomUUID();
             }
 
-            Head head = new Head(nextId)
+            Head head = new Head(nextId++)
                     .name(obj.get("name").toString())
                     .uniqueId(uuid)
                     .value(obj.get("value").toString())
                     .tags(obj.get("tags") != null ? obj.get("tags").toString() : "None")
                     .category(category);
 
-            nextId++;
             headList.add(head);
         }
 
@@ -223,7 +222,7 @@ public class HeadDatabase {
      * @return JSON-string response
      * @throws IOException error
      */
-    private String fetch(String url) throws IOException {
+    protected String fetch(String url) throws IOException {
         String line;
         StringBuilder response = new StringBuilder();
 

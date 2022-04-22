@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
  * Class for handling the "dirty" work
  * such as inventories and economy.
  */
+// TODO: Rewrite
 public class InventoryUtils {
 
     private InventoryUtils() {}
@@ -356,6 +357,10 @@ public class InventoryUtils {
     }
 
     public static void purchaseHead(Player player, Head head, int amount, String category, String description) {
+        if (config.getBoolean("closeOnPurchase", false)) {
+            player.closeInventory();
+        }
+
         Utils.sendMessage(player, String.format(localization.getMessage("processPayment"), amount, head.getName()));
         processPayment(player, amount, category, description, result -> {
             if (Boolean.TRUE.equals(result)) {
@@ -365,9 +370,23 @@ public class InventoryUtils {
                     ItemStack item = head.getMenuItem();
                     item.setAmount(amount);
                     player.getInventory().addItem(item);
+
+                    // Commands can only be ran on main thread
+                    Bukkit.getScheduler().runTask(HeadDB.getInstance(), InventoryUtils::runPurchaseCommands);
                 }
             }
         });
+    }
+
+    private static void runPurchaseCommands() {
+        // Backwards compatability
+        if (!config.contains("commands.purchase")) {
+            return;
+        }
+
+        for (String cmd : config.getStringList("commands.purchase")) {
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+        }
     }
 
     private static String replace(String message, int size, String category, String search, Player player) {

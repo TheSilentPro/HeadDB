@@ -8,6 +8,9 @@ localHeads: true
 # Permission: headdb.category.<category>
 requireCategoryPermission: false
 
+# If enabled, the menu will close after purchasing a head (even if the purchase fails)
+closeOnPurchase: false
+
 # Hidden heads from the menu
 hidden:
   enabled: false
@@ -135,6 +138,12 @@ ui:
       name: BLOCK_ANVIL_BREAK
       volume: 1
       pitch: 1
+
+# Command Configuration
+commands:
+  # Commands to run ONLY if the purchase is successful.
+  purchase:
+    - ""
 
 # If the original fetching fails and this is enabled,
 # the plugin will attempt to fetch the heads from an archive.

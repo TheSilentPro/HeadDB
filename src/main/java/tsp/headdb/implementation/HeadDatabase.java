@@ -33,6 +33,7 @@ import javax.annotation.Nonnull;
  *
  * @author TheSilentPro
  */
+// TODO: Optionals instead of null.
 public class HeadDatabase {
 
     private final JavaPlugin plugin;
@@ -120,7 +121,8 @@ public class HeadDatabase {
 
     @Nonnull
     public List<Head> getHeads(Category category) {
-        return heads.get(category) != null ? Collections.unmodifiableList(heads.get(category)) : new ArrayList<>();
+        List<Head> result = heads.get(category);
+        return result != null ? Collections.unmodifiableList(result) : Collections.emptyList();
     }
 
     /**
@@ -186,6 +188,7 @@ public class HeadDatabase {
     protected List<Head> gather(String url, Category category) throws IOException, ParseException {
         long start = System.currentTimeMillis();
         List<Head> headList = new ArrayList<>();
+        // TODO: gson
         JSONParser parser = new JSONParser();
         JSONArray array = (JSONArray) parser.parse(fetch(url));
         for (Object o : array) {

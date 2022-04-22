@@ -23,6 +23,8 @@ import java.util.UUID;
  *
  * @author TheSilentPro
  */
+// TODO: Optional instead of null.
+// TODO: Remove stream, use loop.
 public final class HeadAPI {
 
     private HeadAPI() {}

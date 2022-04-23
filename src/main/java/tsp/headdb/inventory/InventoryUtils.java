@@ -337,15 +337,14 @@ public class InventoryUtils {
                                 Utils.sendMessage(player, String.format(localization.getMessage("purchasedHead"), amount, description, cost));
                                 Utils.playSound(player, "paid");
                                 result.accept(true);
-                                return;
                             }
                         });
+                    } else {
+                        Utils.sendMessage(player, String.format(localization.getMessage("notEnoughMoney"), amount, description));
+                        Utils.playSound(player, "unavailable");
+                        result.accept(false);
                     }
                 });
-
-                Utils.sendMessage(player, String.format(localization.getMessage("notEnoughMoney"), amount, description));
-                Utils.playSound(player, "unavailable");
-                result.accept(false);
                 return;
             }
 
@@ -379,12 +378,8 @@ public class InventoryUtils {
     }
 
     private static void runPurchaseCommands() {
-        // Backwards compatability
-        if (!config.contains("commands.purchase")) {
-            return;
-        }
-
         for (String cmd : config.getStringList("commands.purchase")) {
+            if (cmd.isEmpty()) continue;
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
         }
     }

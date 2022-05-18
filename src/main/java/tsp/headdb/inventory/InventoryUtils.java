@@ -1,5 +1,6 @@
 package tsp.headdb.inventory;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -181,6 +182,7 @@ public class InventoryUtils {
         pane.open(player);
     }
 
+    @SuppressWarnings("ConstantConditions")
     public static void openDatabase(Player player) {
         Inventory inventory = Bukkit.createInventory(null, 54,
                 replace(localization.getMessage("menu.main"), HeadAPI.getHeads().size(), "Main", "None", player));
@@ -257,6 +259,7 @@ public class InventoryUtils {
         return slot;
     }
 
+    @SuppressWarnings("ConstantConditions")
     private static ItemStack getUIItem(String category, ItemStack item) {
         // Try to use the cached item first.
         if (uiItem.containsKey(category)) return uiItem.get(category);
@@ -288,7 +291,7 @@ public class InventoryUtils {
         return item;
     }
 
-
+    @SuppressWarnings("ConstantConditions")
     private static ItemStack buildButton(ItemStack item, String name, String... lore) {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(Utils.colorize(name));
@@ -371,16 +374,17 @@ public class InventoryUtils {
                     player.getInventory().addItem(item);
 
                     // Commands can only be ran on main thread
-                    Bukkit.getScheduler().runTask(HeadDB.getInstance(), InventoryUtils::runPurchaseCommands);
+                    Bukkit.getScheduler().runTask(HeadDB.getInstance(), () -> runPurchaseCommands(player));
                 }
             }
         });
     }
 
-    private static void runPurchaseCommands() {
+    private static void runPurchaseCommands(Player player) {
         for (String cmd : config.getStringList("commands.purchase")) {
             if (cmd.isEmpty()) continue;
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+            if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) PlaceholderAPI.setPlaceholders(player, cmd);
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd.replace("%player%", player.getName()));
         }
     }
 

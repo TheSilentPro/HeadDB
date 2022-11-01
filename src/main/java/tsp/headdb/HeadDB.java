@@ -34,6 +34,7 @@ public class HeadDB extends SmartPlugin {
         //noinspection ConstantConditions
         instance.getCommand("headdb").setExecutor(new CommandMain());
 
+        new Metrics(this, 9152);
         instance.logger.info("Done!");
     }
 

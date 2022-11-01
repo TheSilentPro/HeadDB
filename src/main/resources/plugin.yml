@@ -4,9 +4,9 @@ description: ${project.description}
 main: tsp.headdb.HeadDB
 version: ${project.version}
 softdepend: [Vault, Treasury]
-api-version: 1.13
-author: Silent
-spigot-id: ${spigot.id}
+api-version: 1.19
+author: TheSilentPro (Silent)
+spigot-id: 84967
 
 commands:
   headdb:

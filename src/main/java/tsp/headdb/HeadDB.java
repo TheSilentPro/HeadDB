@@ -1,126 +1,69 @@
 package tsp.headdb;
 
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.java.JavaPlugin;
-import tsp.headdb.api.HeadAPI;
-import tsp.headdb.command.HeadDBCommand;
-import tsp.headdb.economy.TreasuryProvider;
-import tsp.headdb.implementation.DataSaveTask;
-import tsp.headdb.implementation.DatabaseUpdateTask;
-import tsp.headdb.economy.BasicEconomyProvider;
-import tsp.headdb.economy.VaultProvider;
-import tsp.headdb.listener.JoinListener;
-import tsp.headdb.listener.MenuListener;
-import tsp.headdb.listener.PagedPaneListener;
-import tsp.headdb.storage.PlayerDataFile;
-import tsp.headdb.util.Localization;
-import tsp.headdb.util.Log;
-import tsp.headdb.util.Utils;
+import tsp.headdb.core.command.CommandMain;
+import tsp.headdb.core.command.CommandManager;
+import tsp.headdb.core.task.DatabaseUpdateTask;
+import tsp.smartplugin.SmartPlugin;
+import tsp.smartplugin.inventory.PaneListener;
+import tsp.smartplugin.localization.TranslatableLocalization;
+import tsp.smartplugin.logger.AbstractLogger;
+import tsp.smartplugin.logger.PluginLogger;
 
-import javax.annotation.Nullable;
-import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 
-/**
- * Main class of HeadDB
- */
-public class HeadDB extends JavaPlugin {
+public class HeadDB extends SmartPlugin {
 
-    private static HeadDB instance;
-    private BasicEconomyProvider economyProvider;
-    private PlayerDataFile playerData;
-    private Localization localization;
+    private static final HeadDB instance = new HeadDB();
+    private AbstractLogger logger;
+    private TranslatableLocalization localization;
+    private CommandManager commandManager;
 
     @Override
-    public void onEnable() {
-        instance = this;
-        Log.info("Loading HeadDB - " + getDescription().getVersion());
-        saveDefaultConfig();
-        createLocalizationFile();
+    public void onStart() {
+        instance.logger = new PluginLogger(this, getConfig().getBoolean("debug"));
+        instance.logger.info("Loading HeadDB - " + instance.getDescription().getVersion());
+        instance.saveDefaultConfig();
 
-        this.playerData = new PlayerDataFile("player_data.json");
-        this.playerData.load();
+        new PaneListener(this);
 
-        if (getConfig().getBoolean("economy.enable")) {
-            String rawProvider = getConfig().getString("economy.provider", "VAULT");
-            Log.debug("Starting economy with provider: " + rawProvider);
-            if (rawProvider.equalsIgnoreCase("vault")) {
-                economyProvider = new VaultProvider();
-                economyProvider.initProvider();
-            } else if (rawProvider.equalsIgnoreCase("treasury")) {
-                economyProvider = new TreasuryProvider();
-                economyProvider.initProvider();
-            }
+        new DatabaseUpdateTask(getConfig().getLong("refresh"));
+
+        instance.logger.info("Loaded " + loadLocalization() + " languages!");
+
+        //noinspection ConstantConditions
+        instance.getCommand("headdb").setExecutor(new CommandMain());
+
+        instance.logger.info("Done!");
+    }
+
+    private int loadLocalization() {
+        instance.localization = new TranslatableLocalization(this, "messages");
+        try {
+            instance.localization.createDefaults();
+            return instance.localization.load();
+        } catch (URISyntaxException | IOException ex) {
+            instance.logger.error("Failed to load localization!");
+            ex.printStackTrace();
+            this.setEnabled(false);
+            return 0;
         }
-
-        long refresh = getConfig().getLong("refresh") * 20;
-        HeadAPI.getDatabase().setRefresh(refresh);
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, new DatabaseUpdateTask(), 0, refresh);
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, new DataSaveTask(), refresh, refresh);
-
-        new JoinListener(this);
-        new MenuListener(this);
-        new PagedPaneListener(this);
-
-        getCommand("headdb").setExecutor(new HeadDBCommand());
-
-        Log.debug("Starting metrics...");
-        initMetrics();
-
-        Utils.isLatestVersion(this, 84967, latest -> {
-            if (!Boolean.TRUE.equals(latest)) {
-                Log.warning("There is a new update available for HeadDB on spigot!");
-                Log.warning("Download: https://www.spigotmc.org/resources/84967");
-            }
-        });
-
-        Log.info("Done!");
     }
 
-    @Override
-    public void onDisable() {
-        Bukkit.getScheduler().cancelTasks(this);
-        this.playerData.save();
+    public CommandManager getCommandManager() {
+        return commandManager;
     }
 
-    public Localization getLocalization() {
+    public TranslatableLocalization getLocalization() {
         return localization;
     }
 
-    public PlayerDataFile getPlayerData() {
-        return playerData;
-    }
-
-    @Nullable
-    public BasicEconomyProvider getEconomyProvider() {
-        return economyProvider;
+    public AbstractLogger getLog() {
+        return logger;
     }
 
     public static HeadDB getInstance() {
         return instance;
     }
-
-    private void createLocalizationFile() {
-        File messagesFile = new File(getDataFolder().getAbsolutePath() + "/messages.yml");
-        if (!messagesFile.exists()) {
-            saveResource("messages.yml", false);
-            Log.debug("Localization loaded from jar file.");
-        }
-
-        this.localization = new Localization(messagesFile);
-        this.localization.load();
-    }
-
-    private void initMetrics() {
-        Metrics metrics = new Metrics(this, 9152);
-
-        metrics.addCustomChart(new Metrics.SimplePie("economy_provider", () -> {
-            if (this.getEconomyProvider() != null) {
-                return this.getConfig().getString("economy.provider");
-            }
-
-            return "None";
-        }));
-    }
-
 
 }

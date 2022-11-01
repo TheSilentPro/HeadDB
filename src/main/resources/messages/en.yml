@@ -1,0 +1,12 @@
+noConsole: "&cOnly for in-game players!"
+noPermission: "&cNo permission!"
+invalidSubCommand: "&cInvalid sub-command! Run &e/hdb help&c for more help."
+openDatabase: "&aOpening HeadDatabase..."
+
+menu:
+  main:
+    title: "&cHeadDB &7(%size%)"
+    category:
+      name: "&e&l%category%"
+  head:
+    name: "&e%name%"

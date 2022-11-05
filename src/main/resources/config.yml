@@ -145,8 +145,13 @@ commands:
   purchase:
     - ""
 
+# The head provider used.
+# Don't touch this if you don't know what you are doing!
+headProvider: "HEAD_STORAGE"
+
 # If the original fetching fails and this is enabled,
 # the plugin will attempt to fetch the heads from an archive.
+# The archive is static (manually updated) so some heads may be missing, this will only be used when all else fails.
 fallback: true
 
 # Debug Mode

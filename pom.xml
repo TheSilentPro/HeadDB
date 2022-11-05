@@ -10,8 +10,9 @@
     <packaging>jar</packaging>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
-        <maven.target.source>17</maven.target.source>
+        <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
     <name>HeadDB</name>
@@ -75,7 +76,7 @@
         <dependency>
             <groupId>com.github.TheSilentPro</groupId>
             <artifactId>Warehouse</artifactId>
-            <version>2ae4ef1f97</version>
+            <version>f40f72cb19</version>
         </dependency>
 
         <!-- Soft Dependencies -->
@@ -100,6 +101,7 @@
     </dependencies>
 
     <build>
+        <finalName>HeadDB</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -108,13 +110,6 @@
         </resources>
 
         <plugins>
-            <!-- Compiler -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-            </plugin>
-
             <!-- Shade -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

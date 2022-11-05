@@ -2,7 +2,9 @@ package tsp.headdb.implementation.head;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
+import tsp.headdb.HeadDB;
 import tsp.headdb.implementation.category.Category;
+import tsp.headdb.implementation.requester.HeadProvider;
 import tsp.headdb.implementation.requester.Requester;
 
 import java.io.IOException;
@@ -22,10 +24,10 @@ public class HeadDatabase {
     private long timestamp;
     private int size;
 
-    public HeadDatabase(JavaPlugin plugin) {
+    public HeadDatabase(JavaPlugin plugin, HeadProvider provider) {
         this.plugin = plugin;
         this.scheduler = plugin.getServer().getScheduler();
-        this.requester = new Requester(plugin);
+        this.requester = new Requester(plugin, provider);
         this.heads = Collections.synchronizedMap(new EnumMap<>(Category.class));
     }
 
@@ -37,11 +39,7 @@ public class HeadDatabase {
         getScheduler().runTaskAsynchronously(plugin, () -> {
             Map<Category, List<Head>> result = new HashMap<>();
             for (Category category : Category.VALUES) {
-                try {
-                    requester.fetchAndResolve(category, response -> result.put(category, response));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                requester.fetchAndResolve(category, response -> result.put(category, response));
             }
 
             heads.accept(result);
@@ -53,11 +51,16 @@ public class HeadDatabase {
             heads.putAll(result);
             timestamp = System.currentTimeMillis();
             size = heads.values().size();
+            HeadDB.getInstance().getLog().debug("Fetched: " + heads.size() + " Heads | Provider: " + getRequester().getProvider().name());
         });
     }
 
     public int getSize() {
         return size;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
     }
 
     public JavaPlugin getPlugin() {

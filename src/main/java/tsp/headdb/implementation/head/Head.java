@@ -8,16 +8,38 @@ import org.bukkit.inventory.meta.ItemMeta;
 import tsp.headdb.HeadDB;
 import tsp.smartplugin.builder.item.ItemBuilder;
 import tsp.smartplugin.localization.TranslatableLocalization;
+import tsp.smartplugin.utils.Validate;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.lang.reflect.Field;
 import java.util.Locale;
 import java.util.UUID;
 
-@ParametersAreNonnullByDefault
-public record Head(UUID uniqueId, String name, String value, String tags, String updated) {
+public class Head {
 
-    private static ItemStack item;
+    private final int id;
+    private final UUID uniqueId;
+    private final String name;
+    private final String texture;
+    private final String tags;
+    private final String updated;
+    private ItemStack item;
+
+    @ParametersAreNonnullByDefault
+    public Head(int id, UUID uniqueId, String name, String texture, String tags, String updated) {
+        Validate.notNull(uniqueId, "Unique id can not be null!");
+        Validate.notNull(name, "Name can not be null!");
+        Validate.notNull(texture, "Texture can not be null!");
+        Validate.notNull(tags, "Tags can not be null!");
+        Validate.notNull(updated, "Updated can not be null!");
+
+        this.id = id;
+        this.uniqueId = uniqueId;
+        this.name = name;
+        this.texture = texture;
+        this.tags = tags;
+        this.updated = updated;
+    }
 
     public ItemStack getItem(UUID receiver) {
         if (item == null) {
@@ -29,7 +51,7 @@ public record Head(UUID uniqueId, String name, String value, String tags, String
 
             ItemMeta meta = item.getItemMeta();
             GameProfile profile = new GameProfile(uniqueId, name);
-            profile.getProperties().put("textures", new Property("textures", value));
+            profile.getProperties().put("textures", new Property("textures", texture));
             Field profileField;
             try {
                 //noinspection ConstantConditions
@@ -44,6 +66,30 @@ public record Head(UUID uniqueId, String name, String value, String tags, String
             item.setItemMeta(meta);
         }
         return item;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public UUID getUniqueId() {
+        return uniqueId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getTexture() {
+        return texture;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public String getUpdated() {
+        return updated;
     }
 
 }

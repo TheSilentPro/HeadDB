@@ -1,5 +1,6 @@
 package tsp.headdb.core.command;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -8,15 +9,15 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.RemoteConsoleCommandSender;
 import org.bukkit.entity.Player;
 
+import org.bukkit.inventory.ItemStack;
 import tsp.headdb.HeadDB;
 import tsp.headdb.core.api.HeadAPI;
+import tsp.headdb.core.util.Utils;
 import tsp.headdb.implementation.category.Category;
 import tsp.smartplugin.builder.item.ItemBuilder;
 import tsp.smartplugin.inventory.Button;
 import tsp.smartplugin.inventory.single.Pane;
 import tsp.smartplugin.localization.TranslatableLocalization;
-import tsp.smartplugin.utils.InventoryUtils;
-import tsp.smartplugin.utils.StringUtils;
 import tsp.smartplugin.utils.Validate;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -44,13 +45,13 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor {
             }
             localization.sendMessage(player.getUniqueId(), "openDatabase");
 
-            Pane pane = new Pane(6, StringUtils.colorize(localization.getMessage(player.getUniqueId(), "menu.main.title").orElse("&cHeadDB &7(" + HeadAPI.getTotalHeads() + ")")).replace("%size%", HeadAPI.getTotalHeads() + ""));
-            InventoryUtils.fillBorder(pane.getInventory(), new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name(" ").build());
+            Pane pane = new Pane(6, Utils.translateTitle(localization.getMessage(player.getUniqueId(), "menu.main.title").orElse("&cHeadDB &7(" + HeadAPI.getTotalHeads() + ")"), HeadAPI.getTotalHeads(), "Main"));
             for (Category category : Category.VALUES) {
                 pane.addButton(new Button(category.getItem(player.getUniqueId()), e -> {
-                    if (e.getClick().isLeftClick()) {
-                        // open category
-                        e.getWhoClicked().sendMessage("clicked category: " + category.getName());
+                    if (e.isLeftClick()) {
+                        Bukkit.dispatchCommand(e.getWhoClicked(), "hdb open " + category.name());
+                    } else if (e.isRightClick()) {
+                        // todo: specific page
                     }
 
                     e.setCancelled(true);
@@ -61,7 +62,14 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor {
             return;
         }
 
-        HeadDB.getInstance().getCommandManager().getCommand(args[0]).ifPresentOrElse(command -> command.handle(sender, args), () -> sendMessage(sender, "invalidSubCommand"));
+        HeadDB.getInstance().getCommandManager().getCommand(args[0]).ifPresentOrElse(command -> {
+            if (sender instanceof Player player && !player.hasPermission(command.getPermission())) {
+                localization.sendMessage(player.getUniqueId(), "noPermission");
+                return;
+            }
+
+            command.handle(sender, args);
+        }, () -> sendMessage(sender, "invalidSubCommand"));
     }
 
     @ParametersAreNonnullByDefault

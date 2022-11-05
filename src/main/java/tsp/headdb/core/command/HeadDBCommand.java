@@ -1,24 +1,18 @@
 package tsp.headdb.core.command;
 
 import org.bukkit.command.CommandSender;
-
-import javax.annotation.Nullable;
-import java.util.Optional;
+import tsp.headdb.HeadDB;
+import tsp.smartplugin.localization.TranslatableLocalization;
 
 public abstract class HeadDBCommand {
 
+    private static final TranslatableLocalization localization = HeadDB.getInstance().getLocalization();
     private final String name;
     private final String permission;
-    private final String[] aliases;
-
-    public HeadDBCommand(String name, String permission, @Nullable String[] aliases) {
-        this.name = name;
-        this.permission = permission;
-        this.aliases = aliases;
-    }
 
     public HeadDBCommand(String name, String permission) {
-        this(name, permission, null);
+        this.name = name;
+        this.permission = permission;
     }
 
     public abstract void handle(CommandSender sender, String[] args);
@@ -31,8 +25,8 @@ public abstract class HeadDBCommand {
         return permission;
     }
 
-    public Optional<String[]> getAliases() {
-        return Optional.ofNullable(aliases);
+    public TranslatableLocalization getLocalization() {
+        return localization;
     }
 
 }

@@ -1,8 +1,10 @@
 package tsp.headdb.core.command;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class CommandManager {
 
@@ -13,7 +15,24 @@ public class CommandManager {
     }
 
     public Optional<SubCommand> getCommand(String name) {
-        return Optional.ofNullable(commands.get(name));
+        SubCommand command = commands.get(name);
+        if (command != null) {
+            return Optional.of(command);
+        }
+
+        return getCommandByAlias(name);
+    }
+
+    public Optional<SubCommand> getCommandByAlias(String alias) {
+        for (SubCommand entry : commands.values()) {
+            if (entry.getAliases().isPresent()) {
+                if (Arrays.stream(entry.getAliases().get()).anyMatch(name -> name.equalsIgnoreCase(alias))) {
+                    return Optional.of(entry);
+                }
+            }
+        }
+
+        return Optional.empty();
     }
 
     public Map<String, SubCommand> getCommandsMap() {

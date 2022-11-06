@@ -136,7 +136,6 @@
                         <id>build-properties</id>
                         <phase>generate-resources</phase>
                         <goals>
-                            <goal>create</goal>
                             <goal>create-metadata</goal>
                         </goals>
                     </execution>

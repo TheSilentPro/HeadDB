@@ -11,8 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public final class HeadAPI {
 
@@ -20,21 +18,25 @@ public final class HeadAPI {
 
     private static final HeadDatabase database = new HeadDatabase(HeadDB.getInstance(), HeadProvider.HEAD_STORAGE);
 
-    public static synchronized Optional<Head> getById(int id) {
-        return getHeads().filter(head -> head.getId() == id).findFirst();
+    public static synchronized Optional<Head> getHeadById(int id) {
+        return getHeads().stream().filter(head -> head.getId() == id).findAny();
     }
 
-    public static synchronized Stream<Head> getHeads() {
+    public static synchronized Optional<Head> getHeadByTexture(String texture) {
+        return getHeads().stream().filter(head -> head.getTexture().equals(texture)).findAny();
+    }
+
+    public static List<Head> getHeads() {
         List<Head> result = new ArrayList<>();
         for (Category category : getHeadsMap().keySet()) {
-            result.addAll(getHeads(category).collect(Collectors.toList()));
+            result.addAll(getHeads(category));
         }
 
-        return result.stream();
+        return result;
     }
 
-    public static synchronized Stream<Head> getHeads(Category category) {
-        return getHeadsMap().get(category).stream();
+    public static List<Head> getHeads(Category category) {
+        return getHeadsMap().get(category);
     }
 
     public static synchronized Map<Category, List<Head>> getHeadsMap() {
@@ -42,7 +44,7 @@ public final class HeadAPI {
     }
 
     public static int getTotalHeads() {
-        return database.getSize();
+        return getHeads().size();
     }
 
     public static HeadDatabase getDatabase() {

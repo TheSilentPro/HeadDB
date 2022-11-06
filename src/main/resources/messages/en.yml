@@ -6,8 +6,16 @@ invalidCategory: "&cInvalid Category!"
 invalidPageIndex: "&cThat page is out of bounds! Max: %pages%"
 
 openDatabase: "&7Opening &cHeadDatabase&7..."
+updateDatabase: "&7Updating..."
+updateDatabaseDone: "&7Database was updated! Heads: &6%size% &7| Took: &a%time%"
 searchCommand: "&7Searching for heads matching: &e%query%"
 searchCommandResults: "&7Found &e%size% &7matches!"
+itemTexture: "&7Texture: %texture%"
+itemNoTexture: "&cThis item does not have a texture!"
+copyTexture: "&6Click to copy texture!"
+
+invalidLanguage: "&cInvalid Language! Available: &e%languages%"
+languageChanged: "&7Your language was set to: &e%language%"
 
 menu:
   main:
@@ -22,3 +30,14 @@ menu:
     name: "&e%name%"
   search:
     name: "&cHeadDB &7- &eSearch: %query% &7(%size%)"
+  settings:
+    name: "&cHeadDB &7- &eSettings"
+    language:
+      # Setting name
+      name: "&cLanguage"
+      # Available languages lore
+      available: "&7Languages Available: &e%size%"
+      # Title of the language selection inventory
+      title: "&cHeadDB &7- &eLanguages &7(%size%)"
+      # Language item name
+      format: "&e%language%"

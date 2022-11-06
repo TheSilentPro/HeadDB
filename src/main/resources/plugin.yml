@@ -8,6 +8,10 @@ api-version: 1.19
 author: TheSilentPro (Silent)
 spigot-id: 84967
 
+build: ${build.number}
+buildTimestamp: ${build.timestamp}
+buildAuthor: ${build.author}
+
 libraries:
   - "com.google.code.gson:gson:2.10"
 

@@ -51,12 +51,12 @@ public enum Category {
     @Nonnull
     public ItemStack getItem(UUID receiver) {
         if (item == null) {
-            HeadAPI.getHeads(this).findFirst()
+            HeadAPI.getHeads(this).stream().findFirst()
                     .ifPresentOrElse(head -> item = new ItemBuilder(head.getItem(receiver))
-                                    .name(Utils.translateTitle(HeadDB.getInstance().getLocalization().getMessage(receiver, "menu.category.name").orElse("&e" + getName()), HeadAPI.getHeads(this).toList().size(), getName().toUpperCase(Locale.ROOT)))
-                                    .setLore("")
+                                    .name(Utils.translateTitle(HeadDB.getInstance().getLocalization().getMessage(receiver, "menu.category.name").orElse("&e" + getName()), HeadAPI.getHeads(this).size(), getName().toUpperCase(Locale.ROOT)))
+                                    .setLore((String[]) null)
                                     .build(),
-                    () -> item = new ItemBuilder(Material.BARRIER).name(getName().toUpperCase(Locale.ROOT)).build());
+                    () -> item = new ItemBuilder(Material.PLAYER_HEAD).name(getName().toUpperCase(Locale.ROOT)).build());
         }
 
         return item;

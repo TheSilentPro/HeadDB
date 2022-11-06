@@ -5,10 +5,10 @@ import org.bukkit.entity.Player;
 import tsp.headdb.core.api.HeadAPI;
 import tsp.headdb.core.util.Utils;
 import tsp.headdb.implementation.head.Head;
-import tsp.smartplugin.inventory.paged.PagedPane;
+import tsp.smartplugin.inventory.PagedPane;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CommandSearch extends SubCommand {
 
@@ -25,16 +25,38 @@ public class CommandSearch extends SubCommand {
 
         StringBuilder builder = new StringBuilder();
         for (int i = 1; i < args.length; i++) {
-            builder.append(args[i]).append(" ");
+            builder.append(args[i]);
+            if (i != args.length - 1) {
+                builder.append(" ");
+            }
         }
 
-        String query = builder.toString();
-        getLocalization().sendMessage(player.getUniqueId(), "searchCommand", msg -> msg.replace("%query%", query));
+        final String query = builder.toString();
 
-        List<Head> heads = HeadAPI.getHeads().filter(head -> Utils.matches(head.getName(), query)).collect(Collectors.toList());
-        PagedPane main = new PagedPane(6, 6, Utils.translateTitle(getLocalization().getMessage(player.getUniqueId(), "menu.search.name").orElse("&cHeadDB - &eSearch Results"), heads.size(), "None", query));
+        List<Head> heads = new ArrayList<>();
+        List<Head> headList = HeadAPI.getHeads();
+        if (query.length() > 3) {
+            if (query.startsWith("id:")) {
+                try {
+                    HeadAPI.getHeadById(Integer.parseInt(query.substring(3))).ifPresent(heads::add);
+                } catch (NumberFormatException ignored) {
+                }
+            } else if (query.startsWith("tg:")) {
+                heads.addAll(headList.stream().filter(head -> Utils.matches(head.getTags(), query.substring(3))).toList());
+            } else {
+                // no query prefix
+                heads.addAll(headList.stream().filter(head -> Utils.matches(head.getName(), query.substring(3))).toList());
+            }
+        } else {
+            // query is <=3, no point in looking for prefixes
+            heads.addAll(headList.stream().filter(head -> Utils.matches(head.getName(), query.substring(3))).toList());
+        }
+
+        getLocalization().sendMessage(player.getUniqueId(), "searchCommand", msg -> msg.replace("%query%", query));
+        PagedPane main = Utils.createPaged(player, Utils.translateTitle(getLocalization().getMessage(player.getUniqueId(), "menu.search.name").orElse("&cHeadDB - &eSearch Results"), heads.size(), "None", query));
         Utils.addHeads(player, null, main, heads);
         getLocalization().sendMessage(player.getUniqueId(), "searchCommandResults", msg -> msg.replace("%size%", String.valueOf(heads.size())).replace("%query%", query));
+        main.open(player);
     }
 
 }

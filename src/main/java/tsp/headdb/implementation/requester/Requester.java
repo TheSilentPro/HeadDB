@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-@SuppressWarnings("ClassCanBeRecord")
 public class Requester {
 
     private final JavaPlugin plugin;

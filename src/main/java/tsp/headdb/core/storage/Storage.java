@@ -3,8 +3,6 @@ package tsp.headdb.core.storage;
 import tsp.headdb.HeadDB;
 import tsp.headdb.core.api.HeadAPI;
 
-import java.util.stream.Collectors;
-
 public final class Storage {
 
     private final HeadDB instance = HeadDB.getInstance();
@@ -24,7 +22,7 @@ public final class Storage {
 
     public void save() {
         playerStorage.save(playerStorage.getPlayers().values()).join();
-        headStorage.save(HeadAPI.getHeads().collect(Collectors.toList())).join();
+        headStorage.save(HeadAPI.getHeads()).join();
     }
 
     public PlayerStorage getPlayerStorage() {

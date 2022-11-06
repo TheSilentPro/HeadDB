@@ -61,6 +61,7 @@ public class HeadStorage extends SQLiteDataManager<Collection<Head>> {
             ));
         }
 
+        //noinspection StringOperationCanBeSimplified
         return sendPreparedUpdate("INSERT OR REPLACE INTO data VALUES" + builder.toString().substring(0, builder.length() - 1) + ";").thenApply(r -> true);
     }
     

@@ -10,4 +10,4 @@ You may report issues on the [Issue Tracker](https://github.com/TheSilentPro/Hea
 
 # API
 All API methods can be found in the [HeadAPI](https://github.com/TheSilentPro/HeadDB/blob/master/src/main/java/tsp/headdb/api/HeadAPI.java) class. <br>
-Alternatevly you may view the [javadocs](https://javadocs.pages.dev/headdb/4.0.0/tsp/headdb/api/HeadAPI).
+Alternatively you may view the [javadocs](https://javadocs.pages.dev/headdb/4.0.0/tsp/headdb/api/HeadAPI).

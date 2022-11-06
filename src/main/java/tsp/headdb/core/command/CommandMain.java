@@ -1,7 +1,6 @@
 package tsp.headdb.core.command;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -9,14 +8,12 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.RemoteConsoleCommandSender;
 import org.bukkit.entity.Player;
 
-import org.bukkit.inventory.ItemStack;
 import tsp.headdb.HeadDB;
 import tsp.headdb.core.api.HeadAPI;
 import tsp.headdb.core.util.Utils;
 import tsp.headdb.implementation.category.Category;
-import tsp.smartplugin.builder.item.ItemBuilder;
 import tsp.smartplugin.inventory.Button;
-import tsp.smartplugin.inventory.single.Pane;
+import tsp.smartplugin.inventory.Pane;
 import tsp.smartplugin.localization.TranslatableLocalization;
 import tsp.smartplugin.utils.Validate;
 
@@ -49,7 +46,7 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor {
             for (Category category : Category.VALUES) {
                 pane.addButton(new Button(category.getItem(player.getUniqueId()), e -> {
                     if (e.isLeftClick()) {
-                        Bukkit.dispatchCommand(e.getWhoClicked(), "hdb open " + category.name());
+                        Bukkit.dispatchCommand(e.getWhoClicked(), "hdb open " + category.getName());
                     } else if (e.isRightClick()) {
                         // todo: specific page
                     }

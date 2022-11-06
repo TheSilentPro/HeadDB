@@ -2,23 +2,19 @@ package tsp.headdb.core.command;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
 import tsp.headdb.HeadDB;
 import tsp.headdb.core.api.HeadAPI;
 import tsp.headdb.core.util.Utils;
 import tsp.headdb.implementation.category.Category;
 import tsp.headdb.implementation.head.Head;
-import tsp.smartplugin.inventory.Button;
-import tsp.smartplugin.inventory.paged.PagedPane;
+import tsp.smartplugin.inventory.PagedPane;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CommandCategory extends SubCommand {
 
     public CommandCategory() {
-        super("open", new String[]{"category", "c"});
+        super("open", new String[]{"o"});
     }
 
     @Override
@@ -35,17 +31,17 @@ public class CommandCategory extends SubCommand {
                 return;
             }
 
-            int page = 1;
-            if (args[2] != null) {
+            int page = 0;
+            if (args.length >= 3) {
                 try {
-                    page = Integer.parseInt(args[2]);
+                    page = Integer.parseInt(args[2]) - 1;
                 } catch (NumberFormatException ignored) {}
             }
 
-            List<Head> heads = HeadAPI.getHeads(category).collect(Collectors.toList());
-            PagedPane main = new PagedPane(6, 6, Utils.translateTitle(getLocalization().getMessage(player.getUniqueId(), "menu.category.name").orElse(category.getName()), heads.size(), category.getName()));
+            List<Head> heads = HeadAPI.getHeads(category);
+            PagedPane main = Utils.createPaged(player, Utils.translateTitle(getLocalization().getMessage(player.getUniqueId(), "menu.category.name").orElse(category.getName()), heads.size(), category.getName()));
             Utils.addHeads(player, category, main, heads);
-            if (page > main.getPageAmount()) {
+            if (page < 0 || page > main.getPageAmount()) {
                 getLocalization().sendMessage(player.getUniqueId(), "invalidPageIndex", msg -> msg.replace("%pages%", String.valueOf(main.getPageAmount())));
                 return;
             }

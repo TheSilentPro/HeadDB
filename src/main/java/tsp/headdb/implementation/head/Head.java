@@ -46,16 +46,15 @@ public class Head {
             TranslatableLocalization localization = HeadDB.getInstance().getLocalization();
             item = new ItemBuilder(Material.PLAYER_HEAD)
                     .name(localization.getMessage(receiver, "menu.head.name").orElse("&e" + name.toUpperCase(Locale.ROOT)).replace("%name%", name))
-                    .setLore("&7Tags: &e" + tags)
+                    .setLore("&cID: " + id, "&7Tags: &e" + tags)
                     .build();
 
             ItemMeta meta = item.getItemMeta();
             GameProfile profile = new GameProfile(uniqueId, name);
             profile.getProperties().put("textures", new Property("textures", texture));
-            Field profileField;
             try {
                 //noinspection ConstantConditions
-                profileField = meta.getClass().getDeclaredField("profile");
+                Field profileField = meta.getClass().getDeclaredField("profile");
                 profileField.setAccessible(true);
                 profileField.set(meta, profile);
             } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException ex) {
@@ -65,6 +64,7 @@ public class Head {
 
             item.setItemMeta(meta);
         }
+
         return item;
     }
 

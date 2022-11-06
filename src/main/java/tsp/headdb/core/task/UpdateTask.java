@@ -4,6 +4,8 @@ import tsp.headdb.HeadDB;
 import tsp.headdb.core.api.HeadAPI;
 import tsp.smartplugin.tasker.Task;
 
+import java.util.concurrent.TimeUnit;
+
 @SuppressWarnings("ClassCanBeRecord")
 public class UpdateTask implements Task {
 
@@ -15,7 +17,7 @@ public class UpdateTask implements Task {
 
     @Override
     public void run() {
-        HeadAPI.getDatabase().update();
+        HeadAPI.getDatabase().update((time, heads) -> HeadDB.getInstance().getLog().debug("Fetched: " + heads.size() + " Heads | Provider: " + HeadAPI.getDatabase().getRequester().getProvider().name() + " | Time: " + time + "ms (" + TimeUnit.MILLISECONDS.toSeconds(time) + "s)"));
         //HeadDB.getInstance().getStorage().save();
         HeadDB.getInstance().getLog().debug("UpdateTask finished!");
     }

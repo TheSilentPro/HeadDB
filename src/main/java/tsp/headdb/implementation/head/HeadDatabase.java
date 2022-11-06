@@ -7,12 +7,13 @@ import tsp.headdb.implementation.category.Category;
 import tsp.headdb.implementation.requester.HeadProvider;
 import tsp.headdb.implementation.requester.Requester;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class HeadDatabase {
@@ -22,7 +23,6 @@ public class HeadDatabase {
     private final Requester requester;
     private final Map<Category, List<Head>> heads;
     private long timestamp;
-    private int size;
 
     public HeadDatabase(JavaPlugin plugin, HeadProvider provider) {
         this.plugin = plugin;
@@ -35,28 +35,26 @@ public class HeadDatabase {
         return heads;
     }
 
-    public void getHeadsNoCache(Consumer<Map<Category, List<Head>>> heads) {
+    public void getHeadsNoCache(BiConsumer<Long, Map<Category, List<Head>>> heads) {
         getScheduler().runTaskAsynchronously(plugin, () -> {
+            long start = System.currentTimeMillis();
             Map<Category, List<Head>> result = new HashMap<>();
             for (Category category : Category.VALUES) {
                 requester.fetchAndResolve(category, response -> result.put(category, response));
             }
 
-            heads.accept(result);
+            heads.accept(System.currentTimeMillis() - start, result);
         });
     }
 
-    public void update() {
-        getHeadsNoCache(result -> {
-            heads.putAll(result);
+    public void update(BiConsumer<Long, Map<Category, List<Head>>> fetched) {
+        getHeadsNoCache((elapsed, result) -> {
+            synchronized (heads) {
+                heads.putAll(result);
+            }
             timestamp = System.currentTimeMillis();
-            size = heads.values().size();
-            HeadDB.getInstance().getLog().debug("Fetched: " + heads.size() + " Heads | Provider: " + getRequester().getProvider().name());
+            fetched.accept(elapsed, result);
         });
-    }
-
-    public int getSize() {
-        return size;
     }
 
     public long getTimestamp() {

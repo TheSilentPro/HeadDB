@@ -17,6 +17,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <build.author>TheSilentPro (Silent)</build.author>
+        <maven.build.timestamp.format>dd-MM-yyyy HH:mm:ss</maven.build.timestamp.format>
         <build.timestamp>${maven.build.timestamp}</build.timestamp>
     </properties>
 
@@ -133,7 +134,7 @@
                 <executions>
                     <execution>
                         <id>build-properties</id>
-                        <phase>validate</phase>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>create</goal>
                             <goal>create-metadata</goal>
@@ -144,16 +145,15 @@
                     <doCheck>true</doCheck>
                     <doUpdate>true</doUpdate>
 
-                    <buildNumberPropertiesFileLocation>${basedir}/build/buildNumber.properties</buildNumberPropertiesFileLocation>
-                    <outputDirectory>${basedir}/build</outputDirectory>
-                    <outputName>build.properties</outputName>
+                    <buildNumberPropertyName>build.number</buildNumberPropertyName>
+                    <revisionPropertyName>build.revision</revisionPropertyName>
+                    <scmBranchPropertyName>build.branch</scmBranchPropertyName>
 
-                    <useLastCommittedRevision>true</useLastCommittedRevision>
+                    <useLastCommittedRevision>false</useLastCommittedRevision>
                     <shortRevisionLength>7</shortRevisionLength>
                     <revisionOnScmFailure>0</revisionOnScmFailure>
                     <items>
                         <item>buildNumber</item>
-                        <item>timestamp</item>
                         <item>scmVersion</item>
                     </items>
                 </configuration>

@@ -9,6 +9,8 @@ author: TheSilentPro (Silent)
 spigot-id: 84967
 
 build: ${build.number}
+buildRevision: ${build.revision}
+buildBranch: ${build.branch}
 buildTimestamp: ${build.timestamp}
 buildAuthor: ${build.author}
 

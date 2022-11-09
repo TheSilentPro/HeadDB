@@ -16,7 +16,7 @@ import java.util.Set;
 public class CommandSettings extends SubCommand {
 
     public CommandSettings() {
-        super("settings", new String[]{"st"});
+        super("settings", "st");
     }
 
     @Override
@@ -32,16 +32,22 @@ public class CommandSettings extends SubCommand {
                 .name(getLocalization().getMessage(player.getUniqueId(), "menu.settings.language.name").orElse("&cLanguage"))
                 .setLore(getLocalization().getMessage(player.getUniqueId(), "menu.settings.language.available").orElse("&7Languages Available: &e%size%").replace("%size%", String.valueOf(langs.size())))
                 .build(), e -> {
+            e.setCancelled(true);
             PagedPane langPane = new PagedPane(4, 6, Utils.translateTitle(getLocalization().getMessage(player.getUniqueId(), "menu.settings.language.title").orElse("&cHeadDB &7- &eSelect Language").replace("%languages%", "%size%"), langs.size(), "Selector: Language"));
             for (String lang : langs) {
                 langPane.addButton(new Button(new ItemBuilder(Material.PAPER)
                         .name(getLocalization().getMessage(player.getUniqueId(), "menu.settings.language.format").orElse(ChatColor.YELLOW + lang).replace("%language%", lang))
                         .build(), langEvent -> {
+                    e.setCancelled(true);
                     getLocalization().setLanguage(player.getUniqueId(), lang);
                     getLocalization().sendMessage(player.getUniqueId(), "languageChanged", msg -> msg.replace("%language%", lang));
                 }));
             }
+
+            langPane.open(player);
         }));
+
+        pane.open(player);
     }
 
 }

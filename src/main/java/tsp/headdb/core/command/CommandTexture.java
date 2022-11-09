@@ -11,7 +11,7 @@ import tsp.headdb.core.util.Utils;
 public class CommandTexture extends SubCommand {
 
     public CommandTexture() {
-        super("texture", new String[]{"t"});
+        super("texture", "t");
     }
 
     @Override
@@ -26,7 +26,7 @@ public class CommandTexture extends SubCommand {
             component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(getLocalization().getMessage(player.getUniqueId(), "copyTexture").orElse("Click to copy!"))));
             component.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, texture));
             player.spigot().sendMessage(component);
-        }), () -> getLocalization().sendMessage("itemNoTexture"));
+        }), () -> getLocalization().sendMessage(sender,"itemNoTexture"));
     }
 
 }

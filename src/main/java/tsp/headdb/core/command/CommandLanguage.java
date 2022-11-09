@@ -2,32 +2,26 @@ package tsp.headdb.core.command;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import tsp.smartplugin.localization.Message;
+import tsp.headdb.HeadDB;
 
 import java.util.Set;
 
 public class CommandLanguage extends SubCommand {
 
     public CommandLanguage() {
-        super("language", new String[]{"l", "lang"});
+        super("language", HeadDB.getInstance().getLocalization().getData().keySet(), "l", "lang");
     }
 
     @Override
     public void handle(CommandSender sender, String[] args) {
-        String lang = "en";
-        if (args.length < 1) {
-            getLocalization().sendMessage(new Message()
-                    .receiver(sender)
-                    .text("invalidArguments")
-            );
+        if (args.length < 2) {
+            getLocalization().sendMessage(sender, "invalidArguments");
             return;
         }
+        String lang = args[1];
 
         if (!getLocalization().getData().containsKey(lang)) {
-            getLocalization().sendMessage(new Message()
-                    .receiver(sender)
-                    .text("invalidLanguage")
-                    .function(msg -> msg.replace("%languages%", toString(getLocalization().getData().keySet()))));
+            getLocalization().sendMessage(sender, "invalidLanguage", msg -> msg.replace("%languages%", toString(getLocalization().getData().keySet())));
             return;
         }
 
@@ -37,7 +31,7 @@ public class CommandLanguage extends SubCommand {
             getLocalization().setLanguage(player.getUniqueId(), lang);
         }
 
-        getLocalization().sendMessage(new Message().receiver(sender).text("languageChanged").function(msg -> msg.replace("%language%", lang)));
+        getLocalization().sendMessage(sender, "languageChanged", msg -> msg.replace("%language%", lang));
     }
 
     private String toString(Set<String> set) {

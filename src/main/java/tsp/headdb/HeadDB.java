@@ -1,6 +1,7 @@
 package tsp.headdb;
 
 import tsp.headdb.core.command.CommandCategory;
+import tsp.headdb.core.command.CommandGive;
 import tsp.headdb.core.command.CommandHelp;
 import tsp.headdb.core.command.CommandInfo;
 import tsp.headdb.core.command.CommandLanguage;
@@ -11,6 +12,8 @@ import tsp.headdb.core.command.CommandSearch;
 import tsp.headdb.core.command.CommandSettings;
 import tsp.headdb.core.command.CommandTexture;
 import tsp.headdb.core.command.CommandUpdate;
+import tsp.headdb.core.economy.BasicEconomyProvider;
+import tsp.headdb.core.economy.VaultProvider;
 import tsp.headdb.core.listener.PlayerJoinListener;
 import tsp.headdb.core.storage.Storage;
 import tsp.headdb.core.task.UpdateTask;
@@ -23,6 +26,7 @@ import tsp.smartplugin.logger.PluginLogger;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Optional;
 
 public class HeadDB extends SmartPlugin {
 
@@ -30,19 +34,22 @@ public class HeadDB extends SmartPlugin {
     private PluginLogger logger;
     private BuildProperties buildProperties;
     private TranslatableLocalization localization;
+    private BasicEconomyProvider economyProvider;
     private CommandManager commandManager;
     private Storage storage;
 
     @Override
     public void onStart() {
         instance = this;
+        instance.saveDefaultConfig();
         instance.logger = new PluginLogger(this, getConfig().getBoolean("debug"));
         instance.logger.info("Loading HeadDB - " + instance.getDescription().getVersion());
         instance.buildProperties = new BuildProperties(this);
-        instance.saveDefaultConfig();
 
-        new UpdateTask(getConfig().getLong("refresh", 3600L)).schedule(this);
+        new UpdateTask(getConfig().getLong("refresh", 86400L)).schedule(this);
         instance.logger.info("Loaded " + loadLocalization() + " languages!");
+
+        instance.initEconomy();
 
         instance.storage = new Storage();
         //instance.storage.load();
@@ -77,10 +84,27 @@ public class HeadDB extends SmartPlugin {
         }
     }
 
+    private void initEconomy() {
+        if (!getConfig().getBoolean("economy.enabled")) {
+            instance.logger.debug("Economy disabled by config.yml!");
+            instance.economyProvider = null;
+            return;
+        }
+
+        String raw = getConfig().getString("economy.provider", "VAULT");
+        if (raw.equalsIgnoreCase("VAULT")) {
+            economyProvider = new VaultProvider();
+        }
+
+        economyProvider.init();
+        instance.logger.info("Economy Provider: " + raw);
+    }
+
     private void loadCommands() {
         new CommandHelp().register();
         new CommandCategory().register();
         new CommandSearch().register();
+        new CommandGive().register();
         new CommandUpdate().register();
         new CommandTexture().register();
         new CommandLanguage().register();
@@ -94,6 +118,10 @@ public class HeadDB extends SmartPlugin {
 
     public CommandManager getCommandManager() {
         return commandManager;
+    }
+
+    public Optional<BasicEconomyProvider> getEconomyProvider() {
+        return Optional.ofNullable(economyProvider);
     }
 
     public TranslatableLocalization getLocalization() {

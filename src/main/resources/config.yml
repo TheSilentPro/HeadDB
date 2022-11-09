@@ -1,5 +1,5 @@
 # How often the database should be updated in seconds.
-refresh: 3600
+refresh: 86400
 
 # If local heads should be enabled. Only starts keeping track of joined players when enabled!
 localHeads: true
@@ -11,27 +11,10 @@ requireCategoryPermission: false
 # If enabled, the menu will close after purchasing a head (even if the purchase fails)
 closeOnPurchase: false
 
-# Hidden heads from the menu
-hidden:
-  enabled: false
-  # If enabled it will also hide any heads matching these tags in the favorites menu
-  hideFavorites: true
-  # If the head name matches any of the listen words it will be hidden (case-sensitive)
-  names:
-    - ""
-  # If the head has one of the listed tags it will be hidden
-  tags:
-    - ""
-
-# Economy options
+# Economy Options
 economy:
   enable: false
-  # Supported: VAULT, TREASURY
-  provider: "VAULT"
-  # Providers like treasury support multiple currencies
-  # Set the ID of the one used for head purchasing below.
-  # Leave empty to use the primary currency or if the provider does not support multiple currencies
-  currency: ""
+  provider: "VAULT" # Supported: VAULT
   cost:
     alphabet: 100
     animals: 100
@@ -43,111 +26,13 @@ economy:
     miscellaneous: 100
     monsters: 100
     plants: 100
-    local: 1000
-
-# UI customization options.
-ui:
-  category:
-    # Head categories. You can use item: instead of head: here, but AIR is not supported.
-    alphabet:
-      location: 20
-      head: 1788
-    animals:
-      location: 21
-      head: 5741
-    blocks:
-      location: 22
-      head: 8624
-    decoration:
-      location: 23
-      head: 11046
-    food-drinks:
-      location: 24
-      head: 17442
-    humans:
-      location: 29
-      head: 19361
-    humanoid:
-      location: 30
-      head: 28320
-    miscellaneous:
-      location: 31
-      head: 32746
-    monsters:
-      location: 32
-      head: 34819
-    plants:
-      location: 33
-      head: 37278
-    # Meta categories, used for UI elements. AIR is not supported. You can use head: instead of item: here.
-    favorites:
-      location: 39
-      item: BOOK
-    search:
-      location: 40
-      item: DARK_OAK_SIGN
-    local:
-      location: 41
-      item: COMPASS
-    # Item used to fill unused slots in the categories' menu. AIR is supported. You can use head: instead of item: here.
-    fill:
-      item: BLACK_STAINED_GLASS_PANE
-  sound:
-    # Whether the sounds should be played
-    enabled: true
-
-    # Played when a head is taken with no economy plugin
-    noEconomy:
-      # The name of the sound.
-      # Must be one from: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html
-      name: ENTITY_EXPERIENCE_ORB_PICKUP
-      volume: 1
-      pitch: 1
-    # Played when the player doesn't have permission for the menu
-    noPermission:
-      name: BLOCK_ANVIL_BREAK
-      volume: 1
-      pitch: 1
-    # Played when they purchase a head
-    paid:
-      name: ENTITY_EXPERIENCE_ORB_PICKUP
-      volume: 1
-      pitch: 1
-    # Played when the head is free
-    free:
-      name: ENTITY_EXPERIENCE_ORB_PICKUP
-      volume: 1
-      pitch: 1
-    # Played when the player does not have enough funds for the head
-    unavailable:
-      name: BLOCK_ANVIL_BREAK
-      volume: 1
-      pitch: 1
-    # Played when a category/menu is opened
-    open:
-      name: ENTITY_EXPERIENCE_ORB_PICKUP
-      volume: 1
-      pitch: 1
-    # Played when a head is added to the favorites list
-    addFavorite:
-      name: ENTITY_EXPERIENCE_ORB_PICKUP
-      volume: 1
-      pitch: 1
-      # Played when a head is removed to from favorites list
-    removeFavorite:
-      name: BLOCK_ANVIL_BREAK
-      volume: 1
-      pitch: 1
 
 # Command Configuration
 commands:
   # Commands to run ONLY if the purchase is successful.
+  # They are run as CONSOLE after the player has receiver the head in their inventory.
   purchase:
     - ""
-
-# The head provider used.
-# Don't touch this if you don't know what you are doing!
-headProvider: "HEAD_STORAGE"
 
 # If the original fetching fails and this is enabled,
 # the plugin will attempt to fetch the heads from an archive.

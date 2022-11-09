@@ -13,13 +13,18 @@ import java.util.List;
 public class CommandSearch extends SubCommand {
 
     public CommandSearch() {
-        super("search", new String[]{"s"});
+        super("search", "s");
     }
 
     @Override
     public void handle(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) {
             getLocalization().sendConsoleMessage("noConsole");
+            return;
+        }
+
+        if  (args.length < 2) {
+            getLocalization().sendMessage(player, "invalidArguments");
             return;
         }
 

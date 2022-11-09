@@ -9,12 +9,14 @@ import tsp.headdb.implementation.category.Category;
 import tsp.headdb.implementation.head.Head;
 import tsp.smartplugin.inventory.PagedPane;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CommandCategory extends SubCommand {
 
     public CommandCategory() {
-        super("open", new String[]{"o"});
+        super("open", Arrays.stream(Category.VALUES).map(Category::getName).collect(Collectors.toList()), "o");
     }
 
     @Override
@@ -24,18 +26,23 @@ public class CommandCategory extends SubCommand {
             return;
         }
 
+        if  (args.length < 2) {
+            getLocalization().sendMessage(player.getUniqueId(), "invalidArguments");
+            return;
+        }
+
         Category.getByName(args[1]).ifPresentOrElse(category -> {
             boolean requirePermission = HeadDB.getInstance().getConfig().getBoolean("requireCategoryPermission");
-            if (requirePermission && !player.hasPermission("headdb.category." + category.getName())) {
+            if (requirePermission
+                    && !player.hasPermission("headdb.category." + category.getName())
+                    && !player.hasPermission("headdb.category.*")) {
                 getLocalization().sendMessage(player.getUniqueId(), "noPermission");
                 return;
             }
 
             int page = 0;
             if (args.length >= 3) {
-                try {
-                    page = Integer.parseInt(args[2]) - 1;
-                } catch (NumberFormatException ignored) {}
+                page = Utils.resolveInt(args[2]) - 1;
             }
 
             List<Head> heads = HeadAPI.getHeads(category);

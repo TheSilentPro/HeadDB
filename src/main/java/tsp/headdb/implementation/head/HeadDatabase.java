@@ -2,19 +2,14 @@ package tsp.headdb.implementation.head;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
-import tsp.headdb.HeadDB;
 import tsp.headdb.implementation.category.Category;
 import tsp.headdb.implementation.requester.HeadProvider;
 import tsp.headdb.implementation.requester.Requester;
 
-import java.util.Collections;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class HeadDatabase {
 
@@ -28,7 +23,7 @@ public class HeadDatabase {
         this.plugin = plugin;
         this.scheduler = plugin.getServer().getScheduler();
         this.requester = new Requester(plugin, provider);
-        this.heads = Collections.synchronizedMap(new EnumMap<>(Category.class));
+        this.heads = new HashMap<>();
     }
 
     public Map<Category, List<Head>> getHeads() {
@@ -49,9 +44,7 @@ public class HeadDatabase {
 
     public void update(BiConsumer<Long, Map<Category, List<Head>>> fetched) {
         getHeadsNoCache((elapsed, result) -> {
-            synchronized (heads) {
-                heads.putAll(result);
-            }
+            heads.putAll(result);
             timestamp = System.currentTimeMillis();
             fetched.accept(elapsed, result);
         });

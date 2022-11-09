@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import tsp.headdb.HeadDB;
+import tsp.headdb.implementation.category.Category;
 import tsp.smartplugin.builder.item.ItemBuilder;
 import tsp.smartplugin.localization.TranslatableLocalization;
 import tsp.smartplugin.utils.Validate;
@@ -23,15 +24,17 @@ public class Head {
     private final String texture;
     private final String tags;
     private final String updated;
+    private final Category category;
     private ItemStack item;
 
     @ParametersAreNonnullByDefault
-    public Head(int id, UUID uniqueId, String name, String texture, String tags, String updated) {
+    public Head(int id, UUID uniqueId, String name, String texture, String tags, String updated, Category category) {
         Validate.notNull(uniqueId, "Unique id can not be null!");
         Validate.notNull(name, "Name can not be null!");
         Validate.notNull(texture, "Texture can not be null!");
         Validate.notNull(tags, "Tags can not be null!");
         Validate.notNull(updated, "Updated can not be null!");
+        Validate.notNull(category, "Category can not be null!");
 
         this.id = id;
         this.uniqueId = uniqueId;
@@ -39,6 +42,7 @@ public class Head {
         this.texture = texture;
         this.tags = tags;
         this.updated = updated;
+        this.category = category;
     }
 
     public ItemStack getItem(UUID receiver) {
@@ -65,7 +69,7 @@ public class Head {
             item.setItemMeta(meta);
         }
 
-        return item;
+        return item.clone(); // Return clone that changes are not reflected
     }
 
     public int getId() {
@@ -90,6 +94,10 @@ public class Head {
 
     public String getUpdated() {
         return updated;
+    }
+
+    public Category getCategory() {
+        return category;
     }
 
 }

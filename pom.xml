@@ -75,12 +75,17 @@
         <dependency>
             <groupId>com.github.TheSilentPro</groupId>
             <artifactId>SmartPlugin</artifactId>
-            <version>e565e96a72</version>
+            <version>1ade8879c3</version>
         </dependency>
         <dependency>
             <groupId>com.github.TheSilentPro</groupId>
             <artifactId>Warehouse</artifactId>
             <version>f40f72cb19</version>
+        </dependency>
+        <dependency>
+            <groupId>net.wesjd</groupId>
+            <artifactId>anvilgui</artifactId>
+            <version>1.5.3-SNAPSHOT</version>
         </dependency>
 
         <!-- Soft Dependencies -->
@@ -88,12 +93,6 @@
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
             <version>1.7</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>me.lokka30</groupId>
-            <artifactId>treasury-api</artifactId>
-            <version>1.1.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -123,38 +122,6 @@
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
-                </configuration>
-            </plugin>
-
-            <!-- Buildnumber -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>buildnumber-maven-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution>
-                        <id>build-properties</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>create-metadata</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <doCheck>true</doCheck>
-                    <doUpdate>true</doUpdate>
-
-                    <buildNumberPropertyName>build.number</buildNumberPropertyName>
-                    <revisionPropertyName>build.revision</revisionPropertyName>
-                    <scmBranchPropertyName>build.branch</scmBranchPropertyName>
-
-                    <useLastCommittedRevision>false</useLastCommittedRevision>
-                    <shortRevisionLength>7</shortRevisionLength>
-                    <revisionOnScmFailure>0</revisionOnScmFailure>
-                    <items>
-                        <item>buildNumber</item>
-                        <item>scmVersion</item>
-                    </items>
                 </configuration>
             </plugin>
 

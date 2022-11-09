@@ -2,6 +2,7 @@ package tsp.headdb.core.storage;
 
 import tsp.headdb.HeadDB;
 import tsp.headdb.core.util.Utils;
+import tsp.headdb.implementation.category.Category;
 import tsp.headdb.implementation.head.Head;
 import tsp.warehouse.storage.sql.SQLiteDataManager;
 
@@ -32,7 +33,8 @@ public class HeadStorage extends SQLiteDataManager<Collection<Head>> {
                             set.getString("name"),
                             set.getString("texture"),
                             set.getString("tags"),
-                            set.getString("updated")
+                            set.getString("updated"),
+                            Category.valueOf(set.getString("category"))
                     ));
                 }
 
@@ -51,13 +53,14 @@ public class HeadStorage extends SQLiteDataManager<Collection<Head>> {
 
         StringBuilder builder = new StringBuilder();
         for (Head head : data) {
-            builder.append(String.format("(%d, %s, %s, %s, %s, %s),",
+            builder.append(String.format("(%d, %s, %s, %s, %s, %s, %s),",
                     head.getId(),
                     head.getUniqueId().toString(),
                     head.getName(),
                     head.getTexture(),
                     head.getTags(),
-                    head.getUpdated()
+                    head.getUpdated(),
+                    head.getCategory().name()
             ));
         }
 

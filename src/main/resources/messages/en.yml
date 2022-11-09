@@ -2,14 +2,17 @@ noConsole: "&cOnly for in-game players!"
 noPermission: "&cNo permission!"
 invalidSubCommand: "&cInvalid sub-command! Run &e/hdb help&c for help."
 invalidArguments: "&cInvalid Arguments! Use &e/hdb help&c for help."
+invalidTarget: "&cInvalid target: &e%name%"
 invalidCategory: "&cInvalid Category!"
+invalidNumber: "&e%name% &cis not a number!"
 invalidPageIndex: "&cThat page is out of bounds! Max: %pages%"
 
-openDatabase: "&7Opening &cHeadDatabase&7..."
+openDatabase: "" # Intentionally empty. Sent when the main gui is opened
 updateDatabase: "&7Updating..."
-updateDatabaseDone: "&7Database was updated! Heads: &6%size% &7| Took: &a%time%"
 searchCommand: "&7Searching for heads matching: &e%query%"
 searchCommandResults: "&7Found &e%size% &7matches!"
+giveCommand: "&7Gave &ex%size% %name% &7to &e%receiver%"
+giveCommandInvalid: "&cInvalid head: &e%name%"
 itemTexture: "&7Texture: %texture%"
 itemNoTexture: "&cThis item does not have a texture!"
 copyTexture: "&6Click to copy texture!"
@@ -22,14 +25,21 @@ menu:
     title: "&cHeadDB &7(%size%)"
     category:
       name: "&e&l%category%"
+      page:
+        name: "&eGo to specific page"
+      lore:
+        - "&7Left-Click to open"
+        - "&7Right-Click to open specific page"
     search:
       name: "&eSearch"
   category:
-    name: "&e%category% &7(%size%)"
+    name: "&cHeadDB &7- &e%category% &7(%size%)"
   head:
     name: "&e%name%"
   search:
     name: "&cHeadDB &7- &eSearch: %query% &7(%size%)"
+  page:
+    name: "&cHeadDB &7- &eEnter page number"
   settings:
     name: "&cHeadDB &7- &eSettings"
     language:

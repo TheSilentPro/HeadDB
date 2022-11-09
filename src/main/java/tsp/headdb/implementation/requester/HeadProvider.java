@@ -4,9 +4,9 @@ import tsp.headdb.implementation.category.Category;
 
 public enum HeadProvider {
 
+    HEAD_API("https://minecraft-heads.com/scripts/api.php?cat=%s&tags=true"), // No ids
     HEAD_STORAGE("https://raw.githubusercontent.com/TheSilentPro/HeadStorage/master/storage/%s.json"),
-    HEAD_WORKER(""), // TODO: implement
-    HEAD_API("https://minecraft-heads.com/scripts/api.php?cat=%s&tags=true"),
+    HEAD_WORKER(""), // Unimplemented yet.
     HEAD_ARCHIVE("https://heads.pages.dev/archive/%s.json");
 
     private final String url;

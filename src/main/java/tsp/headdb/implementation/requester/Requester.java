@@ -48,7 +48,8 @@ public class Requester {
                             obj.get("name").getAsString(),
                             obj.get("value").getAsString(),
                             obj.get("tags").getAsString(),
-                            response.date()
+                            response.date(),
+                            category
                     ));
                 }
 
@@ -56,8 +57,10 @@ public class Requester {
             });
         } catch (IOException ex) {
             HeadDB.getInstance().getLog().debug("Failed to load from provider: " + provider.name());
-            provider = HeadProvider.HEAD_ARCHIVE;
-            fetchAndResolve(category, heads);
+            if (HeadDB.getInstance().getConfig().getBoolean("fallback") && provider != HeadProvider.HEAD_ARCHIVE) { // prevent recursion. Maybe switch to an attempts counter down in the future
+                provider = HeadProvider.HEAD_ARCHIVE;
+                fetchAndResolve(category, heads);
+            }
         }
     }
 

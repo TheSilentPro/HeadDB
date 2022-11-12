@@ -15,7 +15,6 @@ import tsp.headdb.core.command.CommandUpdate;
 import tsp.headdb.core.economy.BasicEconomyProvider;
 import tsp.headdb.core.economy.VaultProvider;
 import tsp.headdb.core.listener.PlayerJoinListener;
-import tsp.headdb.core.storage.Storage;
 import tsp.headdb.core.task.UpdateTask;
 
 import tsp.headdb.core.util.BuildProperties;
@@ -23,9 +22,11 @@ import tsp.smartplugin.SmartPlugin;
 import tsp.smartplugin.inventory.PaneListener;
 import tsp.smartplugin.localization.TranslatableLocalization;
 import tsp.smartplugin.logger.PluginLogger;
+import tsp.smartplugin.utils.PluginUtils;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.text.DecimalFormat;
 import java.util.Optional;
 
 public class HeadDB extends SmartPlugin {
@@ -36,7 +37,6 @@ public class HeadDB extends SmartPlugin {
     private TranslatableLocalization localization;
     private BasicEconomyProvider economyProvider;
     private CommandManager commandManager;
-    private Storage storage;
 
     @Override
     public void onStart() {
@@ -51,9 +51,6 @@ public class HeadDB extends SmartPlugin {
 
         instance.initEconomy();
 
-        instance.storage = new Storage();
-        //instance.storage.load();
-
         new PaneListener(this);
         new PlayerJoinListener();
 
@@ -63,12 +60,22 @@ public class HeadDB extends SmartPlugin {
         instance.getCommand("headdb").setExecutor(new CommandMain());
 
         new Metrics(this, 9152);
+        ensureLatestVersion();
         instance.logger.info("Done!");
     }
 
     @Override
     public void onDisable() {
-        //instance.storage.save();
+        // todo: save storage
+    }
+
+    private void ensureLatestVersion() {
+        PluginUtils.isLatestVersion(this, 84967, latest -> {
+            if (Boolean.FALSE.equals(latest)) {
+                instance.logger.warning("There is a new update available for HeadDB on spigot!");
+                instance.logger.warning("Download: https://www.spigotmc.org/resources/84967");
+            }
+        });
     }
 
     private int loadLocalization() {
@@ -112,16 +119,19 @@ public class HeadDB extends SmartPlugin {
         new CommandInfo().register();
     }
 
-    public Storage getStorage() {
-        return storage;
-    }
-
     public CommandManager getCommandManager() {
         return commandManager;
     }
 
     public Optional<BasicEconomyProvider> getEconomyProvider() {
         return Optional.ofNullable(economyProvider);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    private DecimalFormat decimalFormat = new DecimalFormat(getConfig().getString("economy.format"));
+
+    public DecimalFormat getDecimalFormat() {
+        return decimalFormat != null ? decimalFormat : (decimalFormat = new DecimalFormat("##.##"));
     }
 
     public TranslatableLocalization getLocalization() {

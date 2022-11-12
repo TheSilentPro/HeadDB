@@ -1,14 +1,15 @@
 package tsp.headdb.implementation.requester;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.bukkit.plugin.java.JavaPlugin;
 import tsp.headdb.HeadDB;
 import tsp.headdb.core.util.Utils;
 import tsp.headdb.implementation.category.Category;
 import tsp.headdb.implementation.head.Head;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.io.BufferedReader;
 import java.io.IOException;

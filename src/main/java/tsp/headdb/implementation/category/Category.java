@@ -10,7 +10,6 @@ import tsp.smartplugin.builder.item.ItemBuilder;
 import tsp.smartplugin.utils.StringUtils;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,28 +17,34 @@ import java.util.stream.Collectors;
 
 public enum Category {
 
-    ALPHABET("alphabet"),
-    ANIMALS("animals"),
-    BLOCKS("blocks"),
-    DECORATION("decoration"),
-    FOOD_DRINKS("food-drinks"),
-    HUMANS("humans"),
-    HUMANOID("humanoid"),
-    MISCELLANEOUS("miscellaneous"),
-    MONSTERS("monsters"),
-    PLANTS("plants");
+    ALPHABET("alphabet", 20),
+    ANIMALS("animals", 21),
+    BLOCKS("blocks", 22),
+    DECORATION("decoration", 23),
+    FOOD_DRINKS("food-drinks", 24),
+    HUMANS("humans", 29),
+    HUMANOID("humanoid", 30),
+    MISCELLANEOUS("miscellaneous", 31),
+    MONSTERS("monsters", 32),
+    PLANTS("plants", 33);
 
     private final String name;
+    private final int defaultSlot;
     private ItemStack item;
 
     public static final Category[] VALUES = values();
 
-    Category(String name) {
+    Category(String name, int slot) {
         this.name = name;
+        this.defaultSlot = slot;
     }
 
     public String getName() {
         return name;
+    }
+
+    public int getDefaultSlot() {
+        return defaultSlot;
     }
 
     public static Optional<Category> getByName(String cname) {
@@ -74,7 +79,7 @@ public enum Category {
                     () -> item = new ItemBuilder(Material.PLAYER_HEAD).name(getName().toUpperCase(Locale.ROOT)).build());
         }
 
-        return item; // Return clone that changes are not reflected
+        return item.clone(); // Return clone that changes are not reflected
     }
 
 }

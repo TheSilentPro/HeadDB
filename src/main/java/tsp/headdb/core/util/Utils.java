@@ -5,6 +5,8 @@ import com.mojang.authlib.properties.Property;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -17,14 +19,21 @@ import tsp.headdb.implementation.category.Category;
 import tsp.headdb.implementation.head.Head;
 import tsp.smartplugin.inventory.Button;
 import tsp.smartplugin.inventory.PagedPane;
+import tsp.smartplugin.inventory.Pane;
+import tsp.smartplugin.utils.InventoryUtils;
 import tsp.smartplugin.utils.StringUtils;
+import tsp.smartplugin.utils.Validate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
@@ -64,12 +73,30 @@ public class Utils {
                 //|| provided.endsWith(query);
     }
 
+    public static void fill(@Nonnull Pane pane, @Nullable ItemStack item) {
+        Validate.notNull(pane, "Pane can not be null!");
+
+        if (item == null) {
+            item = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+            ItemMeta meta = item.getItemMeta();
+            //noinspection ConstantConditions
+            meta.setDisplayName("");
+            item.setItemMeta(meta);
+        }
+
+        for (int i = 0; i < pane.getInventory().getSize(); i++) {
+            ItemStack current = pane.getInventory().getItem(i);
+            if (current == null || current.getType().isAir()) {
+                pane.setButton(i, new Button(item, e -> e.setCancelled(true)));
+            }
+        }
+    }
+
     public static PagedPane createPaged(Player player, String title) {
         PagedPane main = new PagedPane(4, 6, title);
         HeadAPI.getHeadByTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODY1MmUyYjkzNmNhODAyNmJkMjg2NTFkN2M5ZjI4MTlkMmU5MjM2OTc3MzRkMThkZmRiMTM1NTBmOGZkYWQ1ZiJ9fX0=").ifPresent(head -> main.setBackItem(head.getItem(player.getUniqueId())));
         HeadAPI.getHeadByTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2Q5MWY1MTI2NmVkZGM2MjA3ZjEyYWU4ZDdhNDljNWRiMDQxNWFkYTA0ZGFiOTJiYjc2ODZhZmRiMTdmNGQ0ZSJ9fX0=").ifPresent(head -> main.setCurrentItem(head.getItem(player.getUniqueId())));
         HeadAPI.getHeadByTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmEzYjhmNjgxZGFhZDhiZjQzNmNhZThkYTNmZTgxMzFmNjJhMTYyYWI4MWFmNjM5YzNlMDY0NGFhNmFiYWMyZiJ9fX0=").ifPresent(head -> main.setNextItem(head.getItem(player.getUniqueId())));
-
         main.setControlCurrent(new Button(main.getCurrentItem(), e -> Bukkit.dispatchCommand(player, "hdb")));
         return main;
     }
@@ -87,11 +114,12 @@ public class Utils {
                 }
 
                 if (e.isLeftClick()) {
+                    int amount = 1;
                     if (e.isShiftClick()) {
-                        item.setAmount(64);
+                        amount = 64;
                     }
 
-                    e.getWhoClicked().getInventory().addItem(item);
+                    purchase(player, head, amount);
                 } else if (e.isRightClick()) {
                     // todo: favorites
                 }
@@ -99,13 +127,17 @@ public class Utils {
         }
     }
 
-    public static CompletableFuture<Boolean> processPayment(Player player, Head head) {
-        BigDecimal cost = BigDecimal.valueOf(HeadDB.getInstance().getConfig().getDouble("economy.cost." + head.getCategory().getName()));
-
+    private static CompletableFuture<Boolean> processPayment(Player player, Head head, int amount) {
         Optional<BasicEconomyProvider> optional = HeadDB.getInstance().getEconomyProvider();
         if (optional.isEmpty()) {
-            return CompletableFuture.completedFuture(false);
+            return CompletableFuture.completedFuture(true); // No economy, the head is free
         } else {
+            BigDecimal cost = BigDecimal.valueOf(HeadDB.getInstance().getConfig().getDouble("economy.cost." + head.getCategory().getName()) * amount);
+            HeadDB.getInstance().getLocalization().sendMessage(player.getUniqueId(), "processPayment", msg -> msg
+                    .replace("%name%", head.getName())
+                    .replace("%amount%", String.valueOf(amount))
+                    .replace("%cost%", HeadDB.getInstance().getDecimalFormat().format(cost))
+            );
             return optional.get().purchase(player, cost).thenApply(success -> {
                 HeadPurchaseEvent event = new HeadPurchaseEvent(player, head, cost, success);
                 Bukkit.getPluginManager().callEvent(event);
@@ -114,16 +146,21 @@ public class Utils {
         }
     }
 
-    public static void purchase(Player player, Head head) {
-        processPayment(player, head).whenComplete((success, ex) -> {
+    private static void purchase(Player player, Head head, int amount) {
+        processPayment(player, head, amount).whenComplete((success, ex) -> {
             if (ex != null) {
                 HeadDB.getInstance().getLog().error("Failed to purchase head '" + head.getName() + "' for player: " + player.getName());
                 ex.printStackTrace();
             } else {
-                // Bukkit API, therefore task is ran sync. Needs testing not sure if this can be ran async.
+                // Bukkit API, therefore task is ran sync.
                 Bukkit.getScheduler().runTask(HeadDB.getInstance(), () -> {
-                    player.getInventory().addItem(head.getItem(player.getUniqueId()));
+                    ItemStack item = head.getItem(player.getUniqueId());
+                    item.setAmount(amount);
+                    player.getInventory().addItem(item);
                     HeadDB.getInstance().getConfig().getStringList("commands.purchase").forEach(command -> {
+                        if (command.isEmpty()) {
+                            return;
+                        }
                         if (Hooks.PAPI.enabled()) {
                             command = PlaceholderAPI.setPlaceholders(player, command);
                         }
@@ -165,6 +202,35 @@ public class Utils {
         } catch (NumberFormatException nfe) {
             return 1;
         }
+    }
+
+    public static ItemStack getItemFromConfig(String path, Material def) {
+        ConfigurationSection section = HeadDB.getInstance().getConfig().getConfigurationSection(path);
+        Validate.notNull(section, "Section can not be null!");
+
+        Material material = Material.matchMaterial(section.getString("material", def.name()));
+        if (material == null) {
+            material = def;
+        }
+
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+
+        if (meta != null) {
+            //noinspection ConstantConditions
+            meta.setDisplayName(StringUtils.colorize(section.getString("name")));
+
+            List<String> lore = new ArrayList<>();
+            for (String line : section.getStringList("lore")) {
+                if (line != null && !line.isEmpty()) {
+                    lore.add(StringUtils.colorize(line));
+                }
+            }
+            meta.setLore(lore);
+            item.setItemMeta(meta);
+        }
+
+        return item;
     }
 
 }

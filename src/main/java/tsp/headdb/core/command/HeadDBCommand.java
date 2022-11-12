@@ -8,11 +8,11 @@ import tsp.smartplugin.utils.Validate;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public abstract class HeadDBCommand {
 
     private static final TranslatableLocalization localization = HeadDB.getInstance().getLocalization();
+    private final HeadDB instance = HeadDB.getInstance();
 
     private final String name;
     private final String permission;
@@ -50,6 +50,10 @@ public abstract class HeadDBCommand {
 
     public TranslatableLocalization getLocalization() {
         return localization;
+    }
+
+    public HeadDB getInstance() {
+        return instance;
     }
 
 }

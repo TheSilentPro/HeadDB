@@ -1,35 +1,37 @@
 package tsp.headdb.core.command;
 
-import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
-import org.jetbrains.annotations.NotNull;
 import tsp.headdb.HeadDB;
 import tsp.headdb.core.api.HeadAPI;
 import tsp.headdb.core.util.Utils;
 import tsp.headdb.implementation.category.Category;
 import tsp.headdb.implementation.head.Head;
+import tsp.headdb.implementation.head.LocalHead;
 import tsp.smartplugin.inventory.Button;
 import tsp.smartplugin.inventory.PagedPane;
 import tsp.smartplugin.inventory.Pane;
-import tsp.smartplugin.localization.TranslatableLocalization;
+import net.wesjd.anvilgui.AnvilGUI;
+import tsp.smartplugin.utils.StringUtils;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CommandMain extends HeadDBCommand implements CommandExecutor, TabCompleter {
-
-    private final TranslatableLocalization localization = HeadDB.getInstance().getLocalization();
 
     public CommandMain() {
         super(
@@ -44,19 +46,20 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor, TabCo
     public void handle(CommandSender sender, String[] args) {
         if (args.length == 0) {
             if (!(sender instanceof Player player)) {
-                localization.sendConsoleMessage("noConsole");
+                getLocalization().sendConsoleMessage("noConsole");
                 return;
             }
 
             if (!player.hasPermission(getPermission())) {
-                localization.sendMessage(sender, "noPermission");
+                getLocalization().sendMessage(sender, "noPermission");
                 return;
             }
-            localization.sendMessage(player.getUniqueId(), "openDatabase");
+            getLocalization().sendMessage(player.getUniqueId(), "openDatabase");
 
-            Pane pane = new Pane(6, Utils.translateTitle(localization.getMessage(player.getUniqueId(), "menu.main.title").orElse("&cHeadDB &7(" + HeadAPI.getTotalHeads() + ")"), HeadAPI.getTotalHeads(), "Main"));
+            Pane pane = new Pane(6, Utils.translateTitle(getLocalization().getMessage(player.getUniqueId(), "menu.main.title").orElse("&cHeadDB &7(" + HeadAPI.getTotalHeads() + ")"), HeadAPI.getTotalHeads(), "Main"));
+            // Set category buttons
             for (Category category : Category.VALUES) {
-                pane.addButton(new Button(category.getItem(player.getUniqueId()), e -> {
+                pane.setButton(getInstance().getConfig().getInt("gui.main.category." + category.getName(), category.getDefaultSlot()), new Button(category.getItem(player.getUniqueId()), e -> {
                     e.setCancelled(true);
                     if (e.isLeftClick()) {
                         Bukkit.dispatchCommand(e.getWhoClicked(), "hdb open " + category.getName());
@@ -65,7 +68,7 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor, TabCo
                                 .onComplete((p, text) -> {
                                     try {
                                         int page = Integer.parseInt(text);
-                                        // Remove when AnvilGUI adds option to return a void response
+                                        // to be replaced with own version of anvilgui
                                         List<Head> heads = HeadAPI.getHeads(category);
                                         PagedPane main = Utils.createPaged(player, Utils.translateTitle(getLocalization().getMessage(player.getUniqueId(), "menu.category.name").orElse(category.getName()), heads.size(), category.getName()));
                                         Utils.addHeads(player, category, main, heads);
@@ -73,29 +76,94 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor, TabCo
                                         main.reRender();
                                         return AnvilGUI.Response.openInventory(main.getInventory());
                                     } catch (NumberFormatException nfe) {
-                                        return AnvilGUI.Response.text("Invalid number...");
+                                        return AnvilGUI.Response.text("Invalid number!");
                                     }
                                 })
-                                .text("1")
-                                .title(localization.getMessage(player.getUniqueId(), "menu.main.category.page.name").orElse("Enter page"))
-                                .plugin(HeadDB.getInstance())
+                                .text("Query")
+                                .title(getLocalization().getMessage(player.getUniqueId(), "menu.main.category.page.name").orElse("Enter page"))
+                                .plugin(getInstance())
                                 .open(player);
                     }
                 }));
             }
 
+            // Set meta buttons
+            pane.setButton(getInstance().getConfig().getInt("gui.main.meta.favorites.slot"), new Button(Utils.getItemFromConfig("gui.main.meta.favorites.item", Material.BOOK), e -> {
+                e.setCancelled(true);
+                // TODO: favorites
+            }));
+
+            pane.setButton(getInstance().getConfig().getInt("gui.main.meta.search.slot"), new Button(Utils.getItemFromConfig("gui.main.meta.search.item", Material.DARK_OAK_SIGN), e -> {
+                e.setCancelled(true);
+                new AnvilGUI.Builder()
+                        .onComplete((p, query) -> {
+                            // Copied from CommandSearch
+                            List<Head> heads = new ArrayList<>();
+                            List<Head> headList = HeadAPI.getHeads();
+                            if (query.length() > 3) {
+                                if (query.startsWith("id:")) {
+                                    try {
+                                        HeadAPI.getHeadById(Integer.parseInt(query.substring(3))).ifPresent(heads::add);
+                                    } catch (NumberFormatException ignored) {
+                                    }
+                                } else if (query.startsWith("tg:")) {
+                                    heads.addAll(headList.stream().filter(head -> Utils.matches(head.getTags(), query.substring(3))).toList());
+                                } else {
+                                    // no query prefix
+                                    heads.addAll(headList.stream().filter(head -> Utils.matches(head.getName(), query)).toList());
+                                }
+                            } else {
+                                // query is <=3, no point in looking for prefixes
+                                heads.addAll(headList.stream().filter(head -> Utils.matches(head.getName(), query)).toList());
+                            }
+
+                            PagedPane main = Utils.createPaged(player, Utils.translateTitle(getLocalization().getMessage(player.getUniqueId(), "menu.search.name").orElse("&cHeadDB - &eSearch Results"), heads.size(), "None", query));
+                            Utils.addHeads(player, null, main, heads);
+                            main.reRender();
+                            return AnvilGUI.Response.openInventory(main.getInventory());
+                        })
+                        .title(StringUtils.colorize(getLocalization().getMessage(player.getUniqueId(), "menu.main.search.name").orElse("Search")))
+                        .text("Query")
+                        .plugin(getInstance())
+                        .open(player);
+            }));
+
+            pane.setButton(getInstance().getConfig().getInt("gui.main.meta.local.slot"), new Button(Utils.getItemFromConfig("gui.main.meta.local.item", Material.COMPASS), e -> {
+                Set<LocalHead> localHeads = HeadAPI.getLocalHeads();
+                PagedPane localPane = Utils.createPaged(player, Utils.translateTitle(getLocalization().getMessage(player.getUniqueId(), "menu.main.local.name").orElse("Local Heads"), localHeads.size(), "Local"));
+                for (LocalHead head : localHeads) {
+                    localPane.addButton(new Button(head.getItem(), le -> {
+                        if (le.isLeftClick()) {
+                            ItemStack localItem = head.getItem();
+                            if (le.isShiftClick()) {
+                                localItem.setAmount(64);
+                            }
+
+                            player.getInventory().addItem(localItem);
+                        } else if (le.isRightClick()) {
+                            // todo: remove from favorites
+                        }
+                    }));
+                }
+
+                localPane.open(player);
+            }));
+
+            // Fill
+            Utils.fill(pane, Utils.getItemFromConfig("gui.main.fill", Material.BLACK_STAINED_GLASS));
+
             pane.open(player);
             return;
         }
 
-        HeadDB.getInstance().getCommandManager().getCommand(args[0]).ifPresentOrElse(command -> {
+        getInstance().getCommandManager().getCommand(args[0]).ifPresentOrElse(command -> {
             if (sender instanceof Player player && !player.hasPermission(command.getPermission())) {
-                localization.sendMessage(player.getUniqueId(), "noPermission");
+                getLocalization().sendMessage(player.getUniqueId(), "noPermission");
                 return;
             }
 
             command.handle(sender, args);
-        }, () -> localization.sendMessage(sender, "invalidSubCommand"));
+        }, () -> getLocalization().sendMessage(sender, "invalidSubCommand"));
     }
 
     @Override
@@ -107,22 +175,18 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor, TabCo
 
     @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        PluginCommand provided = HeadDB.getInstance().getCommand(label);
-        if (provided == null || !provided.getName().equalsIgnoreCase(getName())) {
-            return new ArrayList<>(); // not this command
-        }
-
+    @ParametersAreNonnullByDefault
+    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
             return new ArrayList<>(getCompletions());
         } else {
-            Optional<SubCommand> sub = HeadDB.getInstance().getCommandManager().getCommand(args[1]);
+            Optional<SubCommand> sub = getInstance().getCommandManager().getCommand(args[0]);
             if (sub.isPresent()) {
                 return new ArrayList<>(sub.get().getCompletions());
             }
         }
 
-        return new ArrayList<>();
+        return Collections.singletonList("error"); // for debug purpose, todo: remove
     }
 
 }

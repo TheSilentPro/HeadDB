@@ -50,11 +50,11 @@ public class CommandSearch extends SubCommand {
                 heads.addAll(headList.stream().filter(head -> Utils.matches(head.getTags(), query.substring(3))).toList());
             } else {
                 // no query prefix
-                heads.addAll(headList.stream().filter(head -> Utils.matches(head.getName(), query.substring(3))).toList());
+                heads.addAll(headList.stream().filter(head -> Utils.matches(head.getName(), query)).toList());
             }
         } else {
             // query is <=3, no point in looking for prefixes
-            heads.addAll(headList.stream().filter(head -> Utils.matches(head.getName(), query.substring(3))).toList());
+            heads.addAll(headList.stream().filter(head -> Utils.matches(head.getName(), query)).toList());
         }
 
         getLocalization().sendMessage(player.getUniqueId(), "searchCommand", msg -> msg.replace("%query%", query));

@@ -4,6 +4,6 @@ import org.bukkit.Bukkit;
 
 public class Hooks {
 
-    public static PluginHook PAPI = new PluginHook(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null);
+    public static final PluginHook PAPI = new PluginHook(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null);
 
 }

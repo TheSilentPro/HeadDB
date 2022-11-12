@@ -6,7 +6,7 @@
 
     <groupId>tsp.headdb</groupId>
     <artifactId>HeadDB</artifactId>
-    <version>5.0.0</version>
+    <version>5.0.0-rc.1</version>
     <packaging>jar</packaging>
 
     <name>HeadDB</name>
@@ -75,7 +75,7 @@
         <dependency>
             <groupId>com.github.TheSilentPro</groupId>
             <artifactId>SmartPlugin</artifactId>
-            <version>1ade8879c3</version>
+            <version>737fc7b893</version>
         </dependency>
         <dependency>
             <groupId>com.github.TheSilentPro</groupId>
@@ -169,16 +169,6 @@
                             <groupId>org.spigotmc</groupId>
                             <artifactId>spigot-api</artifactId>
                             <version>1.19.2-R0.1-SNAPSHOT</version>
-                        </additionalDependency>
-                        <additionalDependency>
-                            <groupId>com.github.TheSilentPro</groupId>
-                            <artifactId>SmartPlugin</artifactId>
-                            <version>e565e96a72</version>
-                        </additionalDependency>
-                        <additionalDependency>
-                            <groupId>com.github.TheSilentPro</groupId>
-                            <artifactId>Warehouse</artifactId>
-                            <version>f40f72cb19</version>
                         </additionalDependency>
                     </additionalDependencies>
                 </configuration>

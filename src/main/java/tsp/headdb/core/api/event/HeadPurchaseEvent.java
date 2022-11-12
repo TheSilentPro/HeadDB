@@ -10,12 +10,11 @@ import tsp.headdb.implementation.head.Head;
 import java.math.BigDecimal;
 
 /**
- * Called <strong>BEFORE</strong> a head is purchased but <strong>AFTER</strong> the transaction is complete.
+ * Called <strong>BEFORE</strong> a head is added to the inventory but <strong>AFTER</strong> the transaction is complete.
  * This gives you the chance to cancel and refund the money.
  * <strong>This event is fired asynchronously!</strong>
  *
  * @author TheSilentPro (Silent)
- * @see tsp.headdb.core.util.Utils#processPayment(Player, Head)
  * @see Event#isAsynchronous()
  */
 public class HeadPurchaseEvent extends Event implements Cancellable {

@@ -15,6 +15,7 @@ closeOnPurchase: false
 economy:
   enable: false
   provider: "VAULT" # Supported: VAULT
+  format: "##.##"
   cost:
     alphabet: 100
     animals: 100
@@ -27,16 +28,59 @@ economy:
     monsters: 100
     plants: 100
 
-# Command Configuration
+# Command Configuration. Supports PlaceholderAPI
 commands:
   # Commands to run ONLY if the purchase is successful.
   # They are run as CONSOLE after the player has receiver the head in their inventory.
   purchase:
     - ""
 
+# Graphical User Interface customization
+gui:
+  main:
+    fill:
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: ""
+      lore: []
+    # Categories are set in the slots 20-24 & 29 - 33. You can add specific ones here to relocate them.
+    # Note: that the slots start from 0
+    category:
+      alphabet: 20
+      animals: 21
+      blocks: 22
+      decoration: 23
+      food-drinks: 24
+      humans: 29
+      humanoid: 30
+      miscellaneous: 31
+      monsters: 32
+      plants: 33
+    meta:
+      favorites:
+        slot: 39
+        item:
+          material: "BOOK"
+          name: "&6Favorites"
+          lore:
+            - "&7Click to view your favorite heads."
+      search:
+        slot: 40
+        item:
+          material: "DARK_OAK_SIGN"
+          name: "&6Search"
+          lore:
+            - "&7Click to search for a specific head."
+      local:
+        slot: 41
+        item:
+          material: "COMPASS"
+          name: "&6Local Heads"
+          lore:
+            - "&7Click to view Local heads."
+
 # If the original fetching fails and this is enabled,
 # the plugin will attempt to fetch the heads from an archive.
-# The archive is static (manually updated) so some heads may be missing, this will only be used when all else fails.
+# The archive is static so some heads may be missing, this will only be used when all else fails.
 fallback: true
 
 # Shows more plugin information in /hdb info

@@ -1,0 +1,61 @@
+noConsole: "&cOnly for in-game players!"
+noPermission: "&cNo permission!"
+invalidSubCommand: "&cInvalid sub-command! Run &e/hdb help&c for help."
+giveCommandInvalid: "&cInvalid head: &e%name%"
+invalidArguments: "&cInvalid Arguments! Use &e/hdb help&c for help."
+invalidTarget: "&cInvalid target: &e%name%"
+invalidCategory: "&cInvalid Category!"
+invalidNumber: "&e%name% &cis not a number!"
+invalidPageIndex: "&cThat page is out of bounds! Max: %pages%"
+
+openDatabase: "" # Intentionally empty. Sent when the main gui is opened
+updateDatabase: "&7Updating..."
+searchCommand: "&7Searching for heads matching: &6%query%"
+searchCommandResults: "&7Found &6%size% &7matches!"
+giveCommand: "&7Gave &6x%size% %name% &7to &6%receiver%"
+itemTexture: "&7Texture: &6%texture%"
+itemNoTexture: "&cThis item does not have a texture!"
+copyTexture: "&6Click to copy texture!"
+
+# Only shown if economy is enabled
+processPayment: "&7Purchasing &6%name% &7for &6%cost%&7! Please wait..."
+completePayment: "&7Received &6%name% &7for &6%cost%"
+
+invalidLanguage: "&cInvalid Language! Available: &e%languages%"
+languageChanged: "&7Your language was set to: &6%language%"
+
+menu:
+  main:
+    title: "&cHeadDB &7(%size%)"
+    category:
+      name: "&6&l%category%"
+      page:
+        name: "&7Go to specific page"
+      lore:
+        - "&7Left-Click to open"
+        - "&7Right-Click to open specific page"
+    favorites:
+      name: "&6Favorites"
+    search:
+      name: "&6Search"
+    local:
+      name: "&6Local Heads"
+  category:
+    name: "&cHeadDB &7- &6%category% &7(%size%)"
+  head:
+    name: "&6%name%"
+  search:
+    name: "&cHeadDB &7- &6Search: %query% &7(%size%)"
+  page:
+    name: "&cHeadDB &7- &6Enter page number"
+  settings:
+    name: "&cHeadDB &7- &6Settings"
+    language:
+      # Setting name
+      name: "&cLanguage"
+      # Available languages lore
+      available: "&7Languages Available: &6%size%"
+      # Title of the language selection inventory
+      title: "&cHeadDB &7- &6Languages &7(%size%)"
+      # Language item name
+      format: "&6%language%"

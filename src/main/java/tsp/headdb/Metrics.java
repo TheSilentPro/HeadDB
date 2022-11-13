@@ -1,17 +1,3 @@
-/*
- * This Metrics class was auto-generated and can be copied into your project if you are
- * not using a build tool like Gradle or Maven for dependency management.
- *
- * IMPORTANT: You are not allowed to modify this class, except changing the package.
- *
- * Unallowed modifications include but are not limited to:
- *  - Remove the option for users to opt-out
- *  - Change the frequency for data submission
- *  - Obfuscate the code (every obfucator should allow you to make an exception for specific files)
- *  - Reformat the code (if you use a linter, add an exception)
- *
- * Violations will result in a ban of your plugin and account from bStats.
- */
 package tsp.headdb;
 
 import java.io.BufferedReader;
@@ -47,7 +33,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class Metrics {
+@SuppressWarnings({"all", "deprecation"}) // Class is from bstats, can't modify it.
+class Metrics {
 
     private final Plugin plugin;
 

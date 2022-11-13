@@ -6,38 +6,40 @@
 
     <groupId>tsp.headdb</groupId>
     <artifactId>HeadDB</artifactId>
-    <version>4.4.4</version>
+    <version>5.0.0-rc.1</version>
     <packaging>jar</packaging>
-
-    <properties>
-        <sonar.projectKey>TheSilentPro_HeadDB</sonar.projectKey>
-        <sonar.organization>silent</sonar.organization>
-        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.exclusions>src/main/java/tsp/headdb/Metrics.java</sonar.exclusions>
-        <sonar.coverage.exclusions>*</sonar.coverage.exclusions>
-        <spigot.id>84967</spigot.id>
-    </properties>
 
     <name>HeadDB</name>
     <description>Database with thousands of heads</description>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <build.author>TheSilentPro (Silent)</build.author>
+        <maven.build.timestamp.format>dd-MM-yyyy HH:mm:ss</maven.build.timestamp.format>
+        <build.timestamp>${maven.build.timestamp}</build.timestamp>
+    </properties>
+
+    <scm>
+        <connection>scm:git:git@github.com:TheSilentPro/HeadDB.git</connection>
+        <developerConnection>scm:git:git@github.com:TheSilentPro/HeadDB.git</developerConnection>
+        <url>git@github.com:TheSilentPro/HeadDB.git</url>
+    </scm>
+
     <repositories>
-        <!-- Spigot Repo -->
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
-        <!-- Mojang Repo -->
         <repository>
             <id>mojang-repo</id>
             <url>https://libraries.minecraft.net/</url>
         </repository>
-        <!-- JitPack -->
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
-        <!-- CodeMC -->
         <repository>
             <id>CodeMC</id>
             <url>https://repo.codemc.org/repository/maven-public</url>
@@ -49,38 +51,48 @@
     </repositories>
 
     <dependencies>
-        <!-- Spigot API -->
+        <!-- Hard Dependencies (Provided) -->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.19-R0.1-SNAPSHOT</version>
+            <version>1.19.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
-        <!-- Mojang Auth Lib -->
         <dependency>
             <groupId>com.mojang</groupId>
             <artifactId>authlib</artifactId>
             <version>1.5.21</version>
             <scope>provided</scope>
         </dependency>
-        <!-- AnvilGUI -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Hard Dependencies (Shaded) -->
+        <dependency>
+            <groupId>com.github.TheSilentPro</groupId>
+            <artifactId>SmartPlugin</artifactId>
+            <version>737fc7b893</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.TheSilentPro</groupId>
+            <artifactId>Warehouse</artifactId>
+            <version>882b42fc75</version>
+        </dependency>
         <dependency>
             <groupId>net.wesjd</groupId>
             <artifactId>anvilgui</artifactId>
             <version>1.5.3-SNAPSHOT</version>
         </dependency>
-        <!-- Vault -->
+
+        <!-- Soft Dependencies -->
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
             <version>1.7</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Treasury -->
-        <dependency>
-            <groupId>me.lokka30</groupId>
-            <artifactId>treasury-api</artifactId>
-            <version>1.1.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -92,6 +104,8 @@
     </dependencies>
 
     <build>
+        <finalName>${project.name}</finalName>
+
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -104,10 +118,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.10.1</version>
                 <configuration>
-                    <source>16</source>
-                    <target>16</target>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
 
@@ -137,16 +151,26 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.3.2</version>
-            </plugin>
-
-            <!-- Sonarcloud -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>sonar-maven-plugin</artifactId>
-                <version>3.9.1.2184</version>
+                <version>3.4.1</version>
+                <executions>
+                    <execution>
+                        <id>javadoc-generate</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>javadoc</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
-                    <goalPrefix>sonar</goalPrefix>
+                    <show>public</show>
+                    <doclint>none</doclint>
+                    <additionalDependencies>
+                        <additionalDependency>
+                            <groupId>org.spigotmc</groupId>
+                            <artifactId>spigot-api</artifactId>
+                            <version>1.19.2-R0.1-SNAPSHOT</version>
+                        </additionalDependency>
+                    </additionalDependencies>
                 </configuration>
             </plugin>
         </plugins>

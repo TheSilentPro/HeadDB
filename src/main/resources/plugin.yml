@@ -4,13 +4,20 @@ description: ${project.description}
 main: tsp.headdb.HeadDB
 version: ${project.version}
 softdepend: [Vault, Treasury]
-api-version: 1.13
-author: Silent
-spigot-id: ${spigot.id}
+api-version: 1.19
+author: TheSilentPro (Silent)
+spigot-id: 84967
+
+buildTimestamp: ${build.timestamp}
+buildAuthor: ${build.author}
+
+# Although not up-to-date, spigot already includes gson. This is here just in case.
+#libraries:
+#  - "com.google.code.gson:gson:2.10"
 
 commands:
   headdb:
-    usage: /headdb <arguments>
+    usage: /headdb help
     description: Open the database
     aliases: [hdb, headdatabase, headmenu]
 
@@ -18,27 +25,24 @@ permissions:
   headdb.admin:
     default: op
     children:
-      headdb.open: true
-      headdb.search: true
-      headdb.give: true
+      headdb.command.open: true
+      headdb.command.search: true
+      headdb.command.give: true
+      headdb.command.update: true
       headdb.favorites: true
       headdb.local: true
-      headdb.tagsearch: true
-      headdb.update: true
-      headdb.reload: true
-  headdb.open:
+      headdb.category.*: true
+  headdb.command.open:
     default: op
-  headdb.search:
+  headdb.command.search:
     default: op
-  headdb.give:
+  headdb.command.give:
+    default: op
+  headdb.command.update:
     default: op
   headdb.favorites:
     default: op
   headdb.local:
     default: op
-  headdb.tagsearch:
-    default: op
-  headdb.update:
-    default: op
-  headdb.reload:
+  headdb.category.*:
     default: op

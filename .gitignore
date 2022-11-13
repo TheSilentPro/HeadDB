@@ -3,6 +3,8 @@ target/
 src/test/
 
 dependency-reduced-pom.xml
+build.properties
+build/
 
 .classpath
 .project

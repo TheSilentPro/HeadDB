@@ -1,5 +1,8 @@
 package tsp.headdb.core.storage;
 
+import tsp.headdb.HeadDB;
+
+import java.io.File;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -10,7 +13,8 @@ public class Storage {
 
     public Storage(int threads) {
         executor = Executors.newFixedThreadPool(threads, HeadDBThreadFactory.FACTORY);
-        playerStorage = new PlayerStorage(this);
+        validateDataDirectory();
+        playerStorage = new PlayerStorage(HeadDB.getInstance(), this);
     }
 
     public PlayerStorage getPlayerStorage() {
@@ -19,6 +23,11 @@ public class Storage {
 
     public Executor getExecutor() {
         return executor;
+    }
+
+    private void validateDataDirectory() {
+        //noinspection ResultOfMethodCallIgnored
+        new File(HeadDB.getInstance().getDataFolder(), "data").mkdir();
     }
 
 }

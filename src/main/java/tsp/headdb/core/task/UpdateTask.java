@@ -18,7 +18,7 @@ public class UpdateTask implements Task {
     @Override
     public void run() {
         HeadAPI.getDatabase().update((time, heads) -> HeadDB.getInstance().getLog().debug("Fetched: " + heads.size() + " Heads | Provider: " + HeadAPI.getDatabase().getRequester().getProvider().name() + " | Time: " + time + "ms (" + TimeUnit.MILLISECONDS.toSeconds(time) + "s)"));
-        //HeadDB.getInstance().getStorage().save();
+        HeadDB.getInstance().getStorage().getPlayerStorage().backup();
         HeadDB.getInstance().getLog().debug("UpdateTask finished!");
     }
 

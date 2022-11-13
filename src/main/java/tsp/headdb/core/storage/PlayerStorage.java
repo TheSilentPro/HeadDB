@@ -4,19 +4,19 @@ import tsp.headdb.HeadDB;
 import tsp.warehouse.storage.file.SerializableFileDataManager;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-public class PlayerStorage extends SerializableFileDataManager<Collection<PlayerData>> {
+public class PlayerStorage extends SerializableFileDataManager<HashSet<PlayerData>> {
 
     private final Map<UUID, PlayerData> players = new HashMap<>();
 
-    public PlayerStorage(Storage storage) {
-        super(new File("data/players.data"), storage.getExecutor());
+    public PlayerStorage(HeadDB instance, Storage storage) {
+        super(new File(instance.getDataFolder(), "data/players.data"), storage.getExecutor());
     }
 
     public void set(PlayerData data) {
@@ -42,11 +42,11 @@ public class PlayerStorage extends SerializableFileDataManager<Collection<Player
     }
 
     public void backup() {
-        save(players.values()).whenComplete((success, ex) -> HeadDB.getInstance().getLog().debug("Saved " + players.values().size() + " player data!"));
+        save(new HashSet<>(players.values())).whenComplete((success, ex) -> HeadDB.getInstance().getLog().debug("Saved " + players.values().size() + " player data!"));
     }
 
     public void suspend() {
-        Boolean saved = save(players.values())
+        Boolean saved = save(new HashSet<>(players.values()))
                 .exceptionally(ex -> {
                     HeadDB.getInstance().getLog().error("Failed to save player data! | Stack Trace: ");
                     ex.printStackTrace();

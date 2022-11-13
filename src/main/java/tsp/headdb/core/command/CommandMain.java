@@ -104,6 +104,8 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor, TabCo
                         }
                     }));
                 }
+
+                main.open(player);
             }));
 
             pane.setButton(getInstance().getConfig().getInt("gui.main.meta.search.slot"), new Button(Utils.getItemFromConfig("gui.main.meta.search.item", Material.DARK_OAK_SIGN), e -> {

@@ -15,14 +15,11 @@ import tsp.headdb.core.api.HeadAPI;
 import tsp.headdb.core.api.event.HeadPurchaseEvent;
 import tsp.headdb.core.economy.BasicEconomyProvider;
 import tsp.headdb.core.hook.Hooks;
-import tsp.headdb.core.storage.PlayerData;
-import tsp.headdb.core.storage.PlayerStorage;
 import tsp.headdb.implementation.category.Category;
 import tsp.headdb.implementation.head.Head;
 import tsp.smartplugin.inventory.Button;
 import tsp.smartplugin.inventory.PagedPane;
 import tsp.smartplugin.inventory.Pane;
-import tsp.smartplugin.utils.InventoryUtils;
 import tsp.smartplugin.utils.StringUtils;
 import tsp.smartplugin.utils.Validate;
 
@@ -31,11 +28,8 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -95,6 +89,7 @@ public class Utils {
         }
     }
 
+    @SuppressWarnings("SpellCheckingInspection")
     public static PagedPane createPaged(Player player, String title) {
         PagedPane main = new PagedPane(4, 6, title);
         HeadAPI.getHeadByTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODY1MmUyYjkzNmNhODAyNmJkMjg2NTFkN2M5ZjI4MTlkMmU5MjM2OTc3MzRkMThkZmRiMTM1NTBmOGZkYWQ1ZiJ9fX0=").ifPresent(head -> main.setBackItem(head.getItem(player.getUniqueId())));
@@ -124,7 +119,7 @@ public class Utils {
 
                     purchase(player, head, amount);
                 } else if (e.isRightClick()) {
-                    HeadDB.getInstance().getStorage().getPlayerStorage().get(player.getUniqueId()).orElse(new PlayerData(player.getUniqueId(), new HashSet<>())).favorites().add(head.getTexture());
+                    HeadDB.getInstance().getStorage().getPlayerStorage().addFavorite(player.getUniqueId(), head.getTexture());
                 }
            }));
         }

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public class PlayerStorage extends SerializableFileDataManager<HashSet<PlayerData>> {
@@ -21,6 +22,22 @@ public class PlayerStorage extends SerializableFileDataManager<HashSet<PlayerDat
 
     public void set(PlayerData data) {
         this.players.put(data.uniqueId(), data);
+    }
+
+    public Set<String> getFavorites(UUID uuid) {
+        return players.containsKey(uuid) ? players.get(uuid).favorites() : new HashSet<>();
+    }
+
+    public void addFavorite(UUID uuid, String texture) {
+        Set<String> fav = getFavorites(uuid);
+        fav.add(texture);
+        players.put(uuid, new PlayerData(uuid, new HashSet<>(fav)));
+    }
+
+    public void removeFavorite(UUID uuid, String texture) {
+        Set<String> fav = getFavorites(uuid);
+        fav.remove(texture);
+        players.put(uuid, new PlayerData(uuid, new HashSet<>(fav)));
     }
 
     public Optional<PlayerData> get(UUID uuid) {

@@ -15,7 +15,6 @@ import tsp.headdb.core.command.CommandTexture;
 import tsp.headdb.core.command.CommandUpdate;
 import tsp.headdb.core.economy.BasicEconomyProvider;
 import tsp.headdb.core.economy.VaultProvider;
-import tsp.headdb.core.listener.PlayerJoinListener;
 import tsp.headdb.core.storage.Storage;
 import tsp.headdb.core.task.UpdateTask;
 

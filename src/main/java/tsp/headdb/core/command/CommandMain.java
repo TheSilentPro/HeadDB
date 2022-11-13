@@ -5,7 +5,6 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -68,7 +67,7 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor, TabCo
                                 .onComplete((p, text) -> {
                                     try {
                                         int page = Integer.parseInt(text);
-                                        // to be replaced with own version of anvilgui
+                                        // to be replaced with own version of anvil-gui
                                         List<Head> heads = HeadAPI.getHeads(category);
                                         PagedPane main = Utils.createPaged(player, Utils.translateTitle(getLocalization().getMessage(player.getUniqueId(), "menu.category.name").orElse(category.getName()), heads.size(), category.getName()));
                                         Utils.addHeads(player, category, main, heads);
@@ -88,10 +87,11 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor, TabCo
             }
 
             // Set meta buttons
+            // favorites
             pane.setButton(getInstance().getConfig().getInt("gui.main.meta.favorites.slot"), new Button(Utils.getItemFromConfig("gui.main.meta.favorites.item", Material.BOOK), e -> {
                 e.setCancelled(true);
                 List<Head> heads = HeadAPI.getFavoriteHeads(player.getUniqueId());
-                PagedPane main = Utils.createPaged(player, Utils.translateTitle(getLocalization().getMessage(player.getUniqueId(), "menu.main.favorites").orElse("Favorites"), heads.size(), "Favorites"));
+                PagedPane main = Utils.createPaged(player, Utils.translateTitle(getLocalization().getMessage(player.getUniqueId(), "menu.main.favorites.name").orElse("Favorites"), heads.size(), "Favorites"));
                 for (Head head : heads) {
                     main.addButton(new Button(head.getItem(player.getUniqueId()), fe -> {
                         if (fe.isLeftClick()) {
@@ -101,6 +101,8 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor, TabCo
                             }
 
                             player.getInventory().addItem(favoriteItem);
+                        } else if (fe.isRightClick()) {
+                            HeadDB.getInstance().getStorage().getPlayerStorage().removeFavorite(player.getUniqueId(), head.getTexture());
                         }
                     }));
                 }
@@ -108,6 +110,7 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor, TabCo
                 main.open(player);
             }));
 
+            // search
             pane.setButton(getInstance().getConfig().getInt("gui.main.meta.search.slot"), new Button(Utils.getItemFromConfig("gui.main.meta.search.item", Material.DARK_OAK_SIGN), e -> {
                 e.setCancelled(true);
                 new AnvilGUI.Builder()
@@ -143,6 +146,7 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor, TabCo
                         .open(player);
             }));
 
+            // local
             pane.setButton(getInstance().getConfig().getInt("gui.main.meta.local.slot"), new Button(Utils.getItemFromConfig("gui.main.meta.local.item", Material.COMPASS), e -> {
                 Set<LocalHead> localHeads = HeadAPI.getLocalHeads();
                 PagedPane localPane = Utils.createPaged(player, Utils.translateTitle(getLocalization().getMessage(player.getUniqueId(), "menu.main.local.name").orElse("Local Heads"), localHeads.size(), "Local"));

@@ -1,14 +1,15 @@
 # How often the database should be updated in seconds.
 refresh: 86400
 
-# If local heads should be enabled. Only starts keeping track of joined players when enabled!
+# If local heads should be enabled.
+# Local heads are heads from players that have joined your server at least once.
 localHeads: true
 
-# If enabled categories will require a permission to be used
+# If enabled categories will require a permission to be used.
 # Permission: headdb.category.<category>
 requireCategoryPermission: false
 
-# If enabled, the menu will close after purchasing a head (even if the purchase fails)
+# If enabled, the menu will close after purchasing a head (even if the purchase fails).
 closeOnPurchase: false
 
 # Economy Options
@@ -28,7 +29,7 @@ economy:
     monsters: 100
     plants: 100
 
-# Command Configuration. Supports PlaceholderAPI
+# Command Configuration. Supports PlaceholderAPI.
 commands:
   # Commands to run ONLY if the purchase is successful.
   # They are run as CONSOLE after the player has receiver the head in their inventory.
@@ -83,8 +84,13 @@ gui:
 # The archive is static so some heads may be missing, this will only be used when all else fails.
 fallback: true
 
-# Shows more plugin information in /hdb info
+# Shows more plugin information. (/hdb info)
 showAdvancedPluginInfo: true
+
+# Storage Options
+storage:
+  # Amount of threads in the executor pool used for storage.
+  threads: 2
 
 # Debug Mode
 debug: false

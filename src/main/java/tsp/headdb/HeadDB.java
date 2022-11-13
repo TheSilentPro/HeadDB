@@ -1,5 +1,6 @@
 package tsp.headdb;
 
+import org.bukkit.command.PluginCommand;
 import tsp.headdb.core.command.CommandCategory;
 import tsp.headdb.core.command.CommandGive;
 import tsp.headdb.core.command.CommandHelp;
@@ -15,6 +16,7 @@ import tsp.headdb.core.command.CommandUpdate;
 import tsp.headdb.core.economy.BasicEconomyProvider;
 import tsp.headdb.core.economy.VaultProvider;
 import tsp.headdb.core.listener.PlayerJoinListener;
+import tsp.headdb.core.storage.Storage;
 import tsp.headdb.core.task.UpdateTask;
 
 import tsp.headdb.core.util.BuildProperties;
@@ -35,6 +37,7 @@ public class HeadDB extends SmartPlugin {
     private PluginLogger logger;
     private BuildProperties buildProperties;
     private TranslatableLocalization localization;
+    private Storage storage;
     private BasicEconomyProvider economyProvider;
     private CommandManager commandManager;
 
@@ -49,15 +52,14 @@ public class HeadDB extends SmartPlugin {
         new UpdateTask(getConfig().getLong("refresh", 86400L)).schedule(this);
         instance.logger.info("Loaded " + loadLocalization() + " languages!");
 
+        instance.initStorage();
         instance.initEconomy();
 
         new PaneListener(this);
-        new PlayerJoinListener();
+        //new PlayerJoinListener();
 
         instance.commandManager = new CommandManager();
         loadCommands();
-        //noinspection ConstantConditions
-        instance.getCommand("headdb").setExecutor(new CommandMain());
 
         new Metrics(this, 9152);
         ensureLatestVersion();
@@ -66,7 +68,9 @@ public class HeadDB extends SmartPlugin {
 
     @Override
     public void onDisable() {
-        // todo: save storage
+        if (storage != null) {
+            storage.getPlayerStorage().suspend();
+        }
     }
 
     private void ensureLatestVersion() {
@@ -76,6 +80,13 @@ public class HeadDB extends SmartPlugin {
                 instance.logger.warning("Download: https://www.spigotmc.org/resources/84967");
             }
         });
+    }
+
+    // Loaders
+
+    private void initStorage() {
+        storage = new Storage(getConfig().getInt("storage.threads"));
+        storage.getPlayerStorage().init();
     }
 
     private int loadLocalization() {
@@ -108,6 +119,16 @@ public class HeadDB extends SmartPlugin {
     }
 
     private void loadCommands() {
+        PluginCommand main = getCommand("headdb");
+        if (main != null) {
+            main.setExecutor(new CommandMain());
+            main.setTabCompleter(new CommandMain());
+        } else {
+            instance.logger.error("Could not find main 'headdb' command!");
+            this.setEnabled(false);
+            return;
+        }
+
         new CommandHelp().register();
         new CommandCategory().register();
         new CommandSearch().register();
@@ -117,6 +138,12 @@ public class HeadDB extends SmartPlugin {
         new CommandLanguage().register();
         new CommandSettings().register();
         new CommandInfo().register();
+    }
+
+    // Getters
+
+    public Storage getStorage() {
+        return storage;
     }
 
     public CommandManager getCommandManager() {

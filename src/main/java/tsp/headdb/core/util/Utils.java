@@ -15,6 +15,8 @@ import tsp.headdb.core.api.HeadAPI;
 import tsp.headdb.core.api.event.HeadPurchaseEvent;
 import tsp.headdb.core.economy.BasicEconomyProvider;
 import tsp.headdb.core.hook.Hooks;
+import tsp.headdb.core.storage.PlayerData;
+import tsp.headdb.core.storage.PlayerStorage;
 import tsp.headdb.implementation.category.Category;
 import tsp.headdb.implementation.head.Head;
 import tsp.smartplugin.inventory.Button;
@@ -33,6 +35,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -121,7 +124,7 @@ public class Utils {
 
                     purchase(player, head, amount);
                 } else if (e.isRightClick()) {
-                    // todo: favorites
+                    HeadDB.getInstance().getStorage().getPlayerStorage().get(player.getUniqueId()).orElse(new PlayerData(player.getUniqueId(), new HashSet<>())).favorites().add(head.getTexture());
                 }
            }));
         }

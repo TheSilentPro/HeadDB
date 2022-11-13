@@ -14,7 +14,6 @@ public final class PlayerJoinListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        // todo: favorites
         //HeadDB.getInstance().getStorage().getPlayerStorage().register(new PlayerData(event.getPlayer().getUniqueId(), ""));
     }
 

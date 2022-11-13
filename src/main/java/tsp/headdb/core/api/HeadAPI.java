@@ -3,6 +3,7 @@ package tsp.headdb.core.api;
 import org.bukkit.Bukkit;
 
 import tsp.headdb.HeadDB;
+import tsp.headdb.core.storage.PlayerData;
 import tsp.headdb.core.util.Utils;
 import tsp.headdb.implementation.category.Category;
 import tsp.headdb.implementation.head.Head;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -152,13 +154,31 @@ public final class HeadAPI {
 
     /**
      * Retrieve a {@link Set} of local heads.
-     * Note that this calculates the heads on every try.
+     * Note that this calculates the heads on every call.
      *
      * @return {@link Set<LocalHead> Local Heads}
      */
     @Nonnull
     public static Set<LocalHead> getLocalHeads() {
         return Arrays.stream(Bukkit.getOfflinePlayers()).map(player -> new LocalHead(player.getUniqueId(), player.getName())).collect(Collectors.toSet());
+    }
+
+    /**
+     * Retrieve a {@link Set} of favorite heads for the specified {@link UUID player id}.
+     * Note that this calculates the heads on every call.
+     *
+     * @param player The players id
+     * @return {@link Set<Head> Favorite Heads}
+     */
+    @Nonnull
+    public static List<Head> getFavoriteHeads(UUID player) {
+        List<Head> result = new ArrayList<>();
+        Optional<PlayerData> data = HeadDB.getInstance().getStorage().getPlayerStorage().get(player);
+        data.ifPresent(playerData -> playerData.favorites()
+                .forEach(texture -> getHeadByTexture(texture)
+                .ifPresent(result::add))
+        );
+        return result;
     }
 
     /**

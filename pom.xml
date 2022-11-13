@@ -80,7 +80,7 @@
         <dependency>
             <groupId>com.github.TheSilentPro</groupId>
             <artifactId>Warehouse</artifactId>
-            <version>f40f72cb19</version>
+            <version>882b42fc75</version>
         </dependency>
         <dependency>
             <groupId>net.wesjd</groupId>

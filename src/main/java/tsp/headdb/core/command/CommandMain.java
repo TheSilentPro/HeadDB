@@ -80,7 +80,7 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor, TabCo
                                     }
                                 })
                                 .text("Query")
-                                .title(getLocalization().getMessage(player.getUniqueId(), "menu.main.category.page.name").orElse("Enter page"))
+                                .title(StringUtils.colorize(getLocalization().getMessage(player.getUniqueId(), "menu.main.category.page.name").orElse("Enter page")))
                                 .plugin(getInstance())
                                 .open(player);
                     }
@@ -90,7 +90,20 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor, TabCo
             // Set meta buttons
             pane.setButton(getInstance().getConfig().getInt("gui.main.meta.favorites.slot"), new Button(Utils.getItemFromConfig("gui.main.meta.favorites.item", Material.BOOK), e -> {
                 e.setCancelled(true);
-                // TODO: favorites
+                List<Head> heads = HeadAPI.getFavoriteHeads(player.getUniqueId());
+                PagedPane main = Utils.createPaged(player, Utils.translateTitle(getLocalization().getMessage(player.getUniqueId(), "menu.main.favorites").orElse("Favorites"), heads.size(), "Favorites"));
+                for (Head head : heads) {
+                    main.addButton(new Button(head.getItem(player.getUniqueId()), fe -> {
+                        if (fe.isLeftClick()) {
+                            ItemStack favoriteItem = head.getItem(player.getUniqueId());
+                            if (fe.isShiftClick()) {
+                                favoriteItem.setAmount(64);
+                            }
+
+                            player.getInventory().addItem(favoriteItem);
+                        }
+                    }));
+                }
             }));
 
             pane.setButton(getInstance().getConfig().getInt("gui.main.meta.search.slot"), new Button(Utils.getItemFromConfig("gui.main.meta.search.item", Material.DARK_OAK_SIGN), e -> {
@@ -140,8 +153,6 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor, TabCo
                             }
 
                             player.getInventory().addItem(localItem);
-                        } else if (le.isRightClick()) {
-                            // todo: remove from favorites
                         }
                     }));
                 }

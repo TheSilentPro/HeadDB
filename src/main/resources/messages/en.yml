@@ -17,7 +17,7 @@ itemTexture: "&7Texture: &6%texture%"
 itemNoTexture: "&cThis item does not have a texture!"
 copyTexture: "&6Click to copy texture!"
 
-#
+# Only shown if economy is enabled
 processPayment: "&7Purchasing &6%name% &7for &6%cost%&7! Please wait..."
 completePayment: "&7Received &6%name% &7for &6%cost%"
 
@@ -34,6 +34,8 @@ menu:
       lore:
         - "&7Left-Click to open"
         - "&7Right-Click to open specific page"
+    favorites:
+      name: "&6Favorites"
     search:
       name: "&6Search"
     local:

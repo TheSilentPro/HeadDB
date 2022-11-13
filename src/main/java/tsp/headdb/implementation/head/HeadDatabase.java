@@ -9,6 +9,7 @@ import tsp.headdb.implementation.requester.Requester;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
 public class HeadDatabase {
@@ -16,14 +17,14 @@ public class HeadDatabase {
     private final JavaPlugin plugin;
     private final BukkitScheduler scheduler;
     private final Requester requester;
-    private final Map<Category, List<Head>> heads;
+    private final ConcurrentHashMap<Category, List<Head>> heads;
     private long timestamp;
 
     public HeadDatabase(JavaPlugin plugin, HeadProvider provider) {
         this.plugin = plugin;
         this.scheduler = plugin.getServer().getScheduler();
         this.requester = new Requester(plugin, provider);
-        this.heads = new HashMap<>();
+        this.heads = new ConcurrentHashMap<>();
     }
 
     public Map<Category, List<Head>> getHeads() {

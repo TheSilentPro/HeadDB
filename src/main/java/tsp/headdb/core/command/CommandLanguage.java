@@ -3,8 +3,7 @@ package tsp.headdb.core.command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import tsp.headdb.HeadDB;
-
-import java.util.Set;
+import tsp.headdb.core.util.Utils;
 
 public class CommandLanguage extends SubCommand {
 
@@ -21,7 +20,7 @@ public class CommandLanguage extends SubCommand {
         String lang = args[1];
 
         if (!getLocalization().getData().containsKey(lang)) {
-            getLocalization().sendMessage(sender, "invalidLanguage", msg -> msg.replace("%languages%", toString(getLocalization().getData().keySet())));
+            getLocalization().sendMessage(sender, "invalidLanguage", msg -> msg.replace("%languages%", Utils.toString(getLocalization().getData().keySet())));
             return;
         }
 
@@ -32,20 +31,6 @@ public class CommandLanguage extends SubCommand {
         }
 
         getLocalization().sendMessage(sender, "languageChanged", msg -> msg.replace("%language%", lang));
-    }
-
-    private String toString(Set<String> set) {
-        String[] array = set.toArray(new String[0]);
-
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < array.length; i++) {
-            builder.append(array[i]);
-            if (i < array.length - 1) {
-                builder.append(",");
-            }
-        }
-
-        return builder.toString();
     }
 
 }

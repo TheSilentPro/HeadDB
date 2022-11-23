@@ -9,5 +9,5 @@ You may download it either via the [Releases Page](https://github.com/TheSilentP
 You may report issues on the [Issue Tracker](https://github.com/TheSilentPro/HeadDB/issues).
 
 # API
-All API methods can be found in the [HeadAPI](https://github.com/TheSilentPro/HeadDB/blob/master/src/main/java/tsp/headdb/api/HeadAPI.java) class. <br>
+All API methods can be found in the [HeadAPI](https://github.com/TheSilentPro/HeadDB/blob/master/src/main/java/tsp/headdb/core/api/HeadAPI.java) class. <br>
 Alternatively you may view the [javadocs](https://javadocs.pages.dev/headdb/4.0.0/tsp/headdb/api/HeadAPI).

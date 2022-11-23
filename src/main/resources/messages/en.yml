@@ -10,6 +10,9 @@ invalidPageIndex: "&cThat page is out of bounds! Max: %pages%"
 
 openDatabase: "" # Intentionally empty. Sent when the main gui is opened
 updateDatabase: "&7Updating..."
+updateDatabaseDone: "&7Done! Total Heads: &6%size%"
+reloadCommand: "&7Reloading, please wait before using the plugin..."
+reloadCommandDone: "&7Reload Complete!"
 searchCommand: "&7Searching for heads matching: &6%query%"
 searchCommandResults: "&7Found &6%size% &7matches!"
 giveCommand: "&7Gave &6x%size% %name% &7to &6%receiver%"

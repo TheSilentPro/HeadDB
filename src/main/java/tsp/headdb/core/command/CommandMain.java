@@ -167,7 +167,7 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor, TabCo
             }));
 
             // Fill
-            Utils.fill(pane, Utils.getItemFromConfig("gui.main.fill", Material.BLACK_STAINED_GLASS));
+            Utils.fill(pane, Utils.getItemFromConfig("gui.main.fill", Material.BLACK_STAINED_GLASS_PANE));
 
             pane.open(player);
             return;

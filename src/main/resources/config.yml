@@ -9,9 +9,6 @@ localHeads: true
 # Permission: headdb.category.<category>
 requireCategoryPermission: false
 
-# If enabled, the menu will close after purchasing a head (even if the purchase fails).
-closeOnPurchase: false
-
 # Economy Options
 economy:
   enable: false

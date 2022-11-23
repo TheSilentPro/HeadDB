@@ -40,6 +40,20 @@ public class Utils {
 
     private static final HeadDB instance = HeadDB.getInstance();
 
+    public static String toString(Collection<String> set) {
+        String[] array = set.toArray(new String[0]);
+
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < array.length; i++) {
+            builder.append(array[i]);
+            if (i < array.length - 1) {
+                builder.append(",");
+            }
+        }
+
+        return builder.toString();
+    }
+
     public static Optional<UUID> validateUniqueId(@Nonnull String raw) {
         try {
             return Optional.of(UUID.fromString(raw));
@@ -206,6 +220,7 @@ public class Utils {
         ConfigurationSection section = HeadDB.getInstance().getConfig().getConfigurationSection(path);
         Validate.notNull(section, "Section can not be null!");
 
+        System.out.println("Checking for: provided material in '" + section.getName() + "' -> " + section.getString("material"));
         Material material = Material.matchMaterial(section.getString("material", def.name()));
         if (material == null) {
             material = def;

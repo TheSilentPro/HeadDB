@@ -8,6 +8,7 @@ import tsp.headdb.core.command.CommandInfo;
 import tsp.headdb.core.command.CommandLanguage;
 import tsp.headdb.core.command.CommandMain;
 import tsp.headdb.core.command.CommandManager;
+import tsp.headdb.core.command.CommandReload;
 import tsp.headdb.core.command.CommandSearch;
 
 import tsp.headdb.core.command.CommandSettings;
@@ -60,7 +61,7 @@ public class HeadDB extends SmartPlugin {
         instance.commandManager = new CommandManager();
         loadCommands();
 
-        new Metrics(this, 9152);
+        initMetrics();
         ensureLatestVersion();
         instance.logger.info("Done!");
     }
@@ -70,6 +71,18 @@ public class HeadDB extends SmartPlugin {
         if (storage != null) {
             storage.getPlayerStorage().suspend();
         }
+    }
+
+    private void initMetrics() {
+        Metrics metrics = new Metrics(this, 9152);
+
+        metrics.addCustomChart(new Metrics.SimplePie("economy_provider", () -> {
+            if (getEconomyProvider().isPresent()) {
+                return this.getConfig().getString("economy.provider");
+            }
+
+            return "None";
+        }));
     }
 
     private void ensureLatestVersion() {
@@ -133,6 +146,7 @@ public class HeadDB extends SmartPlugin {
         new CommandSearch().register();
         new CommandGive().register();
         new CommandUpdate().register();
+        new CommandReload().register();
         new CommandTexture().register();
         new CommandLanguage().register();
         new CommandSettings().register();

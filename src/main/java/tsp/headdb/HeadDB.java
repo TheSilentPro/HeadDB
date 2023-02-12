@@ -20,10 +20,10 @@ import tsp.headdb.core.storage.Storage;
 import tsp.headdb.core.task.UpdateTask;
 
 import tsp.headdb.core.util.BuildProperties;
+import tsp.headdb.core.util.HeadDBLogger;
 import tsp.smartplugin.SmartPlugin;
 import tsp.smartplugin.inventory.PaneListener;
 import tsp.smartplugin.localization.TranslatableLocalization;
-import tsp.smartplugin.logger.PluginLogger;
 import tsp.smartplugin.utils.PluginUtils;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ import java.util.Optional;
 public class HeadDB extends SmartPlugin {
 
     private static HeadDB instance;
-    private PluginLogger logger;
+    private HeadDBLogger logger;
     private BuildProperties buildProperties;
     private TranslatableLocalization localization;
     private Storage storage;
@@ -45,7 +45,7 @@ public class HeadDB extends SmartPlugin {
     public void onStart() {
         instance = this;
         instance.saveDefaultConfig();
-        instance.logger = new PluginLogger(this, getConfig().getBoolean("debug"));
+        instance.logger = new HeadDBLogger(getConfig().getBoolean("debug"));
         instance.logger.info("Loading HeadDB - " + instance.getDescription().getVersion());
         instance.buildProperties = new BuildProperties(this);
 
@@ -56,7 +56,6 @@ public class HeadDB extends SmartPlugin {
         instance.initEconomy();
 
         new PaneListener(this);
-        //new PlayerJoinListener();
 
         instance.commandManager = new CommandManager();
         loadCommands();
@@ -167,7 +166,7 @@ public class HeadDB extends SmartPlugin {
         return Optional.ofNullable(economyProvider);
     }
 
-    @SuppressWarnings("ConstantConditions")
+    @SuppressWarnings("DataFlowIssue")
     private DecimalFormat decimalFormat = new DecimalFormat(getConfig().getString("economy.format"));
 
     public DecimalFormat getDecimalFormat() {
@@ -182,7 +181,7 @@ public class HeadDB extends SmartPlugin {
         return buildProperties;
     }
 
-    public PluginLogger getLog() {
+    public HeadDBLogger getLog() {
         return logger;
     }
 

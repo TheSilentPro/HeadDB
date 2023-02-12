@@ -90,24 +90,12 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor, TabCo
             // favorites
             pane.setButton(getInstance().getConfig().getInt("gui.main.meta.favorites.slot"), new Button(Utils.getItemFromConfig("gui.main.meta.favorites.item", Material.BOOK), e -> {
                 e.setCancelled(true);
-                List<Head> heads = HeadAPI.getFavoriteHeads(player.getUniqueId());
-                PagedPane main = Utils.createPaged(player, Utils.translateTitle(getLocalization().getMessage(player.getUniqueId(), "menu.main.favorites.name").orElse("Favorites"), heads.size(), "Favorites"));
-                for (Head head : heads) {
-                    main.addButton(new Button(head.getItem(player.getUniqueId()), fe -> {
-                        if (fe.isLeftClick()) {
-                            ItemStack favoriteItem = head.getItem(player.getUniqueId());
-                            if (fe.isShiftClick()) {
-                                favoriteItem.setAmount(64);
-                            }
-
-                            player.getInventory().addItem(favoriteItem);
-                        } else if (fe.isRightClick()) {
-                            HeadDB.getInstance().getStorage().getPlayerStorage().removeFavorite(player.getUniqueId(), head.getTexture());
-                        }
-                    }));
+                if (!player.hasPermission("headdb.favorites")) {
+                    HeadDB.getInstance().getLocalization().sendMessage(player, "noAccessFavorites");
+                    return;
                 }
 
-                main.open(player);
+                Utils.openFavoritesMenu(player);
             }));
 
             // search

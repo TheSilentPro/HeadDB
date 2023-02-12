@@ -57,7 +57,7 @@ public class Head {
             GameProfile profile = new GameProfile(uniqueId, name);
             profile.getProperties().put("textures", new Property("textures", texture));
             try {
-                //noinspection ConstantConditions
+                //noinspection DataFlowIssue
                 Field profileField = meta.getClass().getDeclaredField("profile");
                 profileField.setAccessible(true);
                 profileField.set(meta, profile);

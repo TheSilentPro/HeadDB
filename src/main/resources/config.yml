@@ -11,7 +11,7 @@ requireCategoryPermission: false
 
 # Economy Options
 economy:
-  enable: false
+  enabled: false
   provider: "VAULT" # Supported: VAULT
   format: "##.##"
   cost:

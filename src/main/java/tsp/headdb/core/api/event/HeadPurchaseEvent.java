@@ -16,7 +16,10 @@ import java.math.BigDecimal;
  *
  * @author TheSilentPro (Silent)
  * @see Event#isAsynchronous()
+ *
+ * @deprecated Possible issues.
  */
+@Deprecated
 public class HeadPurchaseEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLER_LIST = new HandlerList();

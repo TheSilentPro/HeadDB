@@ -1,9 +1,10 @@
+#file: noinspection YAMLSchemaValidation
 name: ${project.name}
 description: ${project.description}
 
 main: tsp.headdb.HeadDB
 version: ${project.version}
-softdepend: [Vault, Treasury]
+depend: ["Vault"]
 api-version: 1.19
 author: TheSilentPro (Silent)
 spigot-id: 84967

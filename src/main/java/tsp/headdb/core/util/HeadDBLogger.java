@@ -3,10 +3,11 @@ package tsp.headdb.core.util;
 import org.bukkit.Bukkit;
 import tsp.smartplugin.utils.StringUtils;
 
+@SuppressWarnings("unused")
 public class HeadDBLogger  {
-    
+
     private final boolean debug;
-    
+
     public HeadDBLogger(boolean debug) {
         this.debug = debug;
     }
@@ -34,14 +35,14 @@ public class HeadDBLogger  {
         if ((level == LogLevel.DEBUG || level == LogLevel.TRACE) && !debug) {
             return;
         }
-        Bukkit.getConsoleSender().sendMessage(StringUtils.colorize(level.getColor() + "[" + level.name() + "]: " + message));
+        Bukkit.getConsoleSender().sendMessage(StringUtils.colorize("&cHeadDB &8>> " + level.getColor() + "[" + level.name() + "]: " + message));
     }
 
     public boolean isDebug() {
         return this.debug;
     }
 
-    public static enum LogLevel {
+    public enum LogLevel {
         INFO,
         WARNING,
         ERROR,
@@ -58,5 +59,5 @@ public class HeadDBLogger  {
             };
         }
     }
-    
+
 }

@@ -19,7 +19,6 @@ import tsp.headdb.core.economy.VaultProvider;
 import tsp.headdb.core.storage.Storage;
 import tsp.headdb.core.task.UpdateTask;
 
-import tsp.headdb.core.util.BuildProperties;
 import tsp.headdb.core.util.HeadDBLogger;
 import tsp.smartplugin.SmartPlugin;
 import tsp.smartplugin.inventory.PaneListener;
@@ -35,7 +34,6 @@ public class HeadDB extends SmartPlugin {
 
     private static HeadDB instance;
     private HeadDBLogger logger;
-    private BuildProperties buildProperties;
     private TranslatableLocalization localization;
     private Storage storage;
     private BasicEconomyProvider economyProvider;
@@ -47,7 +45,6 @@ public class HeadDB extends SmartPlugin {
         instance.saveDefaultConfig();
         instance.logger = new HeadDBLogger(getConfig().getBoolean("debug"));
         instance.logger.info("Loading HeadDB - " + instance.getDescription().getVersion());
-        instance.buildProperties = new BuildProperties(this);
 
         new UpdateTask(getConfig().getLong("refresh", 86400L)).schedule(this);
         instance.logger.info("Loaded " + loadLocalization() + " languages!");
@@ -175,10 +172,6 @@ public class HeadDB extends SmartPlugin {
 
     public TranslatableLocalization getLocalization() {
         return localization;
-    }
-
-    public BuildProperties getBuildProperties() {
-        return buildProperties;
     }
 
     public HeadDBLogger getLog() {

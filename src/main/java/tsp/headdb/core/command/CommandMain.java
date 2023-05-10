@@ -135,24 +135,26 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor, TabCo
             }));
 
             // local
-            pane.setButton(getInstance().getConfig().getInt("gui.main.meta.local.slot"), new Button(Utils.getItemFromConfig("gui.main.meta.local.item", Material.COMPASS), e -> {
-                Set<LocalHead> localHeads = HeadAPI.getLocalHeads();
-                PagedPane localPane = Utils.createPaged(player, Utils.translateTitle(getLocalization().getMessage(player.getUniqueId(), "menu.main.local.name").orElse("Local Heads"), localHeads.size(), "Local"));
-                for (LocalHead head : localHeads) {
-                    localPane.addButton(new Button(head.getItem(), le -> {
-                        if (le.isLeftClick()) {
-                            ItemStack localItem = head.getItem();
-                            if (le.isShiftClick()) {
-                                localItem.setAmount(64);
+            if (getInstance().getConfig().getBoolean("localHeads")) {
+                pane.setButton(getInstance().getConfig().getInt("gui.main.meta.local.slot"), new Button(Utils.getItemFromConfig("gui.main.meta.local.item", Material.COMPASS), e -> {
+                    Set<LocalHead> localHeads = HeadAPI.getLocalHeads();
+                    PagedPane localPane = Utils.createPaged(player, Utils.translateTitle(getLocalization().getMessage(player.getUniqueId(), "menu.main.local.name").orElse("Local Heads"), localHeads.size(), "Local"));
+                    for (LocalHead head : localHeads) {
+                        localPane.addButton(new Button(head.getItem(), le -> {
+                            if (le.isLeftClick()) {
+                                ItemStack localItem = head.getItem();
+                                if (le.isShiftClick()) {
+                                    localItem.setAmount(64);
+                                }
+
+                                player.getInventory().addItem(localItem);
                             }
+                        }));
+                    }
 
-                            player.getInventory().addItem(localItem);
-                        }
-                    }));
-                }
-
-                localPane.open(player);
-            }));
+                    localPane.open(player);
+                }));
+            }
 
             // Fill
             Utils.fill(pane, Utils.getItemFromConfig("gui.main.fill", Material.BLACK_STAINED_GLASS_PANE));

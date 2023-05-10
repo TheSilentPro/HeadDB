@@ -1,4 +1,3 @@
-#file: noinspection YAMLSchemaValidation
 name: ${project.name}
 description: ${project.description}
 
@@ -9,18 +8,11 @@ api-version: 1.19
 author: TheSilentPro (Silent)
 spigot-id: 84967
 
-buildTimestamp: ${build.timestamp}
-buildAuthor: ${build.author}
-
-# Although not up-to-date, spigot already includes gson. This is here just in case.
-#libraries:
-#  - "com.google.code.gson:gson:2.10"
-
 commands:
   headdb:
     usage: /headdb help
     description: Open the database
-    aliases: [hdb, headdatabase, headmenu]
+    aliases: ["hdb", "headdatabase", "headmenu"]
 
 permissions:
   headdb.admin:
@@ -30,6 +22,10 @@ permissions:
       headdb.command.search: true
       headdb.command.give: true
       headdb.command.update: true
+      headdb.command.reload: true
+      headdb.command.language: true
+      headdb.command.settings: true
+      headdb.command.texture: true
       headdb.favorites: true
       headdb.local: true
       headdb.category.*: true
@@ -40,6 +36,14 @@ permissions:
   headdb.command.give:
     default: op
   headdb.command.update:
+    default: op
+  headdb.command.reload:
+    default: op
+  headdb.command.language:
+    default: op
+  headdb.command.settings:
+    default: op
+  headdb.command.texture:
     default: op
   headdb.favorites:
     default: op

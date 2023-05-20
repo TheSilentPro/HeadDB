@@ -1,15 +1,14 @@
 package tsp.headdb.implementation.requester;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.bukkit.plugin.java.JavaPlugin;
 import tsp.headdb.HeadDB;
 import tsp.headdb.core.util.Utils;
 import tsp.headdb.implementation.category.Category;
 import tsp.headdb.implementation.head.Head;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -43,8 +42,18 @@ public class Requester {
                 JsonArray main = JsonParser.parseString(response.response()).getAsJsonArray();
                 for (JsonElement entry : main) {
                     JsonObject obj = entry.getAsJsonObject();
+                    int id = obj.get("id").getAsInt();
+
+                    if (plugin.getConfig().contains("blockedHeads.ids")) {
+                        List<Integer> blockedIds = plugin.getConfig().getIntegerList("blockedHeads.ids");
+                        if (blockedIds.contains(id)) {
+                            HeadDB.getInstance().getLog().debug("Skipped blocked head: " + obj.get("name").getAsString() + "(" + id + ")");
+                            continue;
+                        }
+                    }
+
                     result.add(new Head(
-                            obj.get("id").getAsInt(),
+                            id,
                             Utils.validateUniqueId(obj.get("uuid").getAsString()).orElse(UUID.randomUUID()),
                             obj.get("name").getAsString(),
                             obj.get("value").getAsString(),

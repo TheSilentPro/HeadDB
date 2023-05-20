@@ -7,9 +7,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import tsp.headdb.HeadDB;
 import tsp.headdb.implementation.category.Category;
-import tsp.smartplugin.builder.item.ItemBuilder;
-import tsp.smartplugin.localization.TranslatableLocalization;
-import tsp.smartplugin.utils.Validate;
+import tsp.nexuslib.builder.ItemBuilder;
+import tsp.nexuslib.localization.TranslatableLocalization;
+import tsp.nexuslib.util.Validate;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.lang.reflect.Field;

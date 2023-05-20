@@ -5,11 +5,11 @@ import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import tsp.headdb.core.util.Utils;
-import tsp.smartplugin.builder.item.ItemBuilder;
-import tsp.smartplugin.inventory.Button;
-import tsp.smartplugin.inventory.PagedPane;
-import tsp.smartplugin.inventory.Pane;
-import tsp.smartplugin.utils.StringUtils;
+import tsp.nexuslib.builder.ItemBuilder;
+import tsp.nexuslib.inventory.Button;
+import tsp.nexuslib.inventory.PagedPane;
+import tsp.nexuslib.inventory.Pane;
+import tsp.nexuslib.util.StringUtils;
 
 import java.util.Set;
 

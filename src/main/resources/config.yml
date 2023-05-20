@@ -84,6 +84,12 @@ fallback: true
 # Shows more plugin information. (/hdb info)
 showAdvancedPluginInfo: true
 
+# Block heads from all database instances.
+blockedHeads:
+  # List of head ids to block
+  ids:
+    - -1
+
 # Storage Options
 storage:
   # Amount of threads in the executor pool used for storage.

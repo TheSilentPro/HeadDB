@@ -1,5 +1,6 @@
 package tsp.headdb.core.command;
 
+import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -8,23 +9,20 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
 import tsp.headdb.HeadDB;
 import tsp.headdb.core.api.HeadAPI;
 import tsp.headdb.core.util.Utils;
 import tsp.headdb.implementation.category.Category;
 import tsp.headdb.implementation.head.Head;
 import tsp.headdb.implementation.head.LocalHead;
-import tsp.smartplugin.inventory.Button;
-import tsp.smartplugin.inventory.PagedPane;
-import tsp.smartplugin.inventory.Pane;
-import net.wesjd.anvilgui.AnvilGUI;
-import tsp.smartplugin.utils.StringUtils;
+import tsp.nexuslib.inventory.Button;
+import tsp.nexuslib.inventory.PagedPane;
+import tsp.nexuslib.inventory.Pane;
+import tsp.nexuslib.util.StringUtils;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -192,8 +190,7 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor, TabCo
                 return new ArrayList<>(sub.get().getCompletions());
             }
         }
-
-        return Collections.singletonList("error"); // for debug purpose, todo: remove
+        return null;
     }
 
 }

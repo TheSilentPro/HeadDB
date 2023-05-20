@@ -16,23 +16,18 @@ import tsp.headdb.core.economy.BasicEconomyProvider;
 import tsp.headdb.core.hook.Hooks;
 import tsp.headdb.implementation.category.Category;
 import tsp.headdb.implementation.head.Head;
-import tsp.smartplugin.inventory.Button;
-import tsp.smartplugin.inventory.PagedPane;
-import tsp.smartplugin.inventory.Pane;
-import tsp.smartplugin.utils.StringUtils;
-import tsp.smartplugin.utils.Validate;
+import tsp.nexuslib.inventory.Button;
+import tsp.nexuslib.inventory.PagedPane;
+import tsp.nexuslib.inventory.Pane;
+import tsp.nexuslib.util.StringUtils;
+import tsp.nexuslib.util.Validate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class Utils {
@@ -131,7 +126,7 @@ public class Utils {
                     Utils.purchase(player, head, amount);
                 } else if (fe.isRightClick()) {
                     HeadDB.getInstance().getStorage().getPlayerStorage().removeFavorite(player.getUniqueId(), head.getTexture());
-                    HeadDB.getInstance().getLocalization().sendMessage(player, "removedFavorites");
+                    HeadDB.getInstance().getLocalization().sendMessage(player, "removedFavorite");
                     openFavoritesMenu(player);
                 }
             }));
@@ -162,7 +157,7 @@ public class Utils {
                 } else if (e.isRightClick()) {
                     if (player.hasPermission("headdb.favorites")) {
                         HeadDB.getInstance().getStorage().getPlayerStorage().addFavorite(player.getUniqueId(), head.getTexture());
-                        HeadDB.getInstance().getLocalization().sendMessage(player, "addedFavorites");
+                        HeadDB.getInstance().getLocalization().sendMessage(player, "addedFavorite");
                     } else {
                         HeadDB.getInstance().getLocalization().sendMessage(player, "noAccessFavorites");
                     }

@@ -1,7 +1,7 @@
 package tsp.headdb.core.command;
 
 import org.bukkit.command.CommandSender;
-import tsp.smartplugin.player.PlayerUtils;
+import tsp.nexuslib.player.PlayerUtils;
 
 public class CommandHelp extends SubCommand {
 

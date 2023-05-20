@@ -7,7 +7,7 @@ import tsp.headdb.core.api.HeadAPI;
 import tsp.headdb.core.util.Utils;
 import tsp.headdb.implementation.category.Category;
 import tsp.headdb.implementation.head.Head;
-import tsp.smartplugin.inventory.PagedPane;
+import tsp.nexuslib.inventory.PagedPane;
 
 import java.util.Arrays;
 import java.util.List;

@@ -2,7 +2,7 @@ package tsp.headdb.core.command;
 
 import org.bukkit.command.CommandSender;
 import tsp.headdb.HeadDB;
-import tsp.smartplugin.player.PlayerUtils;
+import tsp.nexuslib.player.PlayerUtils;
 
 public class CommandInfo extends SubCommand {
 

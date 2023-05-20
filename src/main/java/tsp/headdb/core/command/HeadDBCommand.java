@@ -2,8 +2,8 @@ package tsp.headdb.core.command;
 
 import org.bukkit.command.CommandSender;
 import tsp.headdb.HeadDB;
-import tsp.smartplugin.localization.TranslatableLocalization;
-import tsp.smartplugin.utils.Validate;
+import tsp.nexuslib.localization.TranslatableLocalization;
+import tsp.nexuslib.util.Validate;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;

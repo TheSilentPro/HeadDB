@@ -7,7 +7,7 @@ import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import tsp.headdb.core.util.Utils;
-import tsp.smartplugin.utils.StringUtils;
+import tsp.nexuslib.util.StringUtils;
 
 public class CommandTexture extends SubCommand {
 

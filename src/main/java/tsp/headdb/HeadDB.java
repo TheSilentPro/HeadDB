@@ -1,36 +1,25 @@
 package tsp.headdb;
 
 import org.bukkit.command.PluginCommand;
-import tsp.headdb.core.command.CommandCategory;
-import tsp.headdb.core.command.CommandGive;
-import tsp.headdb.core.command.CommandHelp;
-import tsp.headdb.core.command.CommandInfo;
-import tsp.headdb.core.command.CommandLanguage;
-import tsp.headdb.core.command.CommandMain;
-import tsp.headdb.core.command.CommandManager;
-import tsp.headdb.core.command.CommandReload;
-import tsp.headdb.core.command.CommandSearch;
-
-import tsp.headdb.core.command.CommandSettings;
-import tsp.headdb.core.command.CommandTexture;
-import tsp.headdb.core.command.CommandUpdate;
+import tsp.headdb.core.command.*;
 import tsp.headdb.core.economy.BasicEconomyProvider;
 import tsp.headdb.core.economy.VaultProvider;
 import tsp.headdb.core.storage.Storage;
 import tsp.headdb.core.task.UpdateTask;
-
 import tsp.headdb.core.util.HeadDBLogger;
-import tsp.smartplugin.SmartPlugin;
-import tsp.smartplugin.inventory.PaneListener;
-import tsp.smartplugin.localization.TranslatableLocalization;
-import tsp.smartplugin.utils.PluginUtils;
+import tsp.nexuslib.NexusPlugin;
+import tsp.nexuslib.inventory.PaneListener;
+import tsp.nexuslib.localization.TranslatableLocalization;
+import tsp.nexuslib.util.PluginUtils;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.util.Optional;
 
-public class HeadDB extends SmartPlugin {
+public class HeadDB extends NexusPlugin {
 
     private static HeadDB instance;
     private HeadDBLogger logger;
@@ -40,7 +29,7 @@ public class HeadDB extends SmartPlugin {
     private CommandManager commandManager;
 
     @Override
-    public void onStart() {
+    public void onStart(NexusPlugin nexusPlugin) {
         instance = this;
         instance.saveDefaultConfig();
         instance.logger = new HeadDBLogger(getConfig().getBoolean("debug"));
@@ -66,6 +55,16 @@ public class HeadDB extends SmartPlugin {
     public void onDisable() {
         if (storage != null) {
             storage.getPlayerStorage().suspend();
+            File langFile = new File(getDataFolder(), "langs.data");
+            if (!langFile.exists()) {
+                try {
+                    langFile.createNewFile();
+                    localization.saveLanguages(langFile);
+                } catch (IOException ex) {
+                    logger.error("Failed to save receiver langauges!");
+                    ex.printStackTrace();
+                }
+            }
         }
     }
 
@@ -101,7 +100,13 @@ public class HeadDB extends SmartPlugin {
         instance.localization = new TranslatableLocalization(this, "messages");
         try {
             instance.localization.createDefaults();
-            return instance.localization.load();
+            int count = instance.localization.load();
+            File langFile = new File(getDataFolder(), "langs.data");
+            if (langFile.exists()) {
+                localization.loadLanguages(langFile);
+            }
+
+            return count;
         } catch (URISyntaxException | IOException ex) {
             instance.logger.error("Failed to load localization!");
             ex.printStackTrace();

@@ -1,7 +1,7 @@
 package tsp.headdb.core.util;
 
 import org.bukkit.Bukkit;
-import tsp.smartplugin.utils.StringUtils;
+import tsp.nexuslib.util.StringUtils;
 
 @SuppressWarnings("unused")
 public class HeadDBLogger  {

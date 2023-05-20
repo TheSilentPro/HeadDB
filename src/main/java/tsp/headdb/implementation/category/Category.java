@@ -6,8 +6,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import tsp.headdb.HeadDB;
 import tsp.headdb.core.api.HeadAPI;
 import tsp.headdb.core.util.Utils;
-import tsp.smartplugin.builder.item.ItemBuilder;
-import tsp.smartplugin.utils.StringUtils;
+import tsp.nexuslib.builder.ItemBuilder;
+import tsp.nexuslib.util.StringUtils;
 
 import javax.annotation.Nonnull;
 import java.util.Locale;

@@ -3,7 +3,7 @@ package tsp.headdb.core.task;
 import tsp.headdb.HeadDB;
 import tsp.headdb.core.api.HeadAPI;
 import tsp.headdb.implementation.head.Head;
-import tsp.smartplugin.tasker.Task;
+import tsp.nexuslib.task.Task;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +25,7 @@ public class UpdateTask implements Task {
                     size++;
                 }
             }
-            HeadDB.getInstance().getLog().debug("Fetched: " + size + " Heads | Provider: " + HeadAPI.getDatabase().getRequester().getProvider().name() + " | Time: " + time + "ms (" + TimeUnit.MILLISECONDS.toSeconds(time) + "s)");
+            HeadDB.getInstance().getLog().info("Fetched: " + size + " Heads | Provider: " + HeadAPI.getDatabase().getRequester().getProvider().name() + " | Time: " + time + "ms (" + TimeUnit.MILLISECONDS.toSeconds(time) + "s)");
         });
         HeadDB.getInstance().getStorage().getPlayerStorage().backup();
         HeadDB.getInstance().getLog().debug("UpdateTask finished!");

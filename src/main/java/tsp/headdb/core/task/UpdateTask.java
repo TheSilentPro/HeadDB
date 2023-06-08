@@ -25,7 +25,7 @@ public class UpdateTask implements Task {
                     size++;
                 }
             }
-            HeadDB.getInstance().getLog().info("Fetched: " + size + " Heads | Provider: " + HeadAPI.getDatabase().getRequester().getProvider().name() + " | Time: " + time + "ms (" + TimeUnit.MILLISECONDS.toSeconds(time) + "s)");
+            HeadDB.getInstance().getLog().debug("Fetched: " + size + " Heads | Provider: " + HeadAPI.getDatabase().getRequester().getProvider().name() + " | Time: " + time + "ms (" + TimeUnit.MILLISECONDS.toSeconds(time) + "s)");
         });
         HeadDB.getInstance().getStorage().getPlayerStorage().backup();
         HeadDB.getInstance().getLog().debug("UpdateTask finished!");

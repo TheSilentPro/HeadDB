@@ -26,7 +26,7 @@ public class AsyncHeadsFetchedEvent extends Event {
     @NotNull
     @Override
     public HandlerList getHandlers() {
-        return new HandlerList();
+        return HANDLER_LIST;
     }
 
     @SuppressWarnings("unused")

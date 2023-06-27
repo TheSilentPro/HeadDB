@@ -11,6 +11,7 @@ public class AsyncHeadsFetchedEvent extends Event {
     private final long timeTook;
 
     public AsyncHeadsFetchedEvent(int headsCount, String providerName, long timeTook) {
+        super(true);
         this.headsCount = headsCount;
         this.providerName = providerName;
         this.timeTook = timeTook;

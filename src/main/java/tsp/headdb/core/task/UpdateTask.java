@@ -1,7 +1,9 @@
 package tsp.headdb.core.task;
 
+import org.bukkit.Bukkit;
 import tsp.headdb.HeadDB;
 import tsp.headdb.core.api.HeadAPI;
+import tsp.headdb.core.api.events.AsyncHeadsFetchedEvent;
 import tsp.headdb.implementation.head.Head;
 import tsp.nexuslib.task.Task;
 
@@ -25,7 +27,15 @@ public class UpdateTask implements Task {
                     size++;
                 }
             }
-            HeadDB.getInstance().getLog().debug("Fetched: " + size + " Heads | Provider: " + HeadAPI.getDatabase().getRequester().getProvider().name() + " | Time: " + time + "ms (" + TimeUnit.MILLISECONDS.toSeconds(time) + "s)");
+
+            String providerName = HeadAPI.getDatabase().getRequester().getProvider().name();
+
+            HeadDB.getInstance().getLog().debug("Fetched: " + size + " Heads | Provider: " + providerName + " | Time: " + time + "ms (" + TimeUnit.MILLISECONDS.toSeconds(time) + "s)");
+            Bukkit.getPluginManager().callEvent(
+                    new AsyncHeadsFetchedEvent(
+                            size,
+                            providerName,
+                            time));
         });
         HeadDB.getInstance().getStorage().getPlayerStorage().backup();
         HeadDB.getInstance().getLog().debug("UpdateTask finished!");

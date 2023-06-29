@@ -33,7 +33,7 @@ public class UpdateTask implements Task {
             HeadDB.getInstance().getLog().debug("Fetched: " + size + " Heads | Provider: " + providerName + " | Time: " + time + "ms (" + TimeUnit.MILLISECONDS.toSeconds(time) + "s)");
             Bukkit.getPluginManager().callEvent(
                     new AsyncHeadsFetchedEvent(
-                            size,
+                            heads,
                             providerName,
                             time));
         });

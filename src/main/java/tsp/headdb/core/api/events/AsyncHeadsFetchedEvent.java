@@ -23,7 +23,6 @@ public class AsyncHeadsFetchedEvent extends Event {
     }
 
     @NotNull
-    @SuppressWarnings("unused")
     public static HandlerList getHandlerList() {
         return HANDLER_LIST;
     }
@@ -34,17 +33,14 @@ public class AsyncHeadsFetchedEvent extends Event {
         return HANDLER_LIST;
     }
 
-    @SuppressWarnings("unused")
     public Map<Category, List<Head>> getHeads() {
         return heads;
     }
 
-    @SuppressWarnings("unused")
     public String getProviderName() {
         return providerName;
     }
 
-    @SuppressWarnings("unused")
     public long getTimeTook() {
         return timeTook;
     }

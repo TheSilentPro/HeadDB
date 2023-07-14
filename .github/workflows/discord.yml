@@ -18,3 +18,8 @@ jobs:
         java-version: '17'
         java-package: jdk
         architecture: x64
+    - name: Dispatch Discord Webhook
+      uses: baked-libs/discord-webhook@1.5.1
+      with:
+        id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+        token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}

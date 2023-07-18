@@ -1,6 +1,8 @@
 package tsp.headdb.core.command;
 
+import java.util.Arrays;
 import net.wesjd.anvilgui.AnvilGUI;
+import net.wesjd.anvilgui.AnvilGUI.Builder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -61,25 +63,24 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor, TabCo
                     if (e.isLeftClick()) {
                         Bukkit.dispatchCommand(e.getWhoClicked(), "hdb open " + category.getName());
                     } else if (e.isRightClick()) {
-                        new AnvilGUI.Builder()
-                                .onComplete((p, text) -> {
-                                    try {
-                                        int page = Integer.parseInt(text);
-                                        // to be replaced with own version of anvil-gui
-                                        List<Head> heads = HeadAPI.getHeads(category);
-                                        PagedPane main = Utils.createPaged(player, Utils.translateTitle(getLocalization().getMessage(player.getUniqueId(), "menu.category.name").orElse(category.getName()), heads.size(), category.getName()));
-                                        Utils.addHeads(player, category, main, heads);
-                                        main.selectPage(page);
-                                        main.reRender();
-                                        return AnvilGUI.Response.openInventory(main.getInventory());
-                                    } catch (NumberFormatException nfe) {
-                                        return AnvilGUI.Response.text("Invalid number!");
-                                    }
-                                })
-                                .text("Query")
-                                .title(StringUtils.colorize(getLocalization().getMessage(player.getUniqueId(), "menu.main.category.page.name").orElse("Enter page")))
-                                .plugin(getInstance())
-                                .open(player);
+                        new AnvilGUI.Builder().onClick((slot, stateSnapshot) -> {
+                            try {
+                                int page = Integer.parseInt(stateSnapshot.getText());
+                                // to be replaced with own version of anvil-gui
+                                List<Head> heads = HeadAPI.getHeads(category);
+                                PagedPane main = Utils.createPaged(player, Utils.translateTitle(getLocalization().getMessage(player.getUniqueId(), "menu.category.name").orElse(category.getName()), heads.size(), category.getName()));
+                                Utils.addHeads(player, category, main, heads);
+                                main.selectPage(page);
+                                main.reRender();
+                                return Arrays.asList(AnvilGUI.ResponseAction.openInventory(main.getInventory()));
+                            } catch (NumberFormatException nfe) {
+                                return Arrays.asList(AnvilGUI.ResponseAction.replaceInputText("Invalid number!"));
+                            }
+                        })
+                        .text("Query")
+                        .title(StringUtils.colorize(getLocalization().getMessage(player.getUniqueId(), "menu.main.category.page.name").orElse("Enter page")))
+                        .plugin(getInstance())
+                        .open(player);
                     }
                 }));
             }
@@ -100,28 +101,28 @@ public class CommandMain extends HeadDBCommand implements CommandExecutor, TabCo
             pane.setButton(getInstance().getConfig().getInt("gui.main.meta.search.slot"), new Button(Utils.getItemFromConfig("gui.main.meta.search.item", Material.DARK_OAK_SIGN), e -> {
                 e.setCancelled(true);
                 new AnvilGUI.Builder()
-                        .onComplete((p, query) -> {
+                        .onClick((slot, stateSnapshot) -> {
                             // Copied from CommandSearch
                             List<Head> heads = new ArrayList<>();
                             List<Head> headList = HeadAPI.getHeads();
-                            if (query.length() > 3) {
-                                if (query.startsWith("id:")) {
+                            if (stateSnapshot.getText().length() > 3) {
+                                if (stateSnapshot.getText().startsWith("id:")) {
                                     try {
-                                        HeadAPI.getHeadById(Integer.parseInt(query.substring(3))).ifPresent(heads::add);
+                                        HeadAPI.getHeadById(Integer.parseInt(stateSnapshot.getText().substring(3))).ifPresent(heads::add);
                                     } catch (NumberFormatException ignored) {
                                     }
-                                } else if (query.startsWith("tg:")) {
-                                    heads.addAll(headList.stream().filter(head -> Utils.matches(head.getTags(), query.substring(3))).toList());
+                                } else if (stateSnapshot.getText().startsWith("tg:")) {
+                                    heads.addAll(headList.stream().filter(head -> Utils.matches(head.getTags(), stateSnapshot.getText().substring(3))).toList());
                                 } else {
                                     // no query prefix
-                                    heads.addAll(headList.stream().filter(head -> Utils.matches(head.getName(), query)).toList());
+                                    heads.addAll(headList.stream().filter(head -> Utils.matches(head.getName(), stateSnapshot.getText())).toList());
                                 }
                             } else {
                                 // query is <=3, no point in looking for prefixes
-                                heads.addAll(headList.stream().filter(head -> Utils.matches(head.getName(), query)).toList());
+                                heads.addAll(headList.stream().filter(head -> Utils.matches(head.getName(), stateSnapshot.getText())).toList());
                             }
 
-                            PagedPane main = Utils.createPaged(player, Utils.translateTitle(getLocalization().getMessage(player.getUniqueId(), "menu.search.name").orElse("&cHeadDB - &eSearch Results"), heads.size(), "None", query));
+                            PagedPane main = Utils.createPaged(player, Utils.translateTitle(getLocalization().getMessage(player.getUniqueId(), "menu.search.name").orElse("&cHeadDB - &eSearch Results"), heads.size(), "None", stateSnapshot.getText()));
                             Utils.addHeads(player, null, main, heads);
                             main.reRender();
                             return AnvilGUI.Response.openInventory(main.getInventory());

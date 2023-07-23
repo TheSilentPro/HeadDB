@@ -126,7 +126,7 @@ public class Utils {
                     Utils.purchase(player, head, amount);
                 } else if (fe.isRightClick()) {
                     HeadDB.getInstance().getStorage().getPlayerStorage().removeFavorite(player.getUniqueId(), head.getTexture());
-                    HeadDB.getInstance().getLocalization().sendMessage(player, "removedFavorite");
+                    HeadDB.getInstance().getLocalization().sendMessage(player, "removedFavorite", msg -> msg.replace("%name%", head.getName()));
                     openFavoritesMenu(player);
                 }
             }));
@@ -157,7 +157,7 @@ public class Utils {
                 } else if (e.isRightClick()) {
                     if (player.hasPermission("headdb.favorites")) {
                         HeadDB.getInstance().getStorage().getPlayerStorage().addFavorite(player.getUniqueId(), head.getTexture());
-                        HeadDB.getInstance().getLocalization().sendMessage(player, "addedFavorite");
+                        HeadDB.getInstance().getLocalization().sendMessage(player, "addedFavorite", msg -> msg.replace("%name%", head.getName()));
                     } else {
                         HeadDB.getInstance().getLocalization().sendMessage(player, "noAccessFavorites");
                     }

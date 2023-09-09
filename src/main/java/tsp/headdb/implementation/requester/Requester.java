@@ -1,9 +1,6 @@
 package tsp.headdb.implementation.requester;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import tsp.headdb.HeadDB;
 import tsp.headdb.core.util.Utils;
@@ -16,6 +13,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -71,6 +69,14 @@ public class Requester {
                 provider = HeadProvider.HEAD_ARCHIVE;
                 fetchAndResolve(category, heads);
             }
+        } catch (JsonSyntaxException ex) {
+            HeadDB.getInstance().getLog().warning(
+                    "Failed to parse head data because head info returns from the provider is corrupted "
+                    + "or data format is not supported.\n"
+                    + "Provider: " + provider.name() + "\n"
+                    + "Category: " + category.getName() + "\n"
+                    + "Stack trace:\n" + Arrays.toString(ex.getStackTrace())
+            );
         }
     }
 

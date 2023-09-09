@@ -122,7 +122,8 @@ public final class HeadAPI {
      */
     @Nonnull
     public static List<Head> getHeads(Category category) {
-        return getHeadsMap().get(category);
+        return Optional.ofNullable(getHeadsMap().get(category))
+                .orElse(Collections.emptyList());
     }
 
     /**

@@ -233,7 +233,7 @@ public class Utils {
 
     public static Optional<String> getTexture(ItemStack head) {
         ItemMeta meta = head.getItemMeta();
-        if (!(meta instanceof SkullMeta skullMeta)) {
+        if (meta == null) {
             return Optional.empty();
         }
 

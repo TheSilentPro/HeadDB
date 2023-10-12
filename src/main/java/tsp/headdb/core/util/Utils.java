@@ -10,6 +10,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import tsp.headdb.HeadDB;
 import tsp.headdb.core.api.HeadAPI;
 import tsp.headdb.core.economy.BasicEconomyProvider;
@@ -230,7 +231,7 @@ public class Utils {
 
     public static Optional<String> getTexture(ItemStack head) {
         ItemMeta meta = head.getItemMeta();
-        if (meta == null) {
+        if (!(meta instanceof SkullMeta skullMeta)) {
             return Optional.empty();
         }
 
@@ -243,9 +244,9 @@ public class Utils {
             }
 
             return profile.getProperties().get("textures").stream()
-                    .filter(p -> p.getName().equals("textures"))
+                    .filter(p -> p.name().equals("textures"))
                     .findAny()
-                    .map(Property::getValue);
+                    .map(Property::value);
         } catch (NoSuchFieldException | SecurityException | IllegalAccessException e ) {
             e.printStackTrace();
             return Optional.empty();

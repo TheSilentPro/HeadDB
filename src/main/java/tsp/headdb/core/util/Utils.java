@@ -2,6 +2,8 @@ package tsp.headdb.core.util;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -244,13 +246,29 @@ public class Utils {
             }
 
             return profile.getProperties().get("textures").stream()
-                    .filter(p -> p.name().equals("textures"))
                     .findAny()
-                    .map(Property::value);
+                    .map(Utils::extractPropertyValue);
         } catch (NoSuchFieldException | SecurityException | IllegalAccessException e ) {
             e.printStackTrace();
             return Optional.empty();
         }
+    }
+
+    private static String extractPropertyValue(Property property) {
+        List<NoSuchMethodException> exceptions = new ArrayList<>();
+        for (String fieldName : new String[] {"value", "getValue"}) {
+            try {
+                Method method = property.getClass().getDeclaredMethod(fieldName);
+                return (String) method.invoke(property);
+            } catch (NoSuchMethodException ex) {
+                exceptions.add(ex);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException("Failed to invoke property getter", e);
+            }
+        }
+        RuntimeException exception = new RuntimeException("Could not find value getter");
+        exceptions.forEach(exception::addSuppressed);
+        throw exception;
     }
 
     public static int resolveInt(String raw) {

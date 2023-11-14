@@ -9,6 +9,7 @@ import tsp.headdb.implementation.head.Head;
 import tsp.headdb.implementation.head.HeadDatabase;
 import tsp.headdb.implementation.head.LocalHead;
 import tsp.headdb.implementation.requester.HeadProvider;
+import tsp.helperlite.scheduler.promise.Promise;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -163,14 +164,16 @@ public final class HeadAPI {
      * @return {@link Set<Head> Favorite Heads}
      */
     @Nonnull
-    public static List<Head> getFavoriteHeads(UUID player) {
-        List<Head> result = new ArrayList<>();
-        Optional<PlayerData> data = HeadDB.getInstance().getStorage().getPlayerStorage().get(player);
-        data.ifPresent(playerData -> playerData.favorites()
-                .forEach(texture -> getHeadByTexture(texture)
-                .ifPresent(result::add))
-        );
-        return result;
+    public static Promise<List<Head>> getFavoriteHeads(UUID player) {
+        return Promise.supplyingAsync(() -> {
+            List<Head> result = new ArrayList<>();
+            Optional<PlayerData> data = HeadDB.getInstance().getStorage().getPlayerStorage().get(player);
+            data.ifPresent(playerData -> playerData.favorites()
+                    .forEach(texture -> getHeadByTexture(texture)
+                            .ifPresent(result::add))
+            );
+            return result;
+        });
     }
 
     /**

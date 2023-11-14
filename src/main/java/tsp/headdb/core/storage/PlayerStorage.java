@@ -44,7 +44,7 @@ public class PlayerStorage extends SerializableFileDataManager<HashSet<PlayerDat
 
     public void init() {
         load().whenComplete((data, ex) -> {
-            for (PlayerData entry : data) {
+            for (PlayerData entry : data.orElse(new HashSet<>())) {
                 players.put(entry.uniqueId(), entry);
             }
 

@@ -4,51 +4,44 @@ import org.bukkit.Bukkit;
 import tsp.headdb.HeadDB;
 import tsp.headdb.core.api.HeadAPI;
 import tsp.headdb.core.api.events.AsyncHeadsFetchedEvent;
+import tsp.headdb.implementation.category.Category;
 import tsp.headdb.implementation.head.Head;
-import tsp.nexuslib.task.Task;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class UpdateTask implements Task {
-
-    private final long interval;
-
-    public UpdateTask(long interval) {
-        this.interval = interval;
-    }
+public class UpdateTask implements Runnable {
 
     @Override
     public void run() {
-        HeadAPI.getDatabase().update((time, heads) -> {
-            int size = 0;
-            for (List<Head> list : heads.values()) {
-                for (Head ignored : list) {
-                    size++;
-                }
-            }
-
+        HeadAPI.getDatabase().update().thenAcceptAsync(result -> {
+            HeadDB instance = HeadDB.getInstance();
             String providerName = HeadAPI.getDatabase().getRequester().getProvider().name();
 
-            HeadDB.getInstance().getLog().debug("Fetched: " + size + " Heads | Provider: " + providerName + " | Time: " + time + "ms (" + TimeUnit.MILLISECONDS.toSeconds(time) + "s)");
+            instance.getLog().debug("Fetched: " + getHeadsCount(result.heads()) + " Heads | Provider: " + providerName + " | Time: " + result.elapsed() + "ms (" + TimeUnit.MILLISECONDS.toSeconds(result.elapsed()) + "s)");
             Bukkit.getPluginManager().callEvent(
                     new AsyncHeadsFetchedEvent(
-                            heads,
+                            result.heads(),
                             providerName,
-                            time));
+                            result.elapsed()));
+
+            instance.getStorage().getPlayerStorage().backup();
+            instance.getUpdateTask().ifPresentOrElse(task -> {
+                instance.getLog().debug("UpdateTask completed! Times ran: " + task.getTimesRan());
+            }, () -> instance.getLog().debug("Initial UpdateTask completed!"));
         });
-        HeadDB.getInstance().getStorage().getPlayerStorage().backup();
-        HeadDB.getInstance().getLog().debug("UpdateTask finished!");
     }
 
-    @Override
-    public long getRepeatInterval() {
-        return interval;
-    }
+    private int getHeadsCount(Map<Category, List<Head>> heads) {
+        int n = 0;
+        for (List<Head> list : heads.values()) {
+            for (int i = 0; i < list.size(); i++) {
+                n++;
+            }
+        }
 
-    @Override
-    public boolean isAsync() {
-        return true;
+        return n;
     }
 
 }

@@ -10,15 +10,22 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.profile.PlayerProfile;
+import org.bukkit.profile.PlayerTextures;
 import tsp.headdb.HeadDB;
 import tsp.headdb.core.api.HeadAPI;
 import tsp.headdb.core.economy.BasicEconomyProvider;
 import tsp.headdb.core.hook.Hooks;
 import tsp.headdb.implementation.category.Category;
 import tsp.headdb.implementation.head.Head;
+import tsp.helperlite.scheduler.promise.Promise;
+import tsp.nexuslib.builder.ItemBuilder;
 import tsp.nexuslib.inventory.Button;
 import tsp.nexuslib.inventory.PagedPane;
 import tsp.nexuslib.inventory.Pane;
+import tsp.nexuslib.localization.TranslatableLocalization;
+import tsp.nexuslib.server.ServerVersion;
 import tsp.nexuslib.util.StringUtils;
 import tsp.nexuslib.util.Validate;
 
@@ -27,8 +34,9 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 public class Utils {
 
@@ -108,31 +116,36 @@ public class Utils {
     }
 
     public static void openFavoritesMenu(Player player) {
-        List<Head> heads = HeadAPI.getFavoriteHeads(player.getUniqueId());
-        PagedPane main = Utils.createPaged(player, Utils.translateTitle(HeadDB.getInstance().getLocalization().getMessage(player.getUniqueId(), "menu.main.favorites.name").orElse("Favorites"), heads.size(), "Favorites"));
-        for (Head head : heads) {
-            main.addButton(new Button(head.getItem(player.getUniqueId()), fe -> {
-                if (!player.hasPermission("headdb.favorites")) {
-                    HeadDB.getInstance().getLocalization().sendMessage(player, "noAccessFavorites");
-                    return;
+        try (Promise<List<Head>> promise = HeadAPI.getFavoriteHeads(player.getUniqueId())) {
+            promise.thenAcceptSync(heads -> {
+                PagedPane main = Utils.createPaged(player, Utils.translateTitle(HeadDB.getInstance().getLocalization().getMessage(player.getUniqueId(), "menu.main.favorites.name").orElse("Favorites"), heads.size(), "Favorites"));
+                for (Head head : heads) {
+                    main.addButton(new Button(head.getItem(player.getUniqueId()), fe -> {
+                        if (!player.hasPermission("headdb.favorites")) {
+                            HeadDB.getInstance().getLocalization().sendMessage(player, "noAccessFavorites");
+                            return;
+                        }
+
+                        if (fe.isLeftClick()) {
+                            int amount = 1;
+                            if (fe.isShiftClick()) {
+                                amount = 64;
+                            }
+
+                            Utils.purchase(player, head, amount);
+                        } else if (fe.isRightClick()) {
+                            HeadDB.getInstance().getStorage().getPlayerStorage().removeFavorite(player.getUniqueId(), head.getTexture());
+                            HeadDB.getInstance().getLocalization().sendMessage(player, "removedFavorite", msg -> msg.replace("%name%", head.getName()));
+                            openFavoritesMenu(player);
+                        }
+                    }));
                 }
 
-                if (fe.isLeftClick()) {
-                    int amount = 1;
-                    if (fe.isShiftClick()) {
-                        amount = 64;
-                    }
-
-                    Utils.purchase(player, head, amount);
-                } else if (fe.isRightClick()) {
-                    HeadDB.getInstance().getStorage().getPlayerStorage().removeFavorite(player.getUniqueId(), head.getTexture());
-                    HeadDB.getInstance().getLocalization().sendMessage(player, "removedFavorite", msg -> msg.replace("%name%", head.getName()));
-                    openFavoritesMenu(player);
-                }
-            }));
+                main.open(player);
+            });
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-
-        main.open(player);
     }
 
     @ParametersAreNonnullByDefault
@@ -166,10 +179,10 @@ public class Utils {
         }
     }
 
-    private static CompletableFuture<Boolean> processPayment(Player player, Head head, int amount) {
+    private static Promise<Boolean> processPayment(Player player, Head head, int amount) {
         Optional<BasicEconomyProvider> optional = HeadDB.getInstance().getEconomyProvider();
         if (optional.isEmpty()) {
-            return CompletableFuture.completedFuture(true); // No economy, the head is free
+            return Promise.completed(true); // No economy, the head is free
         } else {
             BigDecimal cost = BigDecimal.valueOf(HeadDB.getInstance().getConfig().getDouble("economy.cost." + head.getCategory().getName()) * amount);
             HeadDB.getInstance().getLocalization().sendMessage(player.getUniqueId(), "processPayment", msg -> msg
@@ -177,8 +190,10 @@ public class Utils {
                     .replace("%amount%", String.valueOf(amount))
                     .replace("%cost%", HeadDB.getInstance().getDecimalFormat().format(cost))
             );
-            return optional.get().purchase(player, cost).thenApply(success -> {
-                Bukkit.getScheduler().runTask(HeadDB.getInstance(), () -> {
+
+            try (Promise<Boolean> economyPromise = optional.get().purchase(player, cost)) {
+                // TODO: Might not need to be sync.
+                return economyPromise.thenApplySync((success) -> {
                     if (success) {
                         HeadDB.getInstance().getLocalization().sendMessage(player, "completePayment", msg -> msg
                                 .replace("%name%", head.getName())
@@ -186,46 +201,38 @@ public class Utils {
                     } else {
                         HeadDB.getInstance().getLocalization().sendMessage(player, "invalidFunds", msg -> msg.replace("%name%", head.getName()));
                     }
+                    return success;
                 });
-                return success;
-
-                /* Note: Issues caused by sync call to async event but when run async above method fucks up.
-                Bukkit.getScheduler().runTaskAsynchronously(HeadDB.getInstance(), () -> {
-                    HeadPurchaseEvent event = new HeadPurchaseEvent(player, head, cost, success);
-                    Bukkit.getPluginManager().callEvent(event);
-                });
-                return true;
-                 */
-            });
+            } catch (Exception ex) {
+                HeadDB.getInstance().getLog().severe("Failed to process payment: " + ex.getMessage());
+                return Promise.exceptionally(ex);
+            }
         }
     }
 
     public static void purchase(Player player, Head head, int amount) {
-        processPayment(player, head, amount).whenComplete((success, ex) -> {
-            if (ex != null) {
-                HeadDB.getInstance().getLog().error("Failed to purchase head '" + head.getName() + "' for player: " + player.getName());
-                ex.printStackTrace();
-            } else {
-                    // Bukkit API, therefore task is ran sync.
-                    Bukkit.getScheduler().runTask(HeadDB.getInstance(), () -> {
-                        if (success) {
-                            ItemStack item = head.getItem(player.getUniqueId());
-                            item.setAmount(amount);
-                            player.getInventory().addItem(item);
-                            HeadDB.getInstance().getConfig().getStringList("commands.purchase").forEach(command -> {
-                                if (command.isEmpty()) {
-                                    return;
-                                }
-                                if (Hooks.PAPI.enabled()) {
-                                    command = PlaceholderAPI.setPlaceholders(player, command);
-                                }
-
-                                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
-                            });
+        // Bukkit API - Has to be sync.
+        try (Promise<Boolean> paymentPromise = processPayment(player, head, amount)) {
+            paymentPromise.thenAcceptSync((success) -> {
+                if (success) {
+                    ItemStack item = head.getItem(player.getUniqueId());
+                    item.setAmount(amount);
+                    player.getInventory().addItem(item);
+                    HeadDB.getInstance().getConfig().getStringList("commands.purchase").forEach(command -> {
+                        if (command.isEmpty()) {
+                            return;
                         }
+                        if (Hooks.PAPI.enabled()) {
+                            command = PlaceholderAPI.setPlaceholders(player, command);
+                        }
+
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
                     });
-            }
-        });
+                }
+            });
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     public static Optional<String> getTexture(ItemStack head) {
@@ -250,6 +257,51 @@ public class Utils {
             e.printStackTrace();
             return Optional.empty();
         }
+    }
+
+    public static ItemStack asItem(UUID receiver, Head head) {
+        TranslatableLocalization localization = HeadDB.getInstance().getLocalization();
+        ItemStack item = new ItemBuilder(Material.PLAYER_HEAD)
+                .name(localization.getMessage(receiver, "menu.head.name").orElse("&e" + head.getName().toUpperCase(Locale.ROOT)).replace("%name%", head.getName()))
+                .setLore("&cID: " + head.getId(), "&7Tags: &e" + head.getTags())
+                .build();
+
+        ItemMeta meta = item.getItemMeta();
+
+        // if version < 1.20.1 use reflection, else (1.20.2+) use PlayerProfile because spigot bitches otherwise.
+        if (ServerVersion.getVersion().orElse(ServerVersion.v_1_20_1).isOlderThan(ServerVersion.v_1_20_2)) {
+            try {
+                GameProfile profile = new GameProfile(head.getUniqueId(), head.getName());
+                profile.getProperties().put("textures", new Property("textures", head.getTexture()));
+
+                //noinspection DataFlowIssue
+                Field profileField = meta.getClass().getDeclaredField("profile");
+                profileField.setAccessible(true);
+                profileField.set(meta, profile);
+                item.setItemMeta(meta);
+            } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException ex) {
+                //Log.error("Could not set skull owner for " + uuid.toString() + " | Stack Trace:");
+                ex.printStackTrace();
+            }
+        } else {
+            try {
+                PlayerProfile profile = Bukkit.createPlayerProfile(head.getUniqueId(), head.getName());
+                PlayerTextures textures = profile.getTextures();
+                String url = new String(Base64.getDecoder().decode(head.getTexture()));
+                textures.setSkin(new URL(url.substring("{\"textures\":{\"SKIN\":{\"url\":\"".length(), url.length() - "\"}}}".length())));
+                profile.setTextures(textures);
+
+                SkullMeta skullMeta = (SkullMeta) meta;
+                if (skullMeta != null) {
+                    skullMeta.setOwnerProfile(profile);
+                }
+                item.setItemMeta(skullMeta);
+            } catch (MalformedURLException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return item;
     }
 
     public static int resolveInt(String raw) {

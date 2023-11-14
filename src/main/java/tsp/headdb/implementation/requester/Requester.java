@@ -18,8 +18,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
 
+/**
+ * Responsible for requesting heads from providers.
+ *
+ * @author TheSilentPro
+ * @see tsp.headdb.core.api.HeadAPI
+ * @see tsp.headdb.implementation.head.HeadDatabase
+ */
 public class Requester {
 
     private final JavaPlugin plugin;
@@ -30,51 +36,52 @@ public class Requester {
         this.provider = provider;
     }
 
-    public void fetchAndResolve(Category category, Consumer<List<Head>> heads) {
+    public List<Head> fetchAndResolve(Category category) {
         try {
-            fetch(category, response -> {
-                List<Head> result = new ArrayList<>();
-                if (response.code() != 200) {
-                    heads.accept(result);
-                    return;
-                }
+            Response response = fetch(category);
+            List<Head> result = new ArrayList<>();
+            if (response.code() != 200) {
+                return result;
+            }
 
-                JsonArray main = JsonParser.parseString(response.response()).getAsJsonArray();
-                for (JsonElement entry : main) {
-                    JsonObject obj = entry.getAsJsonObject();
-                    int id = obj.get("id").getAsInt();
+            JsonArray main = JsonParser.parseString(response.response()).getAsJsonArray();
+            for (JsonElement entry : main) {
+                JsonObject obj = entry.getAsJsonObject();
+                int id = obj.get("id").getAsInt();
 
-                    if (plugin.getConfig().contains("blockedHeads.ids")) {
-                        List<Integer> blockedIds = plugin.getConfig().getIntegerList("blockedHeads.ids");
-                        if (blockedIds.contains(id)) {
-                            HeadDB.getInstance().getLog().debug("Skipped blocked head: " + obj.get("name").getAsString() + "(" + id + ")");
-                            continue;
-                        }
+                if (plugin.getConfig().contains("blockedHeads.ids")) {
+                    List<Integer> blockedIds = plugin.getConfig().getIntegerList("blockedHeads.ids");
+                    if (blockedIds.contains(id)) {
+                        HeadDB.getInstance().getLog().debug("Skipped blocked head: " + obj.get("name").getAsString() + "(" + id + ")");
+                        continue;
                     }
-
-                    result.add(new Head(
-                            id,
-                            Utils.validateUniqueId(obj.get("uuid").getAsString()).orElse(UUID.randomUUID()),
-                            obj.get("name").getAsString(),
-                            obj.get("value").getAsString(),
-                            obj.get("tags").getAsString(),
-                            response.date(),
-                            category
-                    ));
                 }
 
-                heads.accept(result);
-            });
+                result.add(new Head(
+                        id,
+                        Utils.validateUniqueId(obj.get("uuid").getAsString()).orElse(UUID.randomUUID()),
+                        obj.get("name").getAsString(),
+                        obj.get("value").getAsString(),
+                        obj.get("tags").getAsString(),
+                        response.date(),
+                        category
+                ));
+            }
+
+            return result;
         } catch (IOException ex) {
             HeadDB.getInstance().getLog().debug("Failed to load from provider: " + provider.name());
             if (HeadDB.getInstance().getConfig().getBoolean("fallback") && provider != HeadProvider.HEAD_ARCHIVE) { // prevent recursion. Maybe switch to an attempts counter down in the future
                 provider = HeadProvider.HEAD_ARCHIVE;
-                fetchAndResolve(category, heads);
+                return fetchAndResolve(category);
+            } else {
+                HeadDB.getInstance().getLog().error("Could not fetch heads from any provider!");
+                return new ArrayList<>();
             }
         }
     }
 
-    public void fetch(Category category, Consumer<Response> response) throws IOException {
+    public Response fetch(Category category) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(provider.getFormattedUrl(category)).openConnection();
         connection.setConnectTimeout(5000);
         connection.setRequestMethod("GET");
@@ -88,10 +95,9 @@ public class Requester {
                 builder.append(line);
             }
 
-            response.accept(new Response(builder.toString(), connection.getResponseCode(), connection.getHeaderField("date")));
+            connection.disconnect();
+            return new Response(builder.toString(), connection.getResponseCode(), connection.getHeaderField("date"));
         }
-
-        connection.disconnect();
     }
 
     public HeadProvider getProvider() {

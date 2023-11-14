@@ -1,19 +1,11 @@
 package tsp.headdb.implementation.head;
 
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import tsp.headdb.HeadDB;
+import tsp.headdb.core.util.Utils;
 import tsp.headdb.implementation.category.Category;
-import tsp.nexuslib.builder.ItemBuilder;
-import tsp.nexuslib.localization.TranslatableLocalization;
 import tsp.nexuslib.util.Validate;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.lang.reflect.Field;
-import java.util.Locale;
 import java.util.UUID;
 
 public class Head {
@@ -47,26 +39,7 @@ public class Head {
 
     public ItemStack getItem(UUID receiver) {
         if (item == null) {
-            TranslatableLocalization localization = HeadDB.getInstance().getLocalization();
-            item = new ItemBuilder(Material.PLAYER_HEAD)
-                    .name(localization.getMessage(receiver, "menu.head.name").orElse("&e" + name.toUpperCase(Locale.ROOT)).replace("%name%", name))
-                    .setLore("&cID: " + id, "&7Tags: &e" + tags)
-                    .build();
-
-            ItemMeta meta = item.getItemMeta();
-            GameProfile profile = new GameProfile(uniqueId, name);
-            profile.getProperties().put("textures", new Property("textures", texture));
-            try {
-                //noinspection DataFlowIssue
-                Field profileField = meta.getClass().getDeclaredField("profile");
-                profileField.setAccessible(true);
-                profileField.set(meta, profile);
-            } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException ex) {
-                //Log.error("Could not set skull owner for " + uuid.toString() + " | Stack Trace:");
-                ex.printStackTrace();
-            }
-
-            item.setItemMeta(meta);
+            item = Utils.asItem(receiver, this);
         }
 
         return item.clone(); // Return clone that changes are not reflected

@@ -5,6 +5,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import tsp.headdb.core.storage.HeadDBThreadFactory;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
@@ -132,8 +133,7 @@ class Metrics {
         /** The version of the Metrics class. */
         public static final String METRICS_VERSION = "3.0.0";
 
-        private static final ScheduledExecutorService scheduler =
-                Executors.newScheduledThreadPool(1, task -> new Thread(task, "bStats-Metrics"));
+        private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(HeadDBThreadFactory.FACTORY);
 
         private static final String REPORT_URL = "https://bStats.org/api/v2/data/%s";
 

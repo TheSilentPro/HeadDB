@@ -1,18 +1,18 @@
 package tsp.headdb.core.economy;
 
 import org.bukkit.entity.Player;
+import tsp.helperlite.scheduler.promise.Promise;
 
 import java.math.BigDecimal;
-import java.util.concurrent.CompletableFuture;
 
 public interface BasicEconomyProvider {
 
-    CompletableFuture<Boolean> canPurchase(Player player, BigDecimal cost);
+    Promise<Boolean> canPurchase(Player player, BigDecimal cost);
 
-    CompletableFuture<Boolean> withdraw(Player player, BigDecimal amount);
+    Promise<Boolean> withdraw(Player player, BigDecimal amount);
 
-    default CompletableFuture<Boolean> purchase(Player player, BigDecimal amount) {
-        return canPurchase(player, amount).thenCompose(result -> result ? withdraw(player, amount) : CompletableFuture.completedFuture(false));
+    default Promise<Boolean> purchase(Player player, BigDecimal amount) {
+        return canPurchase(player, amount).thenComposeAsync(result -> result ? withdraw(player, amount) : Promise.completed(false));
     }
 
     void init();

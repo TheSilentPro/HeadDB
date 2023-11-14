@@ -7,17 +7,25 @@ import tsp.headdb.core.economy.VaultProvider;
 import tsp.headdb.core.storage.Storage;
 import tsp.headdb.core.task.UpdateTask;
 import tsp.headdb.core.util.HeadDBLogger;
+import tsp.helperlite.HelperLite;
+import tsp.helperlite.Schedulers;
+import tsp.helperlite.scheduler.promise.Promise;
+import tsp.helperlite.scheduler.task.Task;
 import tsp.nexuslib.NexusPlugin;
 import tsp.nexuslib.inventory.PaneListener;
 import tsp.nexuslib.localization.TranslatableLocalization;
-import tsp.nexuslib.util.PluginUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.DecimalFormat;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 public class HeadDB extends NexusPlugin {
 
@@ -27,22 +35,27 @@ public class HeadDB extends NexusPlugin {
     private Storage storage;
     private BasicEconomyProvider economyProvider;
     private CommandManager commandManager;
+    private Task updateTask;
 
     @Override
     public void onStart(NexusPlugin nexusPlugin) {
         instance = this;
+        HelperLite.init(this);
+
         instance.saveDefaultConfig();
         instance.logger = new HeadDBLogger(getConfig().getBoolean("debug"));
         instance.logger.info("Loading HeadDB - " + instance.getDescription().getVersion());
 
-        new UpdateTask(getConfig().getLong("refresh", 86400L)).schedule(this);
         instance.logger.info("Loaded " + loadLocalization() + " languages!");
 
         instance.initStorage();
         instance.initEconomy();
 
+        startUpdateTask();
+
         new PaneListener(this);
 
+        // TODO: Commands helperlite
         instance.commandManager = new CommandManager();
         loadCommands();
 
@@ -66,7 +79,37 @@ public class HeadDB extends NexusPlugin {
                 }
             }
         }
+
+        updateTask.stop();
     }
+
+    private void startUpdateTask() {
+        updateTask = Schedulers.builder()
+                .async()
+                .every(getConfig().getLong("refresh", 86400L), TimeUnit.SECONDS)
+                .run(new UpdateTask());
+    }
+
+    private void ensureLatestVersion() {
+        Promise.start().thenApplyAsync(a -> {
+            try {
+                URLConnection connection = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + 84967).openConnection();
+                connection.setConnectTimeout(5000);
+                connection.setRequestProperty("User-Agent", this.getName() + "-VersionChecker");
+
+                return new BufferedReader(new InputStreamReader(connection.getInputStream())).readLine().equals(this.getDescription().getVersion());
+            } catch (IOException ex) {
+                return false;
+            }
+        }).thenAcceptAsync(latest -> {
+            if (latest) {
+                instance.logger.warning("There is a new update available for HeadDB on spigot!");
+                instance.logger.warning("Download: https://www.spigotmc.org/resources/84967");
+            }
+        });
+    }
+
+    // Loaders
 
     private void initMetrics() {
         Metrics metrics = new Metrics(this, 9152);
@@ -80,19 +123,8 @@ public class HeadDB extends NexusPlugin {
         }));
     }
 
-    private void ensureLatestVersion() {
-        PluginUtils.isLatestVersion(this, 84967, latest -> {
-            if (Boolean.FALSE.equals(latest)) {
-                instance.logger.warning("There is a new update available for HeadDB on spigot!");
-                instance.logger.warning("Download: https://www.spigotmc.org/resources/84967");
-            }
-        });
-    }
-
-    // Loaders
-
     private void initStorage() {
-        storage = new Storage(getConfig().getInt("storage.threads"));
+        storage = new Storage();
         storage.getPlayerStorage().init();
     }
 
@@ -155,6 +187,10 @@ public class HeadDB extends NexusPlugin {
     }
 
     // Getters
+
+    public Optional<Task> getUpdateTask() {
+        return Optional.ofNullable(updateTask);
+    }
 
     public Storage getStorage() {
         return storage;

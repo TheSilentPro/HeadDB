@@ -1,6 +1,7 @@
 package tsp.headdb.core.storage;
 
 import tsp.headdb.HeadDB;
+import tsp.helperlite.Schedulers;
 
 import java.io.File;
 import java.util.concurrent.Executor;
@@ -11,8 +12,8 @@ public class Storage {
     private final Executor executor;
     private final PlayerStorage playerStorage;
 
-    public Storage(int threads) {
-        executor = Executors.newFixedThreadPool(threads, HeadDBThreadFactory.FACTORY);
+    public Storage() {
+        executor = Schedulers.async();
         validateDataDirectory();
         playerStorage = new PlayerStorage(HeadDB.getInstance(), this);
     }

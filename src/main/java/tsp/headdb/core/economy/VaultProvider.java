@@ -5,24 +5,24 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import tsp.headdb.HeadDB;
+import tsp.helperlite.scheduler.promise.Promise;
 
 import java.math.BigDecimal;
-import java.util.concurrent.CompletableFuture;
 
 public class VaultProvider implements BasicEconomyProvider {
 
     private Economy economy;
 
     @Override
-    public CompletableFuture<Boolean> canPurchase(Player player, BigDecimal cost) {
+    public Promise<Boolean> canPurchase(Player player, BigDecimal cost) {
         double effectiveCost = cost.doubleValue();
-        return CompletableFuture.supplyAsync(() -> economy.has(player, effectiveCost >= 0 ? effectiveCost : 0));
+        return Promise.supplyingAsync(() -> economy.has(player, effectiveCost >= 0 ? effectiveCost : 0));
     }
 
     @Override
-    public CompletableFuture<Boolean> withdraw(Player player, BigDecimal amount) {
+    public Promise<Boolean> withdraw(Player player, BigDecimal amount) {
         double effectiveCost = amount.doubleValue();
-        return CompletableFuture.supplyAsync(() -> economy.withdrawPlayer(player, effectiveCost >= 0 ? effectiveCost : 0).transactionSuccess());
+        return Promise.supplyingAsync(() -> economy.withdrawPlayer(player, effectiveCost >= 0 ? effectiveCost : 0).transactionSuccess());
     }
 
 

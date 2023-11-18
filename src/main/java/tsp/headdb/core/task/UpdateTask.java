@@ -34,14 +34,10 @@ public class UpdateTask implements Runnable {
     }
 
     private int getHeadsCount(Map<Category, List<Head>> heads) {
-        int n = 0;
-        for (List<Head> list : heads.values()) {
-            for (int i = 0; i < list.size(); i++) {
-                n++;
-            }
-        }
-
-        return n;
+        int count = 0;
+        for (List<Head> list : heads.values())
+            count+=list.size();
+        return count;
     }
 
 }

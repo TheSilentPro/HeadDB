@@ -21,8 +21,7 @@ public record LocalHead(UUID uniqueId, String name) {
             meta.setLore(Collections.singletonList(ChatColor.GRAY + "UUID: " + uniqueId.toString()));
             item.setItemMeta(meta);
         }
-
-        return item.clone();
+        return item;
     }
 
 }

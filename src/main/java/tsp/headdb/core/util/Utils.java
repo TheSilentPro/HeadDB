@@ -235,9 +235,11 @@ public class Utils {
         if (!head.hasItemMeta())
             return Optional.empty();
         
-        ItemMeta meta = head.getItemMeta();
+        SkullMeta meta = (SkullMeta) head.getItemMeta();
 
-        try {
+        // if version < 1.20.1 use reflection, else (1.20.2+) use PlayerProfile because spigot bitches otherwise.
+        if (ServerVersion.getVersion().orElse(ServerVersion.v_1_20_1).isOlderThan(ServerVersion.v_1_20_2)) {
+          try {
             Field profileField = meta.getClass().getDeclaredField("profile");
             profileField.setAccessible(true);
             GameProfile profile = (GameProfile) profileField.get(meta);
@@ -249,9 +251,13 @@ public class Utils {
                     .filter(p -> p.getName().equals("textures"))
                     .findAny()
                     .map(Property::getValue);
-        } catch (NoSuchFieldException | SecurityException | IllegalAccessException e ) {
+          } catch (NoSuchFieldException | SecurityException | IllegalAccessException e ) {
             e.printStackTrace();
             return Optional.empty();
+          }
+        }else {
+            String parsed = meta.getOwnerProfile().getTextures().toString();
+			return Optional.of(Base64.getEncoder().encodeToString(parsed.substring(26, parsed.length() - 1).getBytes()));
         }
     }
 

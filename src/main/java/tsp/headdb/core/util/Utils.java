@@ -43,16 +43,13 @@ public class Utils {
     private static final HeadDB instance = HeadDB.getInstance();
 
     public static String toString(Collection<String> set) {
-        String[] array = set.toArray(new String[0]);
-
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < array.length; i++) {
-            builder.append(array[i]);
-            if (i < array.length - 1) {
-                builder.append(",");
-            }
+        boolean first = true;
+        StringBuilder builder = new StringBuilder(set.size()*8);
+        for(String value : set) {
+            if (first) first = false;
+            else builder.append(',');
+            builder.append(value);
         }
-
         return builder.toString();
     }
 
@@ -66,10 +63,12 @@ public class Utils {
 
     @ParametersAreNonnullByDefault
     public static String translateTitle(String raw, int size, String category, @Nullable String query) {
-        return StringUtils.colorize(raw)
+        String title = StringUtils.colorize(raw)
                 .replace("%size%", String.valueOf(size))
-                .replace("%category%", category)
-                .replace("%query%", (query != null ? query : "%query%"));
+                .replace("%category%", category);
+        if (query != null)
+            title=title.replace("%query%", query);
+        return title;
     }
 
     @ParametersAreNonnullByDefault
@@ -80,10 +79,7 @@ public class Utils {
     public static boolean matches(String provided, String query) {
         provided = ChatColor.stripColor(provided.toLowerCase(Locale.ROOT));
         query = query.toLowerCase(Locale.ROOT);
-        return provided.equals(query)
-                || provided.startsWith(query)
-                || provided.contains(query);
-                //|| provided.endsWith(query);
+        return provided.contains(query);
     }
 
     public static void fill(@Nonnull Pane pane, @Nullable ItemStack item) {
@@ -236,10 +232,10 @@ public class Utils {
     }
 
     public static Optional<String> getTexture(ItemStack head) {
-        ItemMeta meta = head.getItemMeta();
-        if (meta == null) {
+        if (!head.hasItemMeta())
             return Optional.empty();
-        }
+        
+        ItemMeta meta = head.getItemMeta();
 
         try {
             Field profileField = meta.getClass().getDeclaredField("profile");
@@ -316,10 +312,9 @@ public class Utils {
         ConfigurationSection section = HeadDB.getInstance().getConfig().getConfigurationSection(path);
         Validate.notNull(section, "Section can not be null!");
 
-        Material material = Material.matchMaterial(section.getString("material", def.name()));
-        if (material == null) {
+        Material material = Material.matchMaterial(section.getString("material", def.name()).toUpperCase());
+        if (material == null)
             material = def;
-        }
 
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
@@ -328,16 +323,11 @@ public class Utils {
             //noinspection DataFlowIssue
             meta.setDisplayName(StringUtils.colorize(section.getString("name")));
 
-            List<String> lore = new ArrayList<>();
-            for (String line : section.getStringList("lore")) {
-                if (line != null && !line.isEmpty()) {
-                    lore.add(StringUtils.colorize(line));
-                }
-            }
+            List<String> lore = section.getStringList("lore");
+            lore.replaceAll(line -> StringUtils.colorize(line));
             meta.setLore(lore);
             item.setItemMeta(meta);
         }
-
         return item;
     }
 

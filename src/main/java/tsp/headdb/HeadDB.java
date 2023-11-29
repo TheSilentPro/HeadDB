@@ -19,7 +19,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -71,6 +70,7 @@ public class HeadDB extends NexusPlugin {
             File langFile = new File(getDataFolder(), "langs.data");
             if (!langFile.exists()) {
                 try {
+                    //noinspection ResultOfMethodCallIgnored
                     langFile.createNewFile();
                     localization.saveLanguages(langFile);
                 } catch (IOException ex) {

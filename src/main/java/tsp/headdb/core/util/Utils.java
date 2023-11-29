@@ -32,6 +32,8 @@ import tsp.nexuslib.util.Validate;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
@@ -41,6 +43,26 @@ import java.util.*;
 public class Utils {
 
     private static final HeadDB instance = HeadDB.getInstance();
+    private static Properties properties = null;
+
+    public static Optional<String> getVersion() {
+        if (properties == null) {
+            InputStream is = instance.getResource("build.properties");
+            if (is == null) {
+                return Optional.empty();
+            }
+
+            try {
+                properties = new Properties();
+                properties.load(is);
+            } catch (IOException ex) {
+                instance.getLog().debug("Failed to load build properties: " + ex.getMessage());
+                return Optional.empty();
+            }
+        }
+
+        return Optional.ofNullable(properties.getProperty("version"));
+    }
 
     public static String toString(Collection<String> set) {
         String[] array = set.toArray(new String[0]);

@@ -85,7 +85,7 @@ public class Requester {
         HttpURLConnection connection = (HttpURLConnection) new URL(provider.getFormattedUrl(category)).openConnection();
         connection.setConnectTimeout(5000);
         connection.setRequestMethod("GET");
-        connection.setRequestProperty("User-Agent", plugin.getName() + "/" + plugin.getDescription().getVersion());
+        connection.setRequestProperty("User-Agent", plugin.getName() + "/" + Utils.getVersion().orElse(plugin.getDescription().getVersion()));
         connection.setRequestProperty("Accept", "application/json");
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {

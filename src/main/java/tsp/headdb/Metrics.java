@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import tsp.headdb.core.util.Utils;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
@@ -107,7 +108,7 @@ class Metrics {
     }
 
     private void appendServiceData(JsonObjectBuilder builder) {
-        builder.appendField("pluginVersion", plugin.getDescription().getVersion());
+        builder.appendField("pluginVersion", Utils.getVersion().orElse("Unknown"));
     }
 
     private int getPlayerAmount() {

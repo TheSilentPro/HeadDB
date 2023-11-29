@@ -7,6 +7,7 @@ import tsp.headdb.core.economy.VaultProvider;
 import tsp.headdb.core.storage.Storage;
 import tsp.headdb.core.task.UpdateTask;
 import tsp.headdb.core.util.HeadDBLogger;
+import tsp.headdb.core.util.Utils;
 import tsp.helperlite.HelperLite;
 import tsp.helperlite.Schedulers;
 import tsp.helperlite.scheduler.promise.Promise;
@@ -43,7 +44,7 @@ public class HeadDB extends NexusPlugin {
 
         instance.saveDefaultConfig();
         instance.logger = new HeadDBLogger(getConfig().getBoolean("debug"));
-        instance.logger.info("Loading HeadDB - " + instance.getDescription().getVersion());
+        instance.logger.info("Loading HeadDB - " + Utils.getVersion().orElse(getDescription().getVersion() + " (UNKNOWN SEMVER)"));
 
         instance.logger.info("Loaded " + loadLocalization() + " languages!");
 
@@ -97,7 +98,7 @@ public class HeadDB extends NexusPlugin {
                 connection.setConnectTimeout(5000);
                 connection.setRequestProperty("User-Agent", this.getName() + "-VersionChecker");
 
-                return new BufferedReader(new InputStreamReader(connection.getInputStream())).readLine().equals(this.getDescription().getVersion());
+                return new BufferedReader(new InputStreamReader(connection.getInputStream())).readLine().equals(Utils.getVersion().orElse(getDescription().getVersion()));
             } catch (IOException ex) {
                 return false;
             }

@@ -5,7 +5,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import tsp.headdb.core.storage.HeadDBThreadFactory;
+import org.jetbrains.annotations.NotNull;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
@@ -13,10 +13,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -133,7 +130,12 @@ class Metrics {
         /** The version of the Metrics class. */
         public static final String METRICS_VERSION = "3.0.0";
 
-        private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(HeadDBThreadFactory.FACTORY);
+        private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+            @Override
+            public Thread newThread(@NotNull Runnable r) {
+                return new Thread("headdb-metrics");
+            }
+        });
 
         private static final String REPORT_URL = "https://bStats.org/api/v2/data/%s";
 

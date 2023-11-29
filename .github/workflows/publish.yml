@@ -26,10 +26,10 @@ jobs:
       - name: Build with Maven
         run: mvn -B package
 
-      - name: Upload to Blob Builds
+      - name: Upload build
         uses: WalshyDev/blob-builds/gh-action@main
         with:
-          project: Slimefun4
+          project: HeadDB
           releaseChannel: ${{ github.ref == 'refs/heads/release' && 'Release' || 'Dev' }}
           apiToken: ${{ secrets.BUILDS_API_TOKEN }}
           file: './target/HeadDB.jar'

@@ -213,48 +213,38 @@ public class Utils {
                     .replace("%cost%", HeadDB.getInstance().getDecimalFormat().format(cost))
             );
 
-            try (Promise<Boolean> economyPromise = optional.get().purchase(player, cost)) {
-                // TODO: Might not need to be sync.
-                return economyPromise.thenApplySync((success) -> {
-                    if (success) {
-                        HeadDB.getInstance().getLocalization().sendMessage(player, "completePayment", msg -> msg
-                                .replace("%name%", head.getName())
-                                .replace("%cost%", cost.toString()));
-                    } else {
-                        HeadDB.getInstance().getLocalization().sendMessage(player, "invalidFunds", msg -> msg.replace("%name%", head.getName()));
-                    }
-                    return success;
-                });
-            } catch (Exception ex) {
-                HeadDB.getInstance().getLog().severe("Failed to process payment: " + ex.getMessage());
-                return Promise.exceptionally(ex);
-            }
+            return optional.get().purchase(player, cost).thenApplyAsync(success -> {
+                if (success) {
+                    HeadDB.getInstance().getLocalization().sendMessage(player, "completePayment", msg -> msg
+                            .replace("%name%", head.getName())
+                            .replace("%cost%", cost.toString()));
+                } else {
+                    HeadDB.getInstance().getLocalization().sendMessage(player, "invalidFunds", msg -> msg.replace("%name%", head.getName()));
+                }
+                return success;
+            });
         }
     }
 
     public static void purchase(Player player, Head head, int amount) {
         // Bukkit API - Has to be sync.
-        try (Promise<Boolean> paymentPromise = processPayment(player, head, amount)) {
-            paymentPromise.thenAcceptSync((success) -> {
-                if (success) {
-                    ItemStack item = head.getItem(player.getUniqueId());
-                    item.setAmount(amount);
-                    player.getInventory().addItem(item);
-                    HeadDB.getInstance().getConfig().getStringList("commands.purchase").forEach(command -> {
-                        if (command.isEmpty()) {
-                            return;
-                        }
-                        if (Hooks.PAPI.enabled()) {
-                            command = PlaceholderAPI.setPlaceholders(player, command);
-                        }
+        processPayment(player, head, amount).thenAcceptSync(success -> {
+            if (success) {
+                ItemStack item = head.getItem(player.getUniqueId());
+                item.setAmount(amount);
+                player.getInventory().addItem(item);
+                HeadDB.getInstance().getConfig().getStringList("commands.purchase").forEach(command -> {
+                    if (command.isEmpty()) {
+                        return;
+                    }
+                    if (Hooks.PAPI.enabled()) {
+                        command = PlaceholderAPI.setPlaceholders(player, command);
+                    }
 
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
-                    });
-                }
-            });
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+                });
+            }
+        });
     }
 
     public static Optional<String> getTexture(ItemStack head) {

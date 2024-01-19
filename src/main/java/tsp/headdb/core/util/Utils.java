@@ -281,7 +281,8 @@ public class Utils {
         ItemMeta meta = item.getItemMeta();
 
         // if version < 1.20.1 use reflection, else (1.20.2+) use PlayerProfile because spigot bitches otherwise.
-        if (ServerVersion.getVersion().orElse(ServerVersion.v_1_20_1).isOlderThan(ServerVersion.v_1_20_2)) {
+        // Assumes newer version has been released when optional is empty.
+        if (ServerVersion.getVersion().orElse(ServerVersion.v_1_20_2).isOlderThan(ServerVersion.v_1_20_1)) {
             try {
                 GameProfile profile = new GameProfile(head.getUniqueId(), head.getName());
                 profile.getProperties().put("textures", new Property("textures", head.getTexture()));

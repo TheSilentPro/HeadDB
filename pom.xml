@@ -6,7 +6,7 @@
 
     <groupId>tsp.headdb</groupId>
     <artifactId>HeadDB</artifactId>
-    <version>5.0.0-rc.9</version>
+    <version>5.0.0-rc.10</version>
     <packaging>jar</packaging>
 
     <name>HeadDB</name>
@@ -75,7 +75,7 @@
         <dependency>
             <groupId>com.github.TheSilentPro</groupId>
             <artifactId>NexusLib</artifactId>
-            <version>9d8b16b770</version>
+            <version>45b4813899</version>
         </dependency>
         <dependency>
             <groupId>com.github.TheSilentPro</groupId>

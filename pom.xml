@@ -14,8 +14,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <build.author>TheSilentPro (Silent)</build.author>
         <maven.build.timestamp.format>dd-MM-yyyy HH:mm:ss</maven.build.timestamp.format>
         <build.timestamp>${maven.build.timestamp}</build.timestamp>
@@ -55,42 +55,33 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.20.2-R0.1-SNAPSHOT</version>
+            <version>1.21.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.mojang</groupId>
-            <artifactId>authlib</artifactId>
-            <version>4.0.43</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.16</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.10.1</version>
+            <version>2.11.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.47.0.0</version>
             <scope>provided</scope>
         </dependency>
 
         <!-- Hard Dependencies (Shaded) -->
         <dependency>
             <groupId>com.github.TheSilentPro</groupId>
-            <artifactId>NexusLib</artifactId>
-            <version>45b4813899</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.TheSilentPro</groupId>
-            <artifactId>Warehouse</artifactId>
-            <version>b228e4f8b1</version>
-        </dependency>
-        <dependency>
-            <groupId>net.wesjd</groupId>
-            <artifactId>anvilgui</artifactId>
-            <version>1.9.2-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.TheSilentPro</groupId>
-            <artifactId>HelperLite</artifactId>
-            <version>775582f23b</version>
+            <artifactId>InvLib</artifactId>
+            <version>c184c31f6e</version>
         </dependency>
 
         <!-- Soft Dependencies -->
@@ -124,18 +115,18 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
+                <version>3.13.0</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
 
-            <!-- Shade -->
+            <!-- Shade Plugin Configuration -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.4.1</version>
+                <version>3.6.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -159,40 +150,18 @@
                                     <artifact>*:*</artifact>
                                     <excludeDefaults>false</excludeDefaults>
                                     <includes>
-                                        <include>tsp.headdb.core.util.anvilgui</include>
+                                        <include>tsp/headdb/core/util/anvilgui/**</include>
                                     </includes>
+                                    <excludes>
+                                        <exclude>org/yaml/**</exclude>
+                                        <exclude>META-INF/maven/org.yaml</exclude>
+                                        <exclude>javax/**</exclude>
+                                    </excludes>
                                 </filter>
                             </filters>
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-
-            <!-- Javadoc -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.4.1</version>
-                <executions>
-                    <execution>
-                        <id>javadoc-generate</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>javadoc</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <show>public</show>
-                    <doclint>none</doclint>
-                    <additionalDependencies>
-                        <additionalDependency>
-                            <groupId>org.spigotmc</groupId>
-                            <artifactId>spigot-api</artifactId>
-                            <version>1.20.2-R0.1-SNAPSHOT</version>
-                        </additionalDependency>
-                    </additionalDependencies>
-                </configuration>
             </plugin>
         </plugins>
     </build>

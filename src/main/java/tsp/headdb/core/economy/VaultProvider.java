@@ -4,42 +4,43 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
-import tsp.headdb.HeadDB;
-import tsp.helperlite.scheduler.promise.Promise;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.math.BigDecimal;
+import java.util.concurrent.CompletableFuture;
 
-public class VaultProvider implements BasicEconomyProvider {
+/**
+ * @author TheSilentPro (Silent)
+ */
+public class VaultProvider implements EconomyProvider {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(VaultProvider.class);
     private Economy economy;
-
-    @Override
-    public Promise<Boolean> canPurchase(Player player, BigDecimal cost) {
-        double effectiveCost = cost.doubleValue();
-        return Promise.supplyingAsync(() -> economy.has(player, effectiveCost >= 0 ? effectiveCost : 0));
-    }
-
-    @Override
-    public Promise<Boolean> withdraw(Player player, BigDecimal amount) {
-        double effectiveCost = amount.doubleValue();
-        return Promise.supplyingAsync(() -> economy.withdrawPlayer(player, effectiveCost >= 0 ? effectiveCost : 0).transactionSuccess());
-    }
-
 
     @Override
     public void init() {
         if (Bukkit.getServer().getPluginManager().getPlugin("Vault") == null) {
-            HeadDB.getInstance().getLog().error("Vault is not installed!");
+            LOGGER.error("Vault is not installed but is enabled in the config.yml!");
             return;
         }
 
         RegisteredServiceProvider<Economy> economyProvider = Bukkit.getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
         if (economyProvider == null) {
-            HeadDB.getInstance().getLog().error("Could not find vault economy provider!");
+            LOGGER.error("Could not find vault economy provider!");
             return;
         }
 
-        economy = economyProvider.getProvider();
+        this.economy = economyProvider.getProvider();
+    }
+
+    @Override
+    public CompletableFuture<Boolean> canAfford(Player player, double amount) {
+        return CompletableFuture.supplyAsync(() -> economy.has(player, Math.max(0, amount)));
+    }
+
+    @Override
+    public CompletableFuture<Boolean> withdraw(Player player, double amount) {
+        return CompletableFuture.supplyAsync(() -> economy.withdrawPlayer(player, Math.max(0, amount)).transactionSuccess());
     }
 
 }

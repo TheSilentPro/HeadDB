@@ -22,12 +22,26 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
-@SuppressWarnings({"all", "deprecation"}) // Class is from bstats, can't modify it.
+@SuppressWarnings("all")
 class Metrics {
 
     private final Plugin plugin;
 
     private final MetricsBase metricsBase;
+
+    private static final Metrics METRICS = new Metrics(HeadDB.getInstance(), 9152);
+
+    static {
+        /*
+        METRICS.addCustomChart(new Metrics.SimplePie("economy_provider", () -> {
+            if (HeadDB.getInstance().getEconomyProvider().isPresent()) {
+                return this.getConfig().getString("economy.provider");
+            }
+
+            return "None";
+        }));
+         */
+    }
 
     /**
      * Creates a new Metrics instance.
@@ -36,7 +50,7 @@ class Metrics {
      * @param serviceId The id of the service. It can be found at <a
      *     href="https://bstats.org/what-is-my-plugin-id">What is my plugin id?</a>
      */
-    public Metrics(JavaPlugin plugin, int serviceId) {
+    private Metrics(JavaPlugin plugin, int serviceId) {
         this.plugin = plugin;
         // Get the config file
         File bStatsFolder = new File(plugin.getDataFolder().getParentFile(), "bStats");
@@ -108,7 +122,7 @@ class Metrics {
     }
 
     private void appendServiceData(JsonObjectBuilder builder) {
-        builder.appendField("pluginVersion", Utils.getVersion().orElse("Unknown"));
+        builder.appendField("pluginVersion", Utils.getUserAgent());
     }
 
     private int getPlayerAmount() {

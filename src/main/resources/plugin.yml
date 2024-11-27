@@ -1,11 +1,15 @@
+# noinspection YAMLSchemaValidation
 name: ${project.name}
 description: ${project.description}
+author: TheSilentPro (Silent)
 
 main: tsp.headdb.HeadDB
 version: ${project.version}
-softdepend: ["Vault"]
+softdepend: ["PlaceholderAPI", "Vault"]
 api-version: 1.19
-author: TheSilentPro (Silent)
+libraries:
+  - "org.xerial:sqlite-jdbc:3.47.0.0"
+
 spigot-id: 84967
 
 commands:
@@ -24,11 +28,11 @@ permissions:
       headdb.command.update: true
       headdb.command.reload: true
       headdb.command.language: true
-      headdb.command.settings: true
       headdb.command.texture: true
       headdb.favorites: true
-      headdb.local: true
+      headdb.category.local.*: true
       headdb.category.*: true
+      headdb.category.all: true
   headdb.command.open:
     default: op
   headdb.command.search:
@@ -41,13 +45,11 @@ permissions:
     default: op
   headdb.command.language:
     default: op
-  headdb.command.settings:
-    default: op
   headdb.command.texture:
     default: op
   headdb.favorites:
     default: op
-  headdb.local:
+  headdb.category.local.*:
     default: op
   headdb.category.*:
     default: op

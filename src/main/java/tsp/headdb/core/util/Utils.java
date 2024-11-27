@@ -1,357 +1,198 @@
 package tsp.headdb.core.util;
 
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import tsp.headdb.HeadDB;
-import tsp.headdb.core.api.HeadAPI;
-import tsp.headdb.core.economy.BasicEconomyProvider;
-import tsp.headdb.core.hook.Hooks;
-import tsp.headdb.implementation.category.Category;
-import tsp.headdb.implementation.head.Head;
-import tsp.helperlite.scheduler.promise.Promise;
-import tsp.nexuslib.builder.ItemBuilder;
-import tsp.nexuslib.inventory.Button;
-import tsp.nexuslib.inventory.PagedPane;
-import tsp.nexuslib.inventory.Pane;
-import tsp.nexuslib.localization.TranslatableLocalization;
-import tsp.nexuslib.server.ServerVersion;
-import tsp.nexuslib.util.StringUtils;
-import tsp.nexuslib.util.Validate;
+import tsp.headdb.core.config.ConfigData;
+import tsp.headdb.core.economy.EconomyProvider;
+import tsp.headdb.api.model.Head;
+import tsp.headdb.api.model.LocalHead;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.math.BigDecimal;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.regex.Pattern;
 
+/**
+ * @author TheSilentPro (Silent)
+ */
 public class Utils {
 
-    private static final HeadDB instance = HeadDB.getInstance();
-    private static Properties properties = null;
+    private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
+    private static final Pattern HEAD_PATTERN = Pattern.compile("[^a-zA-Z0-9]");
+    public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    public static final Executor SYNC = r -> Bukkit.getScheduler().runTask(HeadDB.getInstance(), r);
+    private static final ConfigData config = HeadDB.getInstance().getCfg();
 
-    public static Optional<String> getVersion() {
-        if (properties == null) {
-            InputStream is = instance.getResource("build.properties");
-            if (is == null) {
-                return Optional.empty();
-            }
+    @SuppressWarnings("DataFlowIssue")
+    public static ItemStack asItem(Head head) {
+        ItemStack item = new ItemStack(Material.PLAYER_HEAD);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(ChatColor.GOLD + head.getName());
 
-            try {
-                properties = new Properties();
-                properties.load(is);
-            } catch (IOException ex) {
-                instance.getLog().debug("Failed to load build properties: " + ex.getMessage());
-                return Optional.empty();
-            }
-        }
+        List<String> lore = new ArrayList<>();
+        lore.add(ChatColor.GRAY + "ID » " + ChatColor.GOLD + head.getId());
+        head.getTags().ifPresent(tags -> lore.add(ChatColor.GRAY + "Tags » " + ChatColor.GOLD + String.join(", ", tags)));
 
-        return Optional.ofNullable(properties.getProperty("version"));
-    }
-
-    public static String toString(Collection<String> set) {
-        String[] array = set.toArray(new String[0]);
-
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < array.length; i++) {
-            builder.append(array[i]);
-            if (i < array.length - 1) {
-                builder.append(",");
-            }
-        }
-
-        return builder.toString();
-    }
-
-    public static Optional<UUID> validateUniqueId(@Nonnull String raw) {
-        try {
-            return Optional.of(UUID.fromString(raw));
-        } catch (IllegalArgumentException ignored) {
-            return Optional.empty();
-        }
-    }
-
-    @ParametersAreNonnullByDefault
-    public static String translateTitle(String raw, int size, String category, @Nullable String query) {
-        return StringUtils.colorize(raw)
-                .replace("%size%", String.valueOf(size))
-                .replace("%category%", category)
-                .replace("%query%", (query != null ? query : "%query%"));
-    }
-
-    @ParametersAreNonnullByDefault
-    public static String translateTitle(String raw, int size, String category) {
-        return translateTitle(raw, size, category, null);
-    }
-
-    public static boolean matches(String provided, String query) {
-        provided = ChatColor.stripColor(provided.toLowerCase(Locale.ROOT));
-        query = query.toLowerCase(Locale.ROOT);
-        return provided.equals(query)
-                || provided.startsWith(query)
-                || provided.contains(query);
-                //|| provided.endsWith(query);
-    }
-
-    public static void fill(@Nonnull Pane pane, @Nullable ItemStack item) {
-        Validate.notNull(pane, "Pane can not be null!");
-
-        if (item == null) {
-            item = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
-            ItemMeta meta = item.getItemMeta();
-            //noinspection DataFlowIssue
-            meta.setDisplayName("");
-            item.setItemMeta(meta);
-        }
-
-        for (int i = 0; i < pane.getInventory().getSize(); i++) {
-            ItemStack current = pane.getInventory().getItem(i);
-            if (current == null || current.getType().isAir()) {
-                pane.setButton(i, new Button(item, e -> e.setCancelled(true)));
-            }
-        }
-    }
-
-    @SuppressWarnings("SpellCheckingInspection")
-    public static PagedPane createPaged(Player player, String title) {
-        PagedPane main = new PagedPane(4, 6, title);
-        HeadAPI.getHeadByTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODY1MmUyYjkzNmNhODAyNmJkMjg2NTFkN2M5ZjI4MTlkMmU5MjM2OTc3MzRkMThkZmRiMTM1NTBmOGZkYWQ1ZiJ9fX0=").ifPresent(head -> main.setBackItem(head.getItem(player.getUniqueId())));
-        HeadAPI.getHeadByTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2Q5MWY1MTI2NmVkZGM2MjA3ZjEyYWU4ZDdhNDljNWRiMDQxNWFkYTA0ZGFiOTJiYjc2ODZhZmRiMTdmNGQ0ZSJ9fX0=").ifPresent(head -> main.setCurrentItem(head.getItem(player.getUniqueId())));
-        HeadAPI.getHeadByTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmEzYjhmNjgxZGFhZDhiZjQzNmNhZThkYTNmZTgxMzFmNjJhMTYyYWI4MWFmNjM5YzNlMDY0NGFhNmFiYWMyZiJ9fX0=").ifPresent(head -> main.setNextItem(head.getItem(player.getUniqueId())));
-        main.setControlCurrent(new Button(main.getCurrentItem(), e -> Bukkit.dispatchCommand(player, "hdb")));
-        return main;
-    }
-
-    public static void openFavoritesMenu(Player player) {
-        try (Promise<List<Head>> promise = HeadAPI.getFavoriteHeads(player.getUniqueId())) {
-            promise.thenAcceptSync(heads -> {
-                PagedPane main = Utils.createPaged(player, Utils.translateTitle(HeadDB.getInstance().getLocalization().getMessage(player.getUniqueId(), "menu.main.favorites.name").orElse("Favorites"), heads.size(), "Favorites"));
-                for (Head head : heads) {
-                    main.addButton(new Button(head.getItem(player.getUniqueId()), fe -> {
-                        if (!player.hasPermission("headdb.favorites")) {
-                            HeadDB.getInstance().getLocalization().sendMessage(player, "noAccessFavorites");
-                            return;
-                        }
-
-                        if (fe.isLeftClick()) {
-                            int amount = 1;
-                            if (fe.isShiftClick()) {
-                                amount = 64;
-                            }
-
-                            Utils.purchase(player, head, amount);
-                        } else if (fe.isRightClick()) {
-                            HeadDB.getInstance().getStorage().getPlayerStorage().removeFavorite(player.getUniqueId(), head.getTexture());
-                            HeadDB.getInstance().getLocalization().sendMessage(player, "removedFavorite", msg -> msg.replace("%name%", head.getName()));
-                            openFavoritesMenu(player);
-                        }
-                    }));
+        if (config.shouldIncludeMoreInfo()) {
+            head.getCategory().ifPresent(category -> {
+                if (category.isEmpty()) {
+                    lore.add(ChatColor.GRAY + "Category » " + ChatColor.GOLD + category);
                 }
-
-                main.open(player);
             });
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            head.getContributors().ifPresent(contributors -> {
+                if (contributors.length != 0) {
+                    lore.add(ChatColor.GRAY + "Contributors » " + ChatColor.GOLD + String.join(", ", contributors));
+                }
+            });
+            head.getCollections().ifPresent(collections -> {
+                if (collections.length != 0) {
+                    lore.add(ChatColor.GRAY + "Collections » " + ChatColor.GOLD + String.join(", ", collections));
+                }
+            });
+            head.getPublishDate().ifPresent(date -> lore.add(ChatColor.GRAY + "Published » " + ChatColor.GOLD + date));
         }
+
+        if (HeadDB.getInstance().getEconomyProvider() != null) {
+            lore.add(" ");
+            lore.add(ChatColor.GRAY + "Cost (x1) » " + ChatColor.GOLD + getHeadCost(head) + ChatColor.GRAY + " (Left-Click)");
+            lore.add(ChatColor.GRAY + "Cost (x64) » " + ChatColor.GOLD + (getHeadCost(head) * 64) + ChatColor.GRAY + " (Shift-Left-Click)");
+        }
+
+        meta.setLore(lore);
+        item.setItemMeta(meta);
+
+        PlayerProfile profile;
+        try {
+            profile = Bukkit.createPlayerProfile(null, head.getName());
+        } catch (IllegalArgumentException ex) {
+            // Head may contain special characters(@,!,<,>) that are not allowed in a PlayerProfile.
+            // Additionally, spaces are also removed as the profile name should not be visible to players.
+            String name = HEAD_PATTERN.matcher(head.getName().trim()).replaceAll("");
+            if (name.length() > 16) { // Profile names can not be longer than 16 characters
+                name = name.substring(0, 16);
+            }
+            profile = Bukkit.createPlayerProfile(null, name);
+        }
+
+        PlayerTextures textures = profile.getTextures();
+        String url = new String(Base64.getDecoder().decode(head.getTexture().orElseThrow(() -> new IllegalArgumentException("Head texture must not be null!"))));
+        try {
+            textures.setSkin(URI.create(url.substring("{\"textures\":{\"SKIN\":{\"url\":\"".length(), url.length() - "\"}}}".length())).toURL());
+        } catch (MalformedURLException ex) {
+            throw new RuntimeException(ex);
+        }
+        profile.setTextures(textures);
+
+        if (meta instanceof SkullMeta skullMeta) {
+            skullMeta.setOwnerProfile(profile);
+            item.setItemMeta(skullMeta);
+        }
+        return item;
     }
 
-    @ParametersAreNonnullByDefault
-    public static void addHeads(Player player, @Nullable Category category, PagedPane pane, Collection<Head> heads) {
-        for (Head head : heads) {
-            ItemStack item = head.getItem(player.getUniqueId());
-            pane.addButton(new Button(item, e -> {
-                e.setCancelled(true);
+    public static void purchaseHead(Player player, Head head, int amount) {
+        EconomyProvider economyProvider = HeadDB.getInstance().getEconomyProvider();
+        if (economyProvider == null) {
+            ItemStack item = head.getItem().clone();
+            item.setAmount(amount);
+            if (!HeadDB.getInstance().getCfg().shouldIncludeLore()) {
+                ItemMeta meta = item.getItemMeta();
+                //noinspection DataFlowIssue
+                meta.setLore(null);
+                item.setItemMeta(meta);
+            }
+            player.getInventory().addItem(item);
+            Sounds.SUCCESS.play(player);
+            return;
+        }
 
-                if (category != null && instance.getConfig().getBoolean("requireCategoryPermission") && !player.hasPermission("headdb.category." + category.getName())) {
-                    instance.getLocalization().sendMessage(player.getUniqueId(), "noPermission");
+        double cost = getHeadCost(head);
+        economyProvider.purchase(player, cost * amount).whenComplete((success, ex) -> {
+            Bukkit.getScheduler().runTask(HeadDB.getInstance(), () -> {
+                if (ex != null) {
+                    HeadDB.getInstance().getLocalization().sendMessage(player, "error");
+                    LOGGER.error("Purchasing head(s) failed!", ex);
                     return;
                 }
 
-                if (e.isLeftClick()) {
-                    int amount = 1;
-                    if (e.isShiftClick()) {
-                        amount = 64;
-                    }
-
-                    purchase(player, head, amount);
-                } else if (e.isRightClick()) {
-                    if (player.hasPermission("headdb.favorites")) {
-                        HeadDB.getInstance().getStorage().getPlayerStorage().addFavorite(player.getUniqueId(), head.getTexture());
-                        HeadDB.getInstance().getLocalization().sendMessage(player, "addedFavorite", msg -> msg.replace("%name%", head.getName()));
-                    } else {
-                        HeadDB.getInstance().getLocalization().sendMessage(player, "noAccessFavorites");
-                    }
-                }
-           }));
-        }
-    }
-
-    private static Promise<Boolean> processPayment(Player player, Head head, int amount) {
-        Optional<BasicEconomyProvider> optional = HeadDB.getInstance().getEconomyProvider();
-        if (optional.isEmpty()) {
-            return Promise.completed(true); // No economy, the head is free
-        } else {
-            BigDecimal cost = BigDecimal.valueOf(HeadDB.getInstance().getConfig().getDouble("economy.cost." + head.getCategory().getName()) * amount);
-            HeadDB.getInstance().getLocalization().sendMessage(player.getUniqueId(), "processPayment", msg -> msg
-                    .replace("%name%", head.getName())
-                    .replace("%amount%", String.valueOf(amount))
-                    .replace("%cost%", HeadDB.getInstance().getDecimalFormat().format(cost))
-            );
-
-            return optional.get().purchase(player, cost).thenApplyAsync(success -> {
                 if (success) {
-                    HeadDB.getInstance().getLocalization().sendMessage(player, "completePayment", msg -> msg
-                            .replace("%name%", head.getName())
-                            .replace("%cost%", cost.toString()));
+                    ItemStack item = head.getItem().clone();
+                    item.setAmount(amount);
+                    if (!HeadDB.getInstance().getCfg().shouldIncludeLore()) {
+                        ItemMeta meta = item.getItemMeta();
+                        //noinspection DataFlowIssue
+                        meta.setLore(null);
+                        item.setItemMeta(meta);
+                    }
+                    player.getInventory().addItem(item);
+                    Sounds.SUCCESS.play(player);
+
+                    HeadDB.getInstance().getLocalization().sendMessage(player, "completePayment", msg -> msg.replace("%amount%", String.valueOf(amount)).replace("%name%", head.getName()).replace("%cost%", String.valueOf(cost * amount)));
+
+                    HeadDB.getInstance().getConfig().getStringList("commands.purchase").forEach(command -> {
+                        if (command.isEmpty()) {
+                            return;
+                        }
+                        if (HeadDB.getInstance().isPAPI()) {
+                            command = PlaceholderAPI.setPlaceholders(player, command);
+                        }
+
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+                    });
                 } else {
-                    HeadDB.getInstance().getLocalization().sendMessage(player, "invalidFunds", msg -> msg.replace("%name%", head.getName()));
+                    Sounds.FAIL.play(player);
+                    HeadDB.getInstance().getLocalization().sendMessage(player, "invalidFunds", msg -> msg.replace("%amount%", String.valueOf(amount)).replace("%name%", head.getName()).replace("%cost%", String.valueOf(cost * amount)));
                 }
-                return success;
             });
-        }
-    }
-
-    public static void purchase(Player player, Head head, int amount) {
-        // Bukkit API - Has to be sync.
-        processPayment(player, head, amount).thenAcceptSync(success -> {
-            if (success) {
-                ItemStack item = head.getItem(player.getUniqueId());
-                item.setAmount(amount);
-                player.getInventory().addItem(item);
-                HeadDB.getInstance().getConfig().getStringList("commands.purchase").forEach(command -> {
-                    if (command.isEmpty()) {
-                        return;
-                    }
-                    if (Hooks.PAPI.enabled()) {
-                        command = PlaceholderAPI.setPlaceholders(player, command);
-                    }
-
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
-                });
-            }
         });
     }
 
-    public static Optional<String> getTexture(ItemStack head) {
-        ItemMeta meta = head.getItemMeta();
-        if (meta == null) {
-            return Optional.empty();
-        }
-
-        try {
-            Field profileField = meta.getClass().getDeclaredField("profile");
-            profileField.setAccessible(true);
-            GameProfile profile = (GameProfile) profileField.get(meta);
-            if (profile == null) {
-                return Optional.empty();
-            }
-
-            return profile.getProperties().get("textures").stream()
-                    .filter(p -> p.getName().equals("textures"))
-                    .findAny()
-                    .map(Property::getValue);
-        } catch (NoSuchFieldException | SecurityException | IllegalAccessException e ) {
-            e.printStackTrace();
-            return Optional.empty();
+    public static double getHeadCost(Head head) {
+        if (head instanceof LocalHead) { // Local heads have only one cost
+            return config.getLocalCost();
+        } else if (config.getCosts().containsKey(head)) { // Try get cost for specific head
+            return config.getCosts().get(head);
+        } else if (config.getCategoryCosts().containsKey(head.getCategory().orElse("?"))) { // Try get cost for specific category for the head
+            return config.getCategoryCosts().get(head.getCategory().orElse("?"));
+        } else { // Get the default cost for the head.
+            return config.getDefaultCost();
         }
     }
 
-    public static ItemStack asItem(UUID receiver, Head head) {
-        TranslatableLocalization localization = HeadDB.getInstance().getLocalization();
-        ItemStack item = new ItemBuilder(Material.PLAYER_HEAD)
-                .name(localization.getMessage(receiver, "menu.head.name").orElse("&e" + head.getName().toUpperCase(Locale.ROOT)).replace("%name%", head.getName()))
-                .setLore("&cID: " + head.getId(), "&7Tags: &e" + head.getTags())
-                .build();
-
-        ItemMeta meta = item.getItemMeta();
-
-        // if version < 1.20.1 use reflection, else (1.20.2+) use PlayerProfile because spigot bitches otherwise.
-        // Assumes newer version has been released when optional is empty.
-        if (ServerVersion.getVersion().orElse(ServerVersion.v_1_20_2).isOlderThan(ServerVersion.v_1_20_1)) {
-            try {
-                GameProfile profile = new GameProfile(head.getUniqueId(), head.getName());
-                profile.getProperties().put("textures", new Property("textures", head.getTexture()));
-
-                //noinspection DataFlowIssue
-                Field profileField = meta.getClass().getDeclaredField("profile");
-                profileField.setAccessible(true);
-                profileField.set(meta, profile);
-                item.setItemMeta(meta);
-            } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException ex) {
-                //Log.error("Could not set skull owner for " + uuid.toString() + " | Stack Trace:");
-                ex.printStackTrace();
-            }
-        } else {
-            try {
-                PlayerProfile profile = Bukkit.createPlayerProfile(head.getUniqueId(), head.getName());
-                PlayerTextures textures = profile.getTextures();
-                String url = new String(Base64.getDecoder().decode(head.getTexture()));
-                textures.setSkin(new URL(url.substring("{\"textures\":{\"SKIN\":{\"url\":\"".length(), url.length() - "\"}}}".length())));
-                profile.setTextures(textures);
-
-                SkullMeta skullMeta = (SkullMeta) meta;
-                if (skullMeta != null) {
-                    skullMeta.setOwnerProfile(profile);
-                }
-                item.setItemMeta(skullMeta);
-            } catch (MalformedURLException ex) {
-                ex.printStackTrace();
-            }
-        }
-
-        return item;
+    public static String colorize(String s) {
+        return ChatColor.translateAlternateColorCodes('&', s);
     }
 
-    public static int resolveInt(String raw) {
-        try {
-            return Integer.parseInt(raw);
-        } catch (NumberFormatException nfe) {
-            return 1;
+    private static String userAgent = null;
+
+    public static String getUserAgent() {
+        if (userAgent == null) {
+            // Example output: HeadDB/5.0.0 (Windows 10; 10.0; amd64) Eclipse Adoptium/21.0.4 Paper/1.21.1 (1.21.1-40-2fdb2e9)
+            userAgent = "HeadDB/" + HeadDB.getInstance().getDescription().getVersion() +
+                    " (" + System.getProperty("os.name") +
+                    "; " + System.getProperty("os.version") +
+                    "; " + System.getProperty("os.arch") +
+                    ") " + System.getProperty("java.vendor") + "/" + System.getProperty("java.version") +
+                    " " + Bukkit.getName() + "/" + Bukkit.getBukkitVersion().substring(0, Bukkit.getBukkitVersion().indexOf("-")) + " (" + Bukkit.getVersion().substring(0, Bukkit.getVersion().indexOf("(") - 1) + ")";
         }
+        return userAgent;
     }
 
-    public static ItemStack getItemFromConfig(String path, Material def) {
-        ConfigurationSection section = HeadDB.getInstance().getConfig().getConfigurationSection(path);
-        Validate.notNull(section, "Section can not be null!");
-
-        Material material = Material.matchMaterial(section.getString("material", def.name()));
-        if (material == null) {
-            material = def;
-        }
-
-        ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
-
-        if (meta != null) {
-            //noinspection DataFlowIssue
-            meta.setDisplayName(StringUtils.colorize(section.getString("name")));
-
-            List<String> lore = new ArrayList<>();
-            for (String line : section.getStringList("lore")) {
-                if (line != null && !line.isEmpty()) {
-                    lore.add(StringUtils.colorize(line));
-                }
-            }
-            meta.setLore(lore);
-            item.setItemMeta(meta);
-        }
-
-        return item;
+    public static boolean matches(String provided, String query) {
+        return ChatColor.stripColor(provided.toLowerCase()).contains(query.toLowerCase());
     }
 
 }

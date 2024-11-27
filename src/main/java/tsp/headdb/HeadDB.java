@@ -1,223 +1,163 @@
 package tsp.headdb;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
-import tsp.headdb.core.command.*;
-import tsp.headdb.core.economy.BasicEconomyProvider;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import tsp.headdb.core.commands.CommandManager;
+import tsp.headdb.core.player.PlayerDatabase;
+import tsp.headdb.core.config.ConfigData;
+import tsp.headdb.api.HeadAPI;
+import tsp.headdb.core.economy.EconomyProvider;
 import tsp.headdb.core.economy.VaultProvider;
+import tsp.headdb.api.model.Head;
 import tsp.headdb.core.storage.Storage;
-import tsp.headdb.core.task.UpdateTask;
-import tsp.headdb.core.util.HeadDBLogger;
-import tsp.headdb.core.util.Utils;
-import tsp.helperlite.HelperLite;
-import tsp.helperlite.Schedulers;
-import tsp.helperlite.scheduler.promise.Promise;
-import tsp.helperlite.scheduler.task.Task;
-import tsp.nexuslib.NexusPlugin;
-import tsp.nexuslib.inventory.PaneListener;
-import tsp.nexuslib.localization.TranslatableLocalization;
+import tsp.headdb.core.util.Localization;
+import tsp.invlib.InvLib;
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.text.DecimalFormat;
-import java.util.Optional;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-public class HeadDB extends NexusPlugin {
+/**
+ * @author TheSilentPro (Silent)
+ */
+public class HeadDB extends JavaPlugin {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(HeadDB.class);
     private static HeadDB instance;
-    private HeadDBLogger logger;
-    private TranslatableLocalization localization;
+    private ConfigData config;
+    private EconomyProvider economyProvider;
+    private boolean PAPI;
+    private PlayerDatabase playerDatabase;
+    private Localization localization;
     private Storage storage;
-    private BasicEconomyProvider economyProvider;
     private CommandManager commandManager;
-    private Task updateTask;
 
     @Override
-    public void onStart(NexusPlugin nexusPlugin) {
+    public void onEnable() {
         instance = this;
-        HelperLite.init(this);
+        saveDefaultConfig();
+        this.config = new ConfigData(getConfig());
+        this.playerDatabase = new PlayerDatabase();
+        this.storage = new Storage().init();
+        this.playerDatabase.load();
+        LOGGER.info("Loaded {} languages!", loadLocalization());
 
-        instance.saveDefaultConfig();
-        instance.logger = new HeadDBLogger(getConfig().getBoolean("debug"));
-        instance.logger.info("Loading HeadDB - " + Utils.getVersion().orElse(getDescription().getVersion() + " (UNKNOWN SEMVER)"));
+        InvLib.init(this);
 
-        instance.logger.info("Loaded " + loadLocalization() + " languages!");
+        this.PAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
 
-        instance.initStorage();
-        instance.initEconomy();
+        if (this.config.isEconomyEnabled()) {
+            if (this.config.getEconomyProvider().equalsIgnoreCase("VAULT")) {
+                this.economyProvider = new VaultProvider();
+            } else {
+                LOGGER.error("Invalid economy provider in config.yml!");
+                this.setEnabled(false);
+                return;
+            }
 
-        startUpdateTask();
+            this.economyProvider.init();
+        }
 
-        new PaneListener(this);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::updateDatabase, 0L, 86400 * 20);
 
-        // TODO: Commands helperlite
-        instance.commandManager = new CommandManager();
-        loadCommands();
-
-        initMetrics();
-        ensureLatestVersion();
-        instance.logger.info("Done!");
+        this.commandManager = new CommandManager().init();
+        PluginCommand mainCommand = getCommand("headdb");
+        if (mainCommand == null) {
+            LOGGER.error("Failed to get main /headdb command!");
+            this.setEnabled(false);
+            return;
+        }
+        mainCommand.setExecutor(commandManager);
+        mainCommand.setTabCompleter(commandManager);
     }
 
     @Override
     public void onDisable() {
-        if (storage != null) {
-            storage.getPlayerStorage().suspend();
-            File langFile = new File(getDataFolder(), "langs.data");
-            if (!langFile.exists()) {
-                try {
-                    //noinspection ResultOfMethodCallIgnored
-                    langFile.createNewFile();
-                    localization.saveLanguages(langFile);
-                } catch (IOException ex) {
-                    logger.error("Failed to save receiver langauges!");
-                    ex.printStackTrace();
+        // Save language data
+        if (playerDatabase != null) {
+            playerDatabase.save();
+        }
+    }
+
+    public CompletableFuture<List<Head>> updateDatabase() {
+        LOGGER.info("Fetching heads...");
+        long fetchStart = System.currentTimeMillis();
+        return HeadAPI.getDatabase().getHeadsNoCache().thenApply(result -> {
+            LOGGER.info("Fetched {} total heads! ({}s)", HeadAPI.getTotalHeads(), TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - fetchStart));
+
+            long preloadStart = System.currentTimeMillis();
+            int total = result.size();
+            int index = 0;
+
+            LOGGER.info("Preloading {} heads...", total);
+            // Milestone percentages we want to print
+            int[] milestones = {25, 50, 75, 100};
+            int nextMilestoneIndex = 0;
+
+            for (Head head : result) {
+                // Simulate processing each head
+                head.getItem();
+                index++;
+
+                // Calculate percentage completion
+                int progress = (int) ((index / (double) total) * 100);
+
+                // Check if the current progress matches the next milestone
+                if (nextMilestoneIndex < milestones.length && progress >= milestones[nextMilestoneIndex]) {
+                    LOGGER.info("Preloading heads... {}%", progress);
+                    nextMilestoneIndex++; // Move to the next milestone
                 }
             }
-        }
-
-        updateTask.stop();
-    }
-
-    private void startUpdateTask() {
-        updateTask = Schedulers.builder()
-                .async()
-                .every(getConfig().getLong("refresh", 86400L), TimeUnit.SECONDS)
-                .run(new UpdateTask());
-    }
-
-    private void ensureLatestVersion() {
-        Promise.start().thenApplyAsync(a -> {
-            try {
-                URLConnection connection = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + 84967).openConnection();
-                connection.setConnectTimeout(5000);
-                connection.setRequestProperty("User-Agent", this.getName() + "-VersionChecker");
-
-                return new BufferedReader(new InputStreamReader(connection.getInputStream())).readLine().equals(Utils.getVersion().orElse(getDescription().getVersion()));
-            } catch (IOException ex) {
-                return false;
-            }
-        }).thenAcceptAsync(latest -> {
-            if (latest) {
-                instance.logger.warning("There is a new update available for HeadDB on spigot!");
-                instance.logger.warning("Download: https://www.spigotmc.org/resources/84967");
-            }
+            LOGGER.info("Preloaded {} total heads! ({}s)", index, TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - preloadStart));
+            return result;
         });
     }
 
-    // Loaders
-
-    private void initMetrics() {
-        Metrics metrics = new Metrics(this, 9152);
-
-        metrics.addCustomChart(new Metrics.SimplePie("economy_provider", () -> {
-            if (getEconomyProvider().isPresent()) {
-                return this.getConfig().getString("economy.provider");
-            }
-
-            return "None";
-        }));
-    }
-
-    private void initStorage() {
-        storage = new Storage();
-        storage.getPlayerStorage().init();
-    }
-
     private int loadLocalization() {
-        instance.localization = new TranslatableLocalization(this, "messages");
+        instance.localization = new Localization(this, "messages");
         try {
             instance.localization.createDefaults();
-            int count = instance.localization.load();
-            File langFile = new File(getDataFolder(), "langs.data");
-            if (langFile.exists()) {
-                localization.loadLanguages(langFile);
-            }
-
-            return count;
+            return instance.localization.load();
         } catch (URISyntaxException | IOException ex) {
-            instance.logger.error("Failed to load localization!");
-            ex.printStackTrace();
+            LOGGER.error("Failed to load localization!", ex);
             this.setEnabled(false);
             return 0;
         }
-    }
-
-    private void initEconomy() {
-        if (!getConfig().getBoolean("economy.enabled")) {
-            instance.logger.debug("Economy disabled by config.yml!");
-            instance.economyProvider = null;
-            return;
-        }
-
-        String raw = getConfig().getString("economy.provider", "VAULT");
-        if (raw.equalsIgnoreCase("VAULT")) {
-            economyProvider = new VaultProvider();
-        }
-
-        economyProvider.init();
-        instance.logger.info("Economy Provider: " + raw);
-    }
-
-    private void loadCommands() {
-        PluginCommand main = getCommand("headdb");
-        if (main != null) {
-            main.setExecutor(new CommandMain());
-            main.setTabCompleter(new CommandMain());
-        } else {
-            instance.logger.error("Could not find main 'headdb' command!");
-            this.setEnabled(false);
-            return;
-        }
-
-        new CommandHelp().register();
-        new CommandCategory().register();
-        new CommandSearch().register();
-        new CommandGive().register();
-        new CommandUpdate().register();
-        new CommandReload().register();
-        new CommandTexture().register();
-        new CommandLanguage().register();
-        new CommandSettings().register();
-        new CommandInfo().register();
-    }
-
-    // Getters
-
-    public Optional<Task> getUpdateTask() {
-        return Optional.ofNullable(updateTask);
-    }
-
-    public Storage getStorage() {
-        return storage;
     }
 
     public CommandManager getCommandManager() {
         return commandManager;
     }
 
-    public Optional<BasicEconomyProvider> getEconomyProvider() {
-        return Optional.ofNullable(economyProvider);
+    public Storage getStorage() {
+        return storage;
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    private DecimalFormat decimalFormat = new DecimalFormat(getConfig().getString("economy.format"));
-
-    public DecimalFormat getDecimalFormat() {
-        return decimalFormat != null ? decimalFormat : (decimalFormat = new DecimalFormat("##.##"));
+    public PlayerDatabase getPlayerDatabase() {
+        return playerDatabase;
     }
 
-    public TranslatableLocalization getLocalization() {
+    public Localization getLocalization() {
         return localization;
     }
 
-    public HeadDBLogger getLog() {
-        return logger;
+    public boolean isPAPI() {
+        return PAPI;
+    }
+
+    public EconomyProvider getEconomyProvider() {
+        return economyProvider;
+    }
+
+    @NotNull
+    public ConfigData getCfg() {
+        return config;
     }
 
     public static HeadDB getInstance() {

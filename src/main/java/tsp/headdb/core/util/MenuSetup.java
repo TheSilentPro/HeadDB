@@ -114,38 +114,39 @@ public final class MenuSetup {
         localHeadsItemMeta.setDisplayName(ChatColor.GOLD + "Local Heads");
         localHeadsItem.setItemMeta(localHeadsItemMeta);
         builder.button(41, new SimpleButton(localHeadsItem, e -> {
-            // Local heads must be calculated on every opening since new players can join at any time.
-            List<LocalHead> localHeadsList = new ArrayList<>(HeadAPI.getLocalHeads(e.getWhoClicked().hasPermission("headdb.admin")).join()); // Convert Set to List for indexed access
-            GUI localGui = new SimpleGUI();
-            Player mainPlayer = (Player) e.getWhoClicked();
+            HeadAPI.getLocalHeads(e.getWhoClicked().hasPermission("headdb.admin")).thenAcceptAsync(heads -> {
+                GUI localGui = new SimpleGUI();
+                Player mainPlayer = (Player) e.getWhoClicked();
+                List<LocalHead> localHeadsList = new ArrayList<>(heads);
 
-            for (int i = 0; i < localHeadsList.size(); i += 45) {
-                int end = Math.min(i + 45, localHeadsList.size());
-                List<LocalHead> section = localHeadsList.subList(i, end); // Get the sublist for the current page
+                for (int i = 0; i < localHeadsList.size(); i += 45) {
+                    int end = Math.min(i + 45, localHeadsList.size());
+                    List<LocalHead> section = localHeadsList.subList(i, end); // Get the sublist for the current page
 
-                PaginationBuilder localPageBuilder = new PaginationBuilder(localGui)
-                        .parentGui(mainGui)
-                        .name(ChatColor.RED + "Local Heads" + ChatColor.DARK_GRAY + " (" + HeadAPI.getLocalHeads().join().size() + ")");
+                    PaginationBuilder localPageBuilder = new PaginationBuilder(localGui)
+                            .parentGui(mainGui)
+                            .name(ChatColor.RED + "Local Heads" + ChatColor.DARK_GRAY + " (" + heads.size() + ")");
 
-                // Iterate over the heads in the current section and add them to the inventory
-                for (int j = 0; j < section.size(); j++) {
-                    LocalHead localHead = section.get(j);
-                    localPageBuilder.button(j, new SimpleButton(localHead.getItem(), ice -> {
-                        ice.setCancelled(true);
-                        Player player = (Player) ice.getWhoClicked();
-                        if (categoryPermission && !player.hasPermission("headdb.category.local.*") && !player.hasPermission("headdb.category.local." + localHead.getUniqueId())) {
-                            localization.sendMessage(player, "noPermission");
-                            return;
-                        }
+                    // Iterate over the heads in the current section and add them to the inventory
+                    for (int j = 0; j < section.size(); j++) {
+                        LocalHead localHead = section.get(j);
+                        localPageBuilder.button(j, new SimpleButton(localHead.getItem(), ice -> {
+                            ice.setCancelled(true);
+                            Player player = (Player) ice.getWhoClicked();
+                            if (categoryPermission && !player.hasPermission("headdb.category.local.*") && !player.hasPermission("headdb.category.local." + localHead.getUniqueId())) {
+                                localization.sendMessage(player, "noPermission");
+                                return;
+                            }
 
-                        handleClick(player, localHead, ice);
-                    }));
+                            handleClick(player, localHead, ice);
+                        }));
+                    }
+
+                    // Build the page and add it to the local GUI
+                    localGui.addPage(localPageBuilder.build());
+                    localGui.open(mainPlayer);
                 }
-
-                // Build the page and add it to the local GUI
-                localGui.addPage(localPageBuilder.build());
-                localGui.open(mainPlayer);
-            }
+            }, Utils.SYNC);
         }));
 
         mainGui.addPage(builder.build());
@@ -154,44 +155,45 @@ public final class MenuSetup {
     }
 
     private static void favorites(Player player, int page) {
-        Set<Head> favorites = HeadAPI.getFavoriteHeads(player.getUniqueId()).join();
-        if (!favorites.isEmpty()) {
-            // Build favorites GUI
-            GUI favoritesGui = new SimpleGUI();
-            List<Head> favoriteList = new ArrayList<>(favorites); // Copy to list for consistent indexing
+        HeadAPI.getFavoriteHeads(player.getUniqueId()).thenAcceptAsync(favorites -> {
+            if (!favorites.isEmpty()) {
+                // Build favorites GUI
+                GUI favoritesGui = new SimpleGUI();
+                List<Head> favoriteList = new ArrayList<>(favorites); // Copy to list for consistent indexing
 
-            for (int i = 0; i < favoriteList.size(); i += 45) {
-                int end = Math.min(i + 45, favoriteList.size());
-                List<Head> section = favoriteList.subList(i, end);
+                for (int i = 0; i < favoriteList.size(); i += 45) {
+                    int end = Math.min(i + 45, favoriteList.size());
+                    List<Head> section = favoriteList.subList(i, end);
 
-                PaginationBuilder favoritesPageBuilder = new PaginationBuilder(favoritesGui)
-                        .parentGui(mainGui)
-                        .name(ChatColor.GOLD + "Favorites " + ChatColor.DARK_GRAY + "(" + favoriteList.size() + ")");
+                    PaginationBuilder favoritesPageBuilder = new PaginationBuilder(favoritesGui)
+                            .parentGui(mainGui)
+                            .name(ChatColor.GOLD + "Favorites " + ChatColor.DARK_GRAY + "(" + favoriteList.size() + ")");
 
-                for (int j = 0; j < section.size(); j++) {
-                    Head head = section.get(j);
-                    favoritesPageBuilder.button(j, new SimpleButton(head.getItem(), ice -> {
-                        handleClick(player, head, ice);
+                    for (int j = 0; j < section.size(); j++) {
+                        Head head = section.get(j);
+                        favoritesPageBuilder.button(j, new SimpleButton(head.getItem(), ice -> {
+                            handleClick(player, head, ice);
 
-                        // Update favorites after removing the head
-                        Set<Head> updatedFavorites = HeadAPI.getFavoriteHeads(player.getUniqueId()).join();
+                            // Update favorites after removing the head
+                            HeadAPI.getFavoriteHeads(player.getUniqueId()).thenAcceptAsync(updated -> {
+                                if (!updated.isEmpty()) {
+                                    favorites(player, page); // Refresh the GUI
+                                } else {
+                                    mainGui.open(player);
+                                }
+                            }, Utils.SYNC);
+                        }));
+                    }
 
-                        if (!updatedFavorites.isEmpty()) {
-                            favorites(player, page); // Refresh the GUI
-                        } else {
-                            mainGui.open(player);
-                        }
-                    }));
+                    favoritesGui.addPage(favoritesPageBuilder.build());
                 }
 
-                favoritesGui.addPage(favoritesPageBuilder.build());
+                favoritesGui.open(player, !favoritesGui.getPages().isEmpty() ? page : 0);
+            } else {
+                localization.sendMessage(player, "noFavorites");
+                Sounds.FAIL.play(player);
             }
-
-            favoritesGui.open(player, !favoritesGui.getPages().isEmpty() ? page : 0);
-        } else {
-            localization.sendMessage(player, "noFavorites");
-            Sounds.FAIL.play(player);
-        }
+        }, Utils.SYNC);
     }
 
     public static void prebuildCategoryGuis() {

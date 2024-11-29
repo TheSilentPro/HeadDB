@@ -1,14 +1,12 @@
 package tsp.headdb.api;
 
 import org.bukkit.plugin.java.JavaPlugin;
-import tsp.headdb.api.model.Category;
 import tsp.headdb.api.model.Head;
 import tsp.headdb.api.provider.HeadProvider;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 
@@ -36,7 +34,7 @@ public class HeadDatabase {
         return Collections.unmodifiableList(heads);
     }
 
-    public CompletableFuture<List<Head>> getHeadsNoCache() {
+    public CompletableFuture<List<Head>> update() {
         this.ready = false;
         this.heads.clear();
         return CompletableFuture.supplyAsync(() -> {

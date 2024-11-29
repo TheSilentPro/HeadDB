@@ -40,7 +40,7 @@ public class HeadStorageProvider implements HeadProvider {
             try {
                 List<Head> heads = new ArrayList<>();
 
-                HttpURLConnection connection = (HttpURLConnection) URI.create(String.format(getUrl(), category.getName())).toURL().openConnection();
+                HttpURLConnection connection = (HttpURLConnection) URI.create(String.format(getUrl(), category.getName().replace(" & ", "-"))).toURL().openConnection();
                 connection.setConnectTimeout(5000);
                 connection.setRequestProperty("User-Agent", Utils.getUserAgent());
                 connection.setRequestProperty("Accept", "application/json");

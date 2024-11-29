@@ -14,7 +14,7 @@ economy:
     animals: 100
     blocks: 100
     decoration: 100
-    food-drinks: 100
+    food & drinks: 100
     humans: 100
     humanoid: 100
     miscellaneous: 100
@@ -22,9 +22,9 @@ economy:
     plants: 100
   # Cost of individual heads by either number ID or texture value.
   cost:
-    # Example.
     # The key(-2) would be the ID or TEXTURE VALUE of the head.
     # The value(0) would be the cost of the head.
+    # Note that LOCAL HEADS have negative ids.
     #-2: 0
 
 # Command Configuration. Supports PlaceholderAPI.
@@ -33,6 +33,10 @@ commands:
   # They are run as CONSOLE after the player has received the head in their inventory.
   purchase:
     - ""
+
+# Local Heads (from players that have joined the server)
+localHeads:
+  enabled: false
 
 # Block heads from showing up in the menu.
 blockedHeads:
@@ -49,7 +53,10 @@ moreInfo: true
 # If the lore (ID,Tags) should be included in the inventory item given to players.
 includeLore: false
 
-# If the original fetching fails and this is enabled,
-# the plugin will attempt to fetch the heads from an archive.
-# The archive is static so some heads may be missing, this will only be used when all else fails.
-fallback: true
+# Advanced Configuration
+workers:
+  storage:
+    threads: 1
+  database:
+    # Increasing this can help if you have a lot of players using the plugin at the same time.
+    threads: 2

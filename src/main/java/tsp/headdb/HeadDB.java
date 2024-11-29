@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 public class HeadDB extends JavaPlugin {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HeadDB.class);
-    private static HeadDB instance;
+    private static volatile HeadDB instance;
     private ConfigData config;
     private EconomyProvider economyProvider;
     private boolean PAPI;
@@ -88,8 +88,8 @@ public class HeadDB extends JavaPlugin {
     public CompletableFuture<List<Head>> updateDatabase() {
         LOGGER.info("Fetching heads...");
         long fetchStart = System.currentTimeMillis();
-        return HeadAPI.getDatabase().getHeadsNoCache().thenApply(result -> {
-            LOGGER.info("Fetched {} total heads! ({}s)", HeadAPI.getTotalHeads(), TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - fetchStart));
+        return HeadAPI.getHeadDatabase().update().thenApply(result -> {
+            LOGGER.info("Fetched {} total heads! ({}s)", HeadAPI.countTotalHeads(), TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - fetchStart));
 
             long preloadStart = System.currentTimeMillis();
             int total = result.size();

@@ -11,7 +11,7 @@ noAccessFavorites: "&cYou do not have access to favorites!"
 
 command:
   search:
-    wait: "&7Searching for: &6%name%&7! Please wait..."
+    wait: "&7Searching for &6%name%&7 | Please wait..."
     done: "&7Found &6%size% &7heads!"
     invalid: "&cNo heads matching: &e%name%"
   give:

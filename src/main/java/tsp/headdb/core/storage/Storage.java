@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tsp.headdb.HeadDB;
 import tsp.headdb.core.player.PlayerData;
+import tsp.headdb.core.util.Utils;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -15,7 +16,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * @author TheSilentPro (Silent)
@@ -27,7 +27,7 @@ public class Storage {
     private Connection connection;
 
     public Storage() {
-        this.executor = Executors.newSingleThreadExecutor(r -> new Thread(r, "HeadDB Storage"));
+        this.executor = Utils.from(HeadDB.getInstance().getCfg().getStorageWorkerThreads(), "HeadDB Storage Worker");
     }
 
     public Storage init() {

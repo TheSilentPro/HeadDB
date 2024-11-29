@@ -20,7 +20,7 @@ public enum Category {
     ANIMALS("animals", "Animals", 21),
     BLOCKS("blocks", "Blocks", 22),
     DECORATION("decoration", "Decoration", 23),
-    FOOD_DRINKS("food-drinks", "Food & Drinks", 24),
+    FOOD_DRINKS("food & drinks", "Food & Drinks", 24),
     HUMANS("humans", "Humans", 29),
     HUMANOID("humanoid", "Humanoid", 30),
     MISCELLANEOUS("miscellaneous", "Miscellaneous", 31),
@@ -65,7 +65,7 @@ public enum Category {
     @NotNull
     public ItemStack getDisplayItem() {
         if (item == null) {
-            List<Head> headsList = HeadAPI.getHeads()
+            List<Head> headsList = HeadAPI.getAllHeads()
                     .stream()
                     .filter(head -> head.getCategory().orElse("N/A").equalsIgnoreCase(getName()))
                     .toList();
@@ -76,7 +76,7 @@ public enum Category {
                                 ItemStack retrieved = new ItemStack(head.getItem());
                                 ItemMeta meta = retrieved.getItemMeta();
                                 if (meta != null) {
-                                    meta.setDisplayName(ChatColor.BOLD + "" + ChatColor.GOLD + getName().toUpperCase());
+                                    meta.setDisplayName(ChatColor.BOLD + "" + ChatColor.GOLD + getDisplayName().toUpperCase());
                                     meta.setLore(List.of(ChatColor.GRAY + "Total Heads » " + ChatColor.GOLD + headsList.size()));
                                     retrieved.setItemMeta(meta);
                                 } else {

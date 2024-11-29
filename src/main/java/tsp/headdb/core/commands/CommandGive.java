@@ -49,19 +49,19 @@ public class CommandGive extends HDBCommand {
 
         final int fAmount = amount;
         String id = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
-        HeadAPI.getHeadByExactName(id, true)
+        HeadAPI.findHeadByExactName(id, true)
                 .thenCompose(optionalHead -> {
                     if (optionalHead.isPresent()) {
                         return CompletableFuture.completedFuture(optionalHead.get());
                     } else if (id.startsWith("id:")) {
                         try {
                             int numericId = Integer.parseInt(id.substring(3));
-                            return HeadAPI.getHeadById(numericId).thenApply(optional -> optional.orElse(null));
+                            return HeadAPI.findHeadById(numericId).thenApply(optional -> optional.orElse(null));
                         } catch (NumberFormatException e) {
                             return CompletableFuture.completedFuture(null);
                         }
                     } else {
-                        return HeadAPI.getHeadByTexture(id).thenApply(optional -> optional.orElse(null));
+                        return HeadAPI.findHeadByTexture(id).thenApply(optional -> optional.orElse(null));
                     }
                 })
                 .thenAcceptAsync(head -> {
@@ -89,9 +89,9 @@ public class CommandGive extends HDBCommand {
             return one;
         } else if (args.length == 3) {
             if (sender instanceof ConsoleCommandSender) {
-                return HeadAPI.getHeads().stream().map(Head::getName).toList().subList(1, 100); // The huge amount of heads can cause console terminals to crash.
+                return HeadAPI.getAllHeads().stream().map(Head::getName).toList().subList(1, 100); // The huge amount of heads can cause console terminals to crash.
             } else {
-                return HeadAPI.getHeads().stream().map(Head::getName).toList();
+                return HeadAPI.getAllHeads().stream().map(Head::getName).toList();
             }
         } else {
             return null;

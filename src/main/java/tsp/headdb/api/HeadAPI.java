@@ -11,13 +11,11 @@ import tsp.headdb.core.util.Utils;
 
 import org.jetbrains.annotations.NotNull;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,7 +32,8 @@ public final class HeadAPI {
      */
     private HeadAPI() {}
 
-    static final ExecutorService executor = Executors.newFixedThreadPool(2, r -> new Thread(r, "HeadDB Fetcher"));
+    private static final AtomicInteger threadId = new AtomicInteger(1);
+    private static final ExecutorService executor = Utils.from(HeadDB.getInstance().getCfg().getDatabaseWorkerThreads(), "HeadDB Database Worker | " + threadId.getAndIncrement());
 
     /**
      * The main {@link HeadDatabase}.
@@ -49,8 +48,8 @@ public final class HeadAPI {
      * @return {@link List<Head> Heads}
      */
     @NotNull
-    public static CompletableFuture<List<Head>> getHeadsByName(String name, boolean lenient) {
-        return CompletableFuture.supplyAsync(() -> getHeadStream().filter(head -> (lenient ? Utils.matches(head.getName(), name) : head.getName().equalsIgnoreCase(name))).collect(Collectors.toList()), executor);
+    public static CompletableFuture<List<Head>> findHeadsByName(String name, boolean lenient) {
+        return CompletableFuture.supplyAsync(() -> streamHeads().filter(head -> (lenient ? Utils.matches(head.getName(), name) : head.getName().equalsIgnoreCase(name))).collect(Collectors.toList()), executor);
     }
 
     /**
@@ -60,8 +59,8 @@ public final class HeadAPI {
      * @return {@link List<Head> Heads}
      */
     @NotNull
-    public static CompletableFuture<List<Head>> getHeadsByName(String name) {
-        return getHeadsByName(name, true);
+    public static CompletableFuture<List<Head>> findHeadsByName(String name) {
+        return findHeadsByName(name, true);
     }
 
     /**
@@ -71,8 +70,8 @@ public final class HeadAPI {
      * @param lenient Whether the filter to be lenient when matching
      * @return The {@link Head}, else empty
      */
-    public static CompletableFuture<Optional<Head>> getHeadByExactName(String name, boolean lenient) {
-        return CompletableFuture.supplyAsync(getHeadStream().filter(head -> (lenient ? Utils.matches(head.getName(), name) : head.getName().equalsIgnoreCase(name)))::findAny, executor);
+    public static CompletableFuture<Optional<Head>> findHeadByExactName(String name, boolean lenient) {
+        return CompletableFuture.supplyAsync(streamHeads().filter(head -> (lenient ? Utils.matches(head.getName(), name) : head.getName().equalsIgnoreCase(name)))::findAny, executor);
     }
 
     /**
@@ -82,8 +81,8 @@ public final class HeadAPI {
      * @return The {@link Head}, else empty
      */
     @NotNull
-    public static CompletableFuture<Optional<Head>> getHeadByExactName(String name) {
-        return getHeadByExactName(name, false);
+    public static CompletableFuture<Optional<Head>> findHeadByExactName(String name) {
+        return findHeadByExactName(name, false);
     }
 
     /**
@@ -93,8 +92,8 @@ public final class HeadAPI {
      * @return The {@link Head}, else empty
      */
     @NotNull
-    public static CompletableFuture<Optional<Head>> getHeadById(int id) {
-        return CompletableFuture.supplyAsync(getHeadStream().filter(head -> head.getId() == id)::findAny, executor);
+    public static CompletableFuture<Optional<Head>> findHeadById(int id) {
+        return CompletableFuture.supplyAsync(streamHeads().filter(head -> head.getId() == id)::findAny, executor);
     }
 
     /**
@@ -104,8 +103,8 @@ public final class HeadAPI {
      * @return The {@link Head}, else empty
      */
     @NotNull
-    public static CompletableFuture<Optional<Head>> getHeadByTexture(String texture) {
-        return CompletableFuture.supplyAsync(getHeadStream().filter(head -> head.getTexture().orElse("N/A").equals(texture))::findAny, executor);
+    public static CompletableFuture<Optional<Head>> findHeadByTexture(String texture) {
+        return CompletableFuture.supplyAsync(streamHeads().filter(head -> head.getTexture().orElse("N/A").equals(texture))::findAny, executor);
     }
 
     /**
@@ -115,8 +114,8 @@ public final class HeadAPI {
      * @return The list of matching heads.
      */
     @NotNull
-    public static CompletableFuture<List<Head>> getHeadsByCategory(String category) {
-        return CompletableFuture.supplyAsync(() -> getHeadStream().filter(head -> head.getCategory().orElse("?").equalsIgnoreCase(category)).toList(), executor);
+    public static CompletableFuture<List<Head>> findHeadsByCategory(String category) {
+        return CompletableFuture.supplyAsync(() -> streamHeads().filter(head -> head.getCategory().orElse("?").equalsIgnoreCase(category)).toList(), executor);
     }
 
     /**
@@ -126,8 +125,8 @@ public final class HeadAPI {
      * @return The list of matching heads.
      */
     @NotNull
-    public static CompletableFuture<List<Head>> getHeadsByDate(String date) {
-        return CompletableFuture.supplyAsync(() -> getHeadStream().filter(head -> head.getPublishDate().orElse("?").equalsIgnoreCase(date)).toList(), executor);
+    public static CompletableFuture<List<Head>> findHeadsByDate(String date) {
+        return CompletableFuture.supplyAsync(() -> streamHeads().filter(head -> head.getPublishDate().orElse("?").equalsIgnoreCase(date)).toList(), executor);
     }
 
     /**
@@ -137,8 +136,8 @@ public final class HeadAPI {
      * @return The list of matching heads.
      */
     @NotNull
-    public static CompletableFuture<List<Head>> getHeadsByDates(String... dates) {
-        return CompletableFuture.supplyAsync(() -> getHeadStream().filter(head -> {
+    public static CompletableFuture<List<Head>> findHeadsByDates(String... dates) {
+        return CompletableFuture.supplyAsync(() -> streamHeads().filter(head -> {
             if (head.getPublishDate().isEmpty()) {
                 return false;
             }
@@ -158,8 +157,8 @@ public final class HeadAPI {
      * @return The list of matching heads.
      */
     @NotNull
-    public static CompletableFuture<List<Head>> getHeadsByTags(String... tags) {
-        return CompletableFuture.supplyAsync(() -> getHeadStream().filter(head -> {
+    public static CompletableFuture<List<Head>> findHeadsByTags(String... tags) {
+        return CompletableFuture.supplyAsync(() -> streamHeads().filter(head -> {
             String[] array = head.getTags().orElse(null);
             if (array == null) {
                 return false;
@@ -182,8 +181,8 @@ public final class HeadAPI {
      * @return The list of matching heads.
      */
     @NotNull
-    public static CompletableFuture<List<Head>> getHeadsByContributors(String... contributors) {
-        return CompletableFuture.supplyAsync(() -> getHeadStream().filter(head -> {
+    public static CompletableFuture<List<Head>> findHeadsByContributors(String... contributors) {
+        return CompletableFuture.supplyAsync(() -> streamHeads().filter(head -> {
             String[] array = head.getContributors().orElse(null);
             if (array == null) {
                 return false;
@@ -206,8 +205,8 @@ public final class HeadAPI {
      * @return The list of matching heads.
      */
     @NotNull
-    public static CompletableFuture<List<Head>> getHeadsByCollections(String... collections) {
-        return CompletableFuture.supplyAsync(() -> getHeadStream().filter(head -> {
+    public static CompletableFuture<List<Head>> findHeadsByCollections(String... collections) {
+        return CompletableFuture.supplyAsync(() -> streamHeads().filter(head -> {
             String[] array = head.getTags().orElse(null);
             if (array == null) {
                 return false;
@@ -224,42 +223,14 @@ public final class HeadAPI {
     }
 
     /**
-     * Retrieve a {@link Stream} of {@link Head} within the main {@link HeadDatabase}.
-     * 
-     * @return The streamed heads
-     */
-    @NotNull
-    public static Stream<Head> getHeadStream() {
-        return getHeads().stream();
-    }
-
-    /**
-     * Retrieve a {@link List} of {@link Head} within the main {@link HeadDatabase}.
-     *
-     * @return {@link List<Head> Heads}
-     */
-    @NotNull
-    public static List<Head> getHeads() {
-        return database.getHeads();
-    }
-
-    /**
-     * Retrieve the total amount of {@link Head heads} present in the main {@link HeadDatabase}.
-     *
-     * @return Amount of heads
-     */
-    public static int getTotalHeads() {
-        return getHeads().size();
-    }
-
-    /**
      * Retrieve a {@link Set} of local heads.
      * Note that this calculates the heads on every call.
      *
+     * @param calculateDate Calculate date joined
      * @return {@link Set<LocalHead> Local Heads}
      */
     @NotNull
-    public static CompletableFuture<Set<LocalHead>> getLocalHeads(boolean calculateDate) {
+    public static CompletableFuture<Set<LocalHead>> computeLocalHeads(boolean calculateDate) {
         OfflinePlayer[] players = Bukkit.getOfflinePlayers();
         return CompletableFuture.supplyAsync(() -> Arrays.stream(players)
                 .filter(player -> player.getName() != null)
@@ -277,33 +248,68 @@ public final class HeadAPI {
                 .collect(Collectors.toSet()), executor);
     }
 
-    public static CompletableFuture<Set<LocalHead>> getLocalHeads() {
-        return getLocalHeads(false);
+    /**
+     * Retrieve a {@link Set} of local heads.
+     *
+     * @return {@link Set} of local heads.
+     */
+    @NotNull
+    public static CompletableFuture<Set<LocalHead>> computeLocalHeads() {
+        return computeLocalHeads(false);
+    }
+
+    /**
+     * Retrieve a {@link Set} of local heads.
+     * Note that this calculates the heads on every call.
+     *
+     * @param player The player uuid
+     * @param calculateDate Calculate date joined
+     * @return {@link Set<LocalHead> Local Heads}
+     */
+    @NotNull
+    public static CompletableFuture<Optional<LocalHead>> computeLocalHead(UUID player, boolean calculateDate) {
+        OfflinePlayer p = Bukkit.getOfflinePlayer(player);
+        if (p.getName() == null) {
+            return CompletableFuture.completedFuture(Optional.empty());
+        }
+        return CompletableFuture.supplyAsync(() -> {
+            PlayerData data = HeadDB.getInstance().getPlayerDatabase().getOrCreate(player);
+            String date = null;
+            if (calculateDate) {
+                date = Instant.ofEpochMilli(p.getFirstPlayed())
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate()
+                        .format(Utils.DATE_FORMATTER);
+            }
+            return Optional.of(new LocalHead(data.getId(), data.getUuid(), p.getName(), date));
+        });
     }
 
     /**
      * Retrieve a {@link Set} of favorite heads for the specified {@link UUID player id}.
      * Note that this calculates the heads on every call.
      *
+     * @param player The player uuid
+     * @param calculateDate Calculate date joined
      * @return {@link Set<Head> Favorite Heads}
      */
     @NotNull
-    public static CompletableFuture<Set<Head>> getFavoriteHeads(UUID player) {
+    public static CompletableFuture<Set<Head>> findFavoriteHeads(UUID player, boolean calculateDate) {
         return CompletableFuture.supplyAsync(() -> HeadDB.getInstance()
                 .getPlayerDatabase()
                 .getOrCreate(player)
                 .getFavorites()
                 .stream()
                 .map(id -> {
-                    Optional<Head> head = HeadAPI.getHeadById(id).join();
+                    Optional<Head> head = HeadAPI.findHeadById(id).join();
                     if (head.isPresent()) {
                         return head;
                     } else {
-                        return getLocalHeads()
-                                .join()
-                                .stream()
-                                .filter(localHead -> localHead.getId() == id)
-                                .findAny();
+                        if (HeadDB.getInstance().getCfg().isLocalHeadsEnabled()) {
+                            return computeLocalHead(player, calculateDate).join();
+                        } else {
+                            return Optional.<Head>empty();
+                        }
                     }
                 })
                 .filter(Optional::isPresent)
@@ -312,12 +318,62 @@ public final class HeadAPI {
     }
 
     /**
+     * Retrieve a {@link Set} of favorite heads for the specified {@link UUID player id}.
+     * Note that this calculates the heads on every call.
+     *
+     * @param player The player uuid
+     * @return {@link Set<Head> Favorite Heads}
+     */
+    @NotNull
+    public static CompletableFuture<Set<Head>> findFavoriteHeads(UUID player) {
+        return findFavoriteHeads(player, false);
+    }
+
+    /**
+     * Retrieve a {@link Stream} of {@link Head} within the main {@link HeadDatabase}.
+     *
+     * @return The streamed heads
+     */
+    @NotNull
+    public static Stream<Head> streamHeads() {
+        return getAllHeads().stream();
+    }
+
+    /**
+     * Retrieve a {@link List} of {@link Head} within the main {@link HeadDatabase}.
+     *
+     * @return {@link List<Head> Heads}
+     */
+    @NotNull
+    public static List<Head> getAllHeads() {
+        return database.getHeads();
+    }
+
+    /**
+     * Retrieve the total amount of {@link Head heads} present in the main {@link HeadDatabase}.
+     *
+     * @return Amount of heads
+     */
+    public static int countTotalHeads() {
+        return getAllHeads().size();
+    }
+
+    /**
      * Returns true when the database is ready with all heads cached.
      *
      * @return If the database has cached all heads.
      */
-    public boolean isReady() {
+    public boolean isDatabaseReady() {
         return database.isReady();
+    }
+
+    /**
+     * Returns the {@link ExecutorService} responsible for
+     *
+     * @return The executor service for the api.
+     */
+    public ExecutorService getExecutor() {
+        return executor;
     }
 
     /**
@@ -326,7 +382,7 @@ public final class HeadAPI {
      * @return {@link HeadDatabase Database}
      */
     @NotNull
-    public static HeadDatabase getDatabase() {
+    public static HeadDatabase getHeadDatabase() {
         return database;
     }
 

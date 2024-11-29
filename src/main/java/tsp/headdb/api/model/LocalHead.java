@@ -7,6 +7,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import tsp.headdb.HeadDB;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -20,7 +22,7 @@ public class LocalHead extends Head {
 
     private final UUID uuid;
 
-    public LocalHead(int id, @NotNull UUID uniqueId, @NotNull String name, @org.jetbrains.annotations.Nullable String date) {
+    public LocalHead(int id, @NotNull UUID uniqueId, @NotNull String name, @Nullable String date) {
         super(-id, name, null, "Local Head", date, new String[]{"Local Heads"}, null, null);
         this.uuid = uniqueId;
     }
@@ -38,6 +40,9 @@ public class LocalHead extends Head {
     @NotNull
     @Override
     public ItemStack getItem() {
+        if (!HeadDB.getInstance().getCfg().isLocalHeadsEnabled()) {
+            return new ItemStack(Material.PLAYER_HEAD);
+        }
         if (this.item == null) {
             ItemStack item = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta = (SkullMeta) item.getItemMeta();
@@ -45,7 +50,11 @@ public class LocalHead extends Head {
             if (meta != null) {
                 meta.setOwningPlayer(Bukkit.getOfflinePlayer(getUniqueId()));
                 meta.setDisplayName(ChatColor.GOLD + getName());
-                meta.setLore(List.of(ChatColor.GRAY + "UUID » " + ChatColor.GOLD + getUniqueId().toString(), getPublishDate().isPresent() ? (ChatColor.GRAY + "First Joined » " + ChatColor.GOLD + getPublishDate().get()) : ""));
+                if (getPublishDate().isPresent()) {
+                    meta.setLore(List.of(ChatColor.GRAY + "UUID » " + ChatColor.GOLD + getUniqueId().toString(), getPublishDate().isPresent() ? (ChatColor.GRAY + "First Joined » " + ChatColor.GOLD + getPublishDate().get()) : ""));
+                } else {
+                    meta.setLore(List.of(ChatColor.GRAY + "UUID » " + ChatColor.GOLD + getUniqueId().toString()));
+                }
                 item.setItemMeta(meta);
             }
 

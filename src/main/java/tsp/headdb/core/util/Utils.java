@@ -23,6 +23,8 @@ import java.net.URI;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
 /**
@@ -32,6 +34,7 @@ public class Utils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
     private static final Pattern HEAD_PATTERN = Pattern.compile("[^a-zA-Z0-9]");
+    private static final Pattern SPACE_PATTERN = Pattern.compile(" ");
     public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     public static final Executor SYNC = r -> Bukkit.getScheduler().runTask(HeadDB.getInstance(), r);
     private static final ConfigData config = HeadDB.getInstance().getCfg();
@@ -48,7 +51,7 @@ public class Utils {
 
         if (config.shouldIncludeMoreInfo()) {
             head.getCategory().ifPresent(category -> {
-                if (category.isEmpty()) {
+                if (!category.isEmpty()) {
                     lore.add(ChatColor.GRAY + "Category » " + ChatColor.GOLD + category);
                 }
             });
@@ -192,7 +195,22 @@ public class Utils {
     }
 
     public static boolean matches(String provided, String query) {
-        return ChatColor.stripColor(provided.toLowerCase()).contains(query.toLowerCase());
+        provided = ChatColor.stripColor(provided);
+        if (provided.equalsIgnoreCase(query)) {
+            return true;
+        }
+
+        for (String arg : SPACE_PATTERN.split(provided)) {
+            if (arg.equalsIgnoreCase(query)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static ExecutorService from(int threads, String name) {
+        return threads == 1 ? Executors.newSingleThreadExecutor(r -> new Thread(r, name)) : Executors.newFixedThreadPool(threads, r -> new Thread(r, name));
     }
 
 }

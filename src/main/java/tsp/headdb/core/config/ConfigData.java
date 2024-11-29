@@ -8,7 +8,6 @@ import tsp.headdb.api.model.Category;
 import tsp.headdb.api.HeadAPI;
 import tsp.headdb.api.model.Head;
 
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +22,7 @@ public class ConfigData {
     private boolean preloadHeads;
     private boolean includeLore;
     private boolean moreInfo;
+    private boolean localHeadsEnabled;
 
     private boolean economyEnabled;
     private String economyProvider;
@@ -31,6 +31,9 @@ public class ConfigData {
     private double localCost;
     private final Map<String, Double> categoryCosts = new HashMap<>();
     private final Map<Head, Double> costs = new HashMap<>();
+
+    private int databaseWorkerThreads;
+    private int storageWorkerThreads;
 
     public ConfigData(FileConfiguration config) {
         reload(config);
@@ -41,6 +44,7 @@ public class ConfigData {
         this.preloadHeads = config.getBoolean("preloadHeads");
         this.includeLore = config.getBoolean("includeLore");
         this.moreInfo = config.getBoolean("moreInfo");
+        this.localHeadsEnabled = config.getBoolean("localHeads.enabled");
 
         this.economyEnabled = config.getBoolean("economy.enabled");
         this.economyProvider = config.getString("economy.provider");
@@ -57,15 +61,22 @@ public class ConfigData {
             if (costSection != null) {
                 for (String key : costSection.getKeys(false)) {
                     try {
-                        HeadAPI.getHeadById(Integer.parseInt(key)).join().ifPresentOrElse(head -> costs.put(head, config.getDouble("economy.cost." + key)), () -> LOGGER.warn("Failed to find head with id: {}", key));
+                        HeadAPI.findHeadById(Integer.parseInt(key)).join().ifPresentOrElse(head -> costs.put(head, config.getDouble("economy.cost." + key)), () -> LOGGER.warn("Failed to find head with id: {}", key));
                     } catch (NumberFormatException nfe) {
-                        HeadAPI.getHeadByTexture(key).join().ifPresentOrElse(head -> costs.put(head, config.getDouble("economy.cost." + key)), () -> LOGGER.warn("Failed to find head with texture: {}", key));
+                        HeadAPI.findHeadByTexture(key).join().ifPresentOrElse(head -> costs.put(head, config.getDouble("economy.cost." + key)), () -> LOGGER.warn("Failed to find head with texture: {}", key));
                     }
                 }
             } else {
                 LOGGER.warn("No cost section defined in the configuration.");
             }
         }
+
+        this.databaseWorkerThreads = config.getInt("workers.database.threads", 2);
+        this.storageWorkerThreads = config.getInt("workers.storage.threads", 1);
+    }
+
+    public boolean isLocalHeadsEnabled() {
+        return localHeadsEnabled;
     }
 
     public boolean isEconomyEnabled() {
@@ -110,6 +121,14 @@ public class ConfigData {
 
     public boolean shouldIncludeMoreInfo() {
         return moreInfo;
+    }
+
+    public int getDatabaseWorkerThreads() {
+        return databaseWorkerThreads;
+    }
+
+    public int getStorageWorkerThreads() {
+        return storageWorkerThreads;
     }
 
 }

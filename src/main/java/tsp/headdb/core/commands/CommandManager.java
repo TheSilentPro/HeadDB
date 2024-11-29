@@ -54,7 +54,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                         localization.sendMessage(sender, "noConsole");
                         return true;
                     }
-                    if (sub.waitUntilReady() && !HeadAPI.getDatabase().isReady()) {
+                    if (sub.waitUntilReady() && !HeadAPI.getHeadDatabase().isReady()) {
                         localization.sendMessage(sender, "notReadyDatabase");
                         return true;
                     }
@@ -67,13 +67,18 @@ public class CommandManager implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if (!sender.hasPermission("headdb.command.open")) {
+            localization.sendMessage(sender, "noPermission");
+            return true;
+        }
+
         // No sub command provided, open gui
         if (!(sender instanceof Player player)) {
             localization.sendMessage(sender, "noConsole");
             return true;
         }
 
-        if (!HeadAPI.getDatabase().isReady()) {
+        if (!HeadAPI.getHeadDatabase().isReady()) {
             localization.sendMessage(sender, "notReadyDatabase");
             return true;
         }

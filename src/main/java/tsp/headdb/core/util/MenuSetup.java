@@ -178,7 +178,7 @@ public final class MenuSetup {
                             // Update favorites after removing the head
                             HeadAPI.findFavoriteHeads(player.getUniqueId(), player.hasPermission("headdb.admin")).thenAcceptAsync(updated -> {
                                 if (!updated.isEmpty()) {
-                                    favorites(player, page); // Refresh the GUI
+                                    favorites(player, favoritesGui.getCurrentPage()); // Refresh the GUI
                                 } else {
                                     mainGui.open(player);
                                 }

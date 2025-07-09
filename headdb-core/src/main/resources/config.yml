@@ -1,0 +1,82 @@
+# The updater will update the local database every 24h since server start.
+# If you want the fastest updates you can schedule a task externally(most server hosts provide a way) and disable this option.
+# The remote database is updated at 00:00 UTC every day, schedule it after that.
+updater: true
+
+# If enabled head items will be preloaded on startup.
+preloadHeads: true
+
+# If enabled players will return to the page they were already on when opening the menu multiple times.
+# Example: Player is on page 10 of the category, next time they open that category they will start from that page instead of the first.
+trackPage: true
+
+# If enabled shows the info item on how you can add heads to the database.-
+showInfoItem: true
+
+economy:
+  # Supported: VAULT
+  provider: "NONE"
+  cost:
+    # Category price.
+    category:
+      alphabet: 1
+      animals: 1
+      blocks: 1
+      decoration: 1
+      food & drinks: 1
+      humanoid: 1
+      humans: 1
+      miscellaneous: 1
+      monsters: 1
+      plants: 1
+    # Specific head prices.
+    # ID: PRICE
+    head:
+      98: 100 # Example for Gold Block
+
+headsMenu:
+  rows: 4
+  customCategories:
+    head: "e7bc251a6cb0d6d9f05c5711911a6ec24b209dbe64267901a4b03761debcf738"
+    item: "BOOKSHELF"
+  search:
+    head: "9d9cc58ad25a1ab16d36bb5d6d493c8f5898c2bf302b64e325921c41c35867"
+    item: "SPYGLASS"
+  divider:
+    enabled: true
+    row: 5
+    item:
+      material: BLACK_STAINED_GLASS_PANE
+      name: " "
+
+controls:
+  back:
+    head: "e5da4847272582265bdaca367237c96122b139f4e597fbc6667d3fb75fea7cf6"
+    item: "ARROW"
+  info:
+    head: "16439d2e306b225516aa9a6d007a7e75edd2d5015d113b42f44be62a517e574f"
+    item: "PAPER"
+  next:
+    head: "6527ebae9f153154a7ed49c88c02b5a9a9ca7cb1618d9914a3d9df8ccb3c84"
+    item: "ARROW"
+
+# Database Configuration
+database:
+  # Threads pool for the database
+  threads: 1
+  # Threads pool for the API
+  apiThreads: 1
+
+# Indexes heads on startup for faster retrieval.
+indexing:
+  enabled: true
+  by:
+    id: true
+    texture: true
+    category: true
+    tags: true
+
+storage:
+  player:
+    # How often the player data is saved to disk. In seconds
+    saveInterval: 1800

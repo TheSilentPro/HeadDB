@@ -1,0 +1,97 @@
+noPermission: "<red>No permission!"
+noConsole: "<red>Only for in-game players!"
+invalidSubCommand: "<red>Invalid sub-command » ${1}"
+commandUsage: "<red>Usage » <yellow>{usage}"
+invalidTarget: "<red>Could not find player » <yellow>{target}"
+invalidNumber: "<red>Invalid number » <yellow>{number}"
+
+favoritesNone: "<red>You have no favorite heads!"
+localNone: "<red>There are no local heads!"
+customCategoriesNone: "<red>There are no more categories!"
+
+purchase:
+  invalidFunds: "<red>You do not have enough money for this!"
+  success: "<gray>You bought <green>{amount}<gray>x <green>{name} <gray>for <green>{cost}"
+  noEconomy: "<gray>Gave you <green>{amount}<gray>x <green>{name}"
+
+menu:
+  local:
+    name: "<red>HeadDB <gray>» <gold>Local Heads"
+  favorites:
+    name: "<red>HeadDB <gray>» <gold>Favorites"
+    add: "<gold>{name} <gray>was <green>ADDED <gray>to your favorites!"
+    remove: "<gold>{name} <gray>was <red>REMOVED <gray>from your favorites!"
+  search:
+    name: "<red>HeadDB <gray>» <gold>Search <gray>» <gold>{name}"
+  customCategories:
+    name: "<red>HeadDB <gray>» <gold>More Categories"
+  purchase:
+    name: "<red>HeadDB <gray>» <gold>{name} <gray>» <gold>Purchase"
+
+  main:
+    name: "<red>HeadDB"
+    local:
+      name: "<aqua>Local Heads"
+    favorites:
+      name: "<yellow>Favorites"
+    search:
+      name: "<green>Search"
+    customCategories:
+      name: "<rainbow>More Categories"
+    # Category configuration, in the main menu
+    category:
+      # The actual name of the category
+      decoration:
+        # The display name of the category
+        name: "<gold>Decoration"
+
+  # Custom categories are set within the categories.yml file, this is only for the categories on the main menu.
+  category:
+    alphabet: "<red>HeadDB <gray>» <gold>Alphabet"
+    animals: "<red>HeadDB <gray>» <gold>Animals"
+    blocks: "<red>HeadDB <gray>» <gold>Blocks"
+    decoration: "<red>HeadDB <gray>» <gold>Decoration"
+    food & drinks: "<red>HeadDB <gray>» <gold>Food & Drinks"
+    humanoid: "<red>HeadDB <gray>» <gold>Humanoid"
+    humans: "<red>HeadDB <gray>» <gold>Humans"
+    miscellaneous: "<red>HeadDB <gray>» <gold>Miscellaneous"
+    monsters: "<red>HeadDB <gray>» <gold>Monsters"
+    plants: "<red>HeadDB <gray>» <gold>Plants"
+
+  # Controls for all menus
+  controls:
+    back:
+      name: "<gold>◀ Back"
+      lore: "<gray>Go to the previous page: <green>${{BACK}}"
+    info:
+      name: "<gold>ℹ Page <green>${{CURRENT}}<gray>/<red>${{MAX}}"
+      lore: "<gray>Click to go to the main menu."
+    next:
+      name: "<gold>Next ▶"
+      lore: "<gray>Go to the next page: <green>${{NEXT}}"
+
+command:
+
+  open:
+    opening: "<gray>Opening the <red>Head Database<gray>."
+    invalidCategory: "<red>Invalid category: <yellow>{category}"
+
+  give:
+    invalidId: "<red>Invalid head id » <yellow>{id}"
+    success: "<gray>Gave <green>{amount}<gray>x <green>{name} <gray>to <green>{target}"
+
+  search:
+    input: "<gray>Enter search query and filters:"
+    start: "<gray> ⏳ Searching..."
+    none: "<red>No heads found!"
+    found: "<gray>Found <green>{amount} <gray>heads!"
+    filter: |
+      
+      <gray>🔎 <bold>Filters</bold>
+      <dark_gray>───────────────</dark_gray>
+      <gray>• <white>Name</white> » <gold>{name}
+      <gray>• <white>Category</white> » <gold>{category}
+      <gray>• <white>Tags</white> » <gold>{tags}
+      <gray>• <white>IDs</white> » <gold>{ids}
+      <gray>• <white>Mode</white> » <gold>{mode}
+      

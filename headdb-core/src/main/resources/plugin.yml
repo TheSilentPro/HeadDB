@@ -1,0 +1,43 @@
+name: HeadDB
+description: ${project.description}
+author: TheSilentPro (Silent)
+
+main: com.github.thesilentpro.headdb.core.HeadDB
+version: ${project.version}
+softdepend: [
+  #"PlaceholderAPI",
+  "Vault"
+]
+api-version: 1.19
+libraries:
+  - "org.xerial:sqlite-jdbc:3.47.0.0"
+
+spigot-id: 84967
+
+commands:
+  headdb:
+    usage: /headdb help
+    description: Open the database
+    aliases: ["hdb", "headdatabase", "headmenu"]
+
+permissions:
+  headdb.admin:
+    default: op
+    children:
+      headdb.command.open: true
+      headdb.command.search: true
+      headdb.command.give: true
+      headdb.favorites: true
+      headdb.category.local: true
+  headdb.command.open:
+    default: op
+  headdb.command.search:
+    default: op
+  headdb.command.give:
+    default: op
+  headdb.favorites:
+    default: op
+  headdb.category.local:
+    default: op
+  headdb.category.custom:
+    default: op

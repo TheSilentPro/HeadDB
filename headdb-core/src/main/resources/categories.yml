@@ -1,0 +1,38 @@
+# Custom Categories Configuration
+# These show up under the "More Categories'
+
+# ID of the category (unique)
+# Can not be one of the default provided categories.
+# For example, you can not have ID set as ALPHABET.
+soccer:
+  enabled: true
+  # Display item in the custom categories menu
+  icon:
+    name: "<white>Soccer" # Can be whatever you want
+    #item: "SLIMEBALL"
+    head: "59f512ed6a2ac7cd5507dd936b6ac2e708c40109e728f9a23b5015fc67915"
+  heads:
+    - "59f512ed6a2ac7cd5507dd936b6ac2e708c40109e728f9a23b5015fc67915"
+    - "53c5810b9754d2e277e551f6a8e6ac9b13ec7fa6dc000b3eada5c486e1cd99f5"
+    - "df61940d86dab3ec61d82882f6505870f3199a156fcd9afbf504c1da7425c7c4"
+    - "4b7479f4d218bb3256e26cd4dfa08cca50af5782cc2bbbdf067c217d8342d3d7"
+    - "451f8cfcfb85d77945dc6a3618414093e70436b46d2577b28c727f1329b7265e"
+    - "ab275472c70c6971fc33bbb95d7a7157a3548b565c85cc0140e7e55a88fb3999"
+
+basketball:
+  enabled: true
+  icon:
+    name: "<#d58a00>Basketball"
+    head: "edf84715a64dc45586f7a6079f8e49a9477c0fe96589b4cfd71cba32254ac8"
+  heads:
+    - "edf84715a64dc45586f7a6079f8e49a9477c0fe96589b4cfd71cba32254ac8"
+    - "3cebff90b5c9c59ca3542fd2551ee3999f8e8bffef1085bcc87bf2dcd617fe41"
+    - "379498ff26b3518c1facb12b4d43a19659b4b926d917ce4e0a029610603cfb6"
+    - "dd23318646718f82ece0da685e1e9bb09b65c8a571dcd74d43b3dd6ee47a4017"
+    - "f92fe35681683f5f363dcdc5323bab777ff9fbbf9bae5059fbba29fce8fe25b9"
+    - "8c240881b12729a51525517d2dd074e370006028fc044a030189cb1de08e2805"
+    - "8d2058db621cbc31642c00b4c0ec55a8d3bdae1fef172c1a5d5c7506e088d351"
+    - "3b7650f1c3df9354b34968c23ef8354c75c1bb0a10dbec004a3f805766331b6e"
+    - "8c64339195466c216e305ddd7de4c11c1010735bd1c9097613dfc91dbcd0b13c"
+    - "cdc6fcb1a545d93651fbe9cef0798cbefdbe2f94c377d8bab57e793e8f878747"
+    - "4df55c24fe821b70e6050cfed6817ded5bef37f4f5daccb87d9008cdaf83bdf0"
